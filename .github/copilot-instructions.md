@@ -27,6 +27,7 @@ Your goal is to generate clean, maintainable, scalable, and production-ready cod
 
 ## Frontend (React)
 
+- Use ShadCN Library for UI components
 - Use feature-based folder structure
 - Separate:
   - components/
@@ -77,6 +78,7 @@ Your goal is to generate clean, maintainable, scalable, and production-ready cod
 
 # 🎨 Frontend Rules
 
+- Use ShadCN Library for UI components
 - Use functional components only
 - Use hooks (no class components)
 - Keep JSX clean and readable
