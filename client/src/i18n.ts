@@ -81,13 +81,20 @@ const resources = {
   },
 };
 
+const savedLanguage = localStorage.getItem('language') || 'en';
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en', // default language
+  lng: savedLanguage, // default language from localStorage or 'en'
   fallbackLng: 'en',
   interpolation: {
     escapeValue: false,
   },
+});
+
+// Save language to localStorage whenever it changes
+i18n.on('languageChanged', (lng) => {
+  localStorage.setItem('language', lng);
 });
 
 export default i18n;
