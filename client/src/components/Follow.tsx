@@ -1,22 +1,22 @@
 export function Follow() {
   return (
-    <section className='px-6 pb-[54px] bg-cream'>
-      <div className='max-w-[1512px] mx-auto flex justify-center'>
-        <div className='w-[663px] h-[603px] rounded-[66px] bg-[#EFE0C9] shadow-[0_14px_10.8px_rgba(0,0,0,0.25)] pt-[22px] px-6 text-center'>
-          <p className='text-dark-red font-italic text-[64px] leading-[1.178] mb-[6px]'>
+    <section className='bg-cream px-6 mt-5'>
+      <div className='mx-auto flex w-full  justify-center'>
+        <div className='h-[450px]  w-[35%]  rounded-[66px] bg-[#efe0c9] px-6  text-center shadow-[0_14px_10.8px_rgba(0,0,0,0.25)]'>
+          <p className=' text-dark-red font-italic font-extralight tracking-wide text-[55px] leading-[1.07]'>
             Follow us
           </p>
           <a
             href='https://instagram.com/almalaki'
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center gap-2 text-dark-red font-[var(--font-abhaya)] text-[40px] leading-[1.18] hover:text-[#7d2b35] transition-colors'
+            className='inline-flex items-center gap-2 font-[var(--font-abhaya)] text-[50px] leading-[1.05] text-dark-red transition-colors hover:text-[#7d2b35] lg:text-[30px]'
           >
             @almalaki
             <span aria-hidden='true'>→</span>
           </a>
 
-          <div className='w-[478px] h-[337px] bg-[#D9D9D9] mx-auto mt-[41px]'></div>
+          <div className='mx-auto mt-[36px] h-[250px] w-[350px]  bg-[#d9d9d9]'></div>
         </div>
       </div>
     </section>

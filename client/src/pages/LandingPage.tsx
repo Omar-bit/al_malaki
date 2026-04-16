@@ -2,7 +2,7 @@ import { Header, Hero, Products, About, Follow, Footer } from '../components';
 
 export function LandingPage() {
   return (
-    <div className='min-h-screen bg-white overflow-x-hidden'>
+    <div className='relative bg-cream '>
       <Header />
       <main>
         <Hero />
