@@ -1,38 +1,71 @@
+import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
+
 export function Products() {
-  const products = [
-    { id: '1', name: 'Name of product' },
-    { id: '2', name: 'Name of product' },
-    { id: '3', name: 'Name of product' },
-  ];
+  const { t, i18n } = useTranslation();
+
+  const products = [{ id: '1' }, { id: '2' }, { id: '3' }];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: 'easeOut' as const },
+    },
+  };
 
   return (
     <section id='products' className='bg-cream p-5'>
       <div className='mx-auto w-full  space-y-15 flex items-center justify-center flex-col'>
-        <h2 className=' text-center font-[var(--font-abril)] text-[40px] md:text-[50px] font-italic font-extrabold  leading-[1.1] text-dark-red '>
-          Products
-        </h2>
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.6 }}
+          className={`text-center font-[var(--font-abril)] text-[40px] md:text-[50px] ${i18n.language === 'en' ? 'font-italic' : 'font-taviraj'} font-extrabold  leading-[1.1] text-dark-red`}
+        >
+          {t('products.title')}
+        </motion.h2>
 
-        <div className=' w-[100%] items-center justify-center  grid grid-cols-1 justify-items-center gap-10 md:grid-cols-3 md:gap-[47px]'>
+        <motion.div
+          variants={containerVariants}
+          initial='hidden'
+          whileInView='visible'
+          viewport={{ once: true, margin: '-50px' }}
+          className=' w-[100%] items-center justify-center  grid grid-cols-1 justify-items-center gap-10 md:grid-cols-3 md:gap-[47px]'
+        >
           {products.map((product) => (
-            <article
+            <motion.article
+              variants={itemVariants}
               key={product.id}
               className='w-full max-w-[400px] md:w-[400px] '
             >
               <div className='h-[300px] md:h-[400px]  w-full  bg-[#d9d9d9] '></div>
               <h3 className='mt-[20px] text-center font-[var(--font-abhaya)] text-3xl md:text-4xl !font-semibold font-italic leading-[1.05] text-black'>
-                {product.name}
+                {t('products.name')}
               </h3>
               <div className='mt-[15px] flex justify-center'>
                 <button
                   type='button'
                   className='h-[56px] w-[279px] rounded-[41px]  bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300'
                 >
-                  Show details
+                  {t('products.button')}
                 </button>
               </div>
-            </article>
+            </motion.article>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
