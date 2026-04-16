@@ -10,11 +10,11 @@ export function About() {
           <img src={crown} alt='crown' className='z-10 ' />
         </div>
 
-        <h2 className=' text-center font-[var(--font-abril)] font-italic text-[55px] font-bold leading-[1] tracking-wide text-dark-red  uppercase'>
+        <h2 className=' text-center font-[var(--font-abril)] font-italic text-[36px] md:text-[55px] font-bold leading-[1] tracking-wide text-dark-red  uppercase'>
           About us
         </h2>
 
-        <p className='mx-auto max-w-[1100px] text-center font-[var(--font-abhaya)] text-3xl leading-[1.5] text-black mt-10 tracking-wide'>
+        <p className='mx-auto max-w-[1100px] text-center font-[var(--font-abhaya)] text-xl md:text-3xl leading-[1.5] text-black mt-10 tracking-wide'>
           Our project emphasizes a return to nature, purity, and authentic
           flavor. Each product is carefully crafted to be healthy, nutritious,
           and valuable, supporting your daily energy, well-being, and beauty.
