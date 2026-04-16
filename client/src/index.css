@@ -37,3 +37,7 @@
     font-weight: 400;
   }
 }
+.auth-page {
+  background: url('/src/assets/gradient-bg.png') no-repeat center fixed;
+  background-size: cover;
+}

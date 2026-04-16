@@ -15,7 +15,11 @@ const navLinks: NavLink[] = [
   { labelKey: 'customize', href: '#customize' },
 ];
 
-export function Header() {
+export function Header({
+  withBackground = true,
+}: {
+  withBackground?: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const { t, i18n } = useTranslation();
 
@@ -24,8 +28,10 @@ export function Header() {
   };
 
   return (
-    <header className='relative top-0 left-0 z-30 w-full p-4 md:p-0'>
-      <nav className=' flex w-full items-center justify-between test bg-[#E0CFBB]'>
+    <header
+      className={`relative top-0 left-0 z-30 w-full p-4 md:p-0 backdrop-blur  ${withBackground ? 'bg-[#E1D0BC] ' : ' '}`}
+    >
+      <nav className=' flex w-full items-center justify-between test bg-transparent'>
         <Logo />
 
         {/* Mobile Burger Toggle */}

@@ -29,6 +29,16 @@ const resources = {
       follow: {
         title: 'Follow us',
       },
+      login: {
+        title: 'Log in',
+        no_account: "Don't you have an account ?",
+        sign_up: 'Sign up',
+        email: 'Email',
+        email_placeholder: 'Enter your email',
+        password: 'Password',
+        password_placeholder: 'Enter your password',
+        forgot_password: 'Forgot password?',
+      },
     },
   },
   ar: {
@@ -56,6 +66,16 @@ const resources = {
       },
       follow: {
         title: 'Follow us',
+      },
+      login: {
+        title: 'تسجيل الدخول',
+        no_account: 'أليس لديك حساب؟',
+        sign_up: 'سجل الآن',
+        email: 'البريد الإلكتروني',
+        email_placeholder: 'أدخل بريدك الإلكتروني',
+        password: 'كلمة المرور',
+        password_placeholder: 'أدخل كلمة المرور',
+        forgot_password: 'نسيت كلمة المرور ؟',
       },
     },
   },
