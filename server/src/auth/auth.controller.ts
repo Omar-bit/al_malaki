@@ -12,6 +12,7 @@ import type { Response } from 'express';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RequestRegisterOtpDto } from './dto/request-register-otp.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './types/auth-user.type';
@@ -19,6 +20,14 @@ import type { AuthenticatedUser } from './types/auth-user.type';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('register/request-otp')
+  @HttpCode(HttpStatus.OK)
+  async requestRegisterOtp(
+    @Body() requestRegisterOtpDto: RequestRegisterOtpDto,
+  ) {
+    return this.authService.requestRegisterOtp(requestRegisterOtpDto);
+  }
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)

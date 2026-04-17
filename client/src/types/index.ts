@@ -9,4 +9,11 @@ export interface NavLink {
   href: string;
 }
 
-export type { AuthCredentials, AuthResponse, AuthUser } from './auth';
+export type {
+  AuthCredentials,
+  AuthResponse,
+  AuthUser,
+  RegisterPayload,
+  RequestRegisterOtpPayload,
+  RequestRegisterOtpResponse,
+} from './auth';

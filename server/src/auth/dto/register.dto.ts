@@ -1,6 +1,6 @@
 import {
   IsEmail,
-  IsOptional,
+  Matches,
   IsString,
   MaxLength,
   MinLength,
@@ -21,4 +21,8 @@ export class RegisterDto {
   @IsString()
   @MaxLength(100)
   lastName!: string;
+
+  @IsString()
+  @Matches(/^\d{6}$/)
+  otpCode!: string;
 }

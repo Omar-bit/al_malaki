@@ -30,6 +30,18 @@ model User {
   createdAt DateTime @default(now())
 }
 
+model RegisterOtp {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  otpHash           String
+  expiresAt         DateTime
+  attemptsRemaining Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([email, expiresAt])
+}
+
 enum role {
   CUSTOMER
   ADMIN

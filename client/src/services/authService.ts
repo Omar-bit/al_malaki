@@ -1,4 +1,11 @@
-import type { AuthCredentials, AuthResponse, AuthUser } from '../types/auth';
+import type {
+  AuthCredentials,
+  AuthResponse,
+  AuthUser,
+  RegisterPayload,
+  RequestRegisterOtpPayload,
+  RequestRegisterOtpResponse,
+} from '../types/auth';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:3000';
@@ -39,6 +46,43 @@ export async function login(credentials: AuthCredentials): Promise<AuthUser> {
 
   const payload = (await response.json()) as AuthResponse;
   return payload.user;
+}
+
+export async function requestRegisterOtp(
+  payload: RequestRegisterOtpPayload,
+): Promise<RequestRegisterOtpResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/register/request-otp`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  return (await response.json()) as RequestRegisterOtpResponse;
+}
+
+export async function register(payload: RegisterPayload): Promise<AuthUser> {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  const responsePayload = (await response.json()) as AuthResponse;
+  return responsePayload.user;
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {

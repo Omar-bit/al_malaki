@@ -3,10 +3,28 @@ export interface AuthCredentials {
   password: string;
 }
 
+export interface RequestRegisterOtpPayload {
+  email: string;
+}
+
+export interface RequestRegisterOtpResponse {
+  message: string;
+  expiresInSeconds: number;
+}
+
+export interface RegisterPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  otpCode: string;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
-  fullName: string | null;
+  firstName: string | null;
+  lastName: string | null;
   createdAt: string;
 }
 

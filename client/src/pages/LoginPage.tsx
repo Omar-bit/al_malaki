@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
@@ -105,12 +105,12 @@ export function LoginPage() {
               <span className='text-dark-red text-xl text-center'>
                 {t('login.no_account')}
               </span>
-              <a
-                href='#'
+              <Link
+                to='/register'
                 className='font-bold text-lg md:text-2xl text-dark-red font-(--font-abhaya) underline decoration-dark-er underline-offset-5 tracking-wide'
               >
                 {t('login.sign_up')}
-              </a>
+              </Link>
             </motion.div>
 
             <motion.form

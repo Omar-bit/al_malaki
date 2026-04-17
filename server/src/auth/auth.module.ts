@@ -5,12 +5,14 @@ import {
   DEFAULT_JWT_EXPIRES_IN_SECONDS,
   DEFAULT_JWT_SECRET,
 } from './constants/auth.constants';
+import { MailModule } from '../mail/mail.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
