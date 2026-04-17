@@ -23,26 +23,41 @@ model User {
   email     String   @unique
   firstName      String
   lastName       String
-  role  role
+  role  Role
   passwordHash  String
+  registerOtp RegisterOtp?
 
+
+
+
+
+  
+  
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+
+  @@index([email])
 }
 
 model RegisterOtp {
   id                String   @id @default(uuid())
   email             String   @unique
+  userId            String?  @unique
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   otpHash           String
   expiresAt         DateTime
-  attemptsRemaining Int
+  attemptsRemaining Int @default(5)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
+
+  
   @@index([email, expiresAt])
+  @@index([userId])
+  
 }
 
-enum role {
+enum Role {
   CUSTOMER
   ADMIN
 }
