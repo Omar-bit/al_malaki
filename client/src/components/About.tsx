@@ -1,5 +1,4 @@
 import crown from './../assets/crown.svg';
-import honeyPattern from './../assets/honey_pattern.png';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 

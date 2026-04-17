@@ -1,10 +1,40 @@
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
+import { authService } from '../services';
 import authModel from '../assets/auth-model.jpg';
+
 export function LoginPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const isRtl = i18n.language === 'ar';
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      await authService.login({ email, password });
+      toast.success(t('login.success'));
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      if (error instanceof Error && error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error(t('login.generic_error'));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen  flex flex-col font-['Abhaya_Libre'] auth-page">
@@ -89,6 +119,7 @@ export function LoginPage() {
               transition={{ delay: 0.4, duration: 0.5 }}
               className='max-w-md mx-auto w-full space-y-6'
               dir={isRtl ? 'rtl' : 'ltr'}
+              onSubmit={handleSubmit}
             >
               <div>
                 <label className='block text-xl !font-bold text-dark-red font-(--font-abhaya) mb-2 font-italic'>
@@ -97,6 +128,10 @@ export function LoginPage() {
                 <input
                   type='email'
                   placeholder={t('login.email_placeholder')}
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete='email'
+                  required
                   className='w-full px-6 py-3 font-(--font-abhaya) font-italic rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />
               </div>
@@ -105,23 +140,84 @@ export function LoginPage() {
                 <label className='block text-xl !font-bold text-dark-red font-(--font-abhaya) mb-2 font-italic'>
                   {t('login.password')}
                 </label>
-                <input
-                  type='password'
-                  placeholder={t('login.password_placeholder')}
-                  className='w-full px-6 py-3 font-(--font-abhaya) font-italic rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
-                />
+                <div className='relative'>
+                  <input
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    placeholder={t('login.password_placeholder')}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete='current-password'
+                    required
+                    minLength={8}
+                    className={`w-full py-3 font-(--font-abhaya) font-italic rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
+                  />
+
+                  <button
+                    type='button'
+                    onClick={() =>
+                      setIsPasswordVisible((currentValue) => !currentValue)
+                    }
+                    aria-label={
+                      isPasswordVisible
+                        ? t('login.hide_password')
+                        : t('login.show_password')
+                    }
+                    title={
+                      isPasswordVisible
+                        ? t('login.hide_password')
+                        : t('login.show_password')
+                    }
+                    className={`absolute top-1/2 -translate-y-1/2 text-dark-red/70 hover:text-dark-red transition-colors ${isRtl ? 'left-4' : 'right-4'}`}
+                  >
+                    {isPasswordVisible ? (
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        strokeWidth='1.8'
+                        className='h-5 w-5'
+                        aria-hidden='true'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          d='M3 3l18 18m-2.4-2.4A10.5 10.5 0 0 1 12 20C6.5 20 3.2 15.9 2 12c.6-1.9 1.6-3.6 2.9-5m3.1-2.4A10.8 10.8 0 0 1 12 4c5.5 0 8.8 4.1 10 8-0.6 1.9-1.6 3.6-2.9 5M15 12a3 3 0 0 1-4.5 2.6'
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        strokeWidth='1.8'
+                        className='h-5 w-5'
+                        aria-hidden='true'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          d='M2 12s3.3-8 10-8 10 8 10 8-3.3 8-10 8S2 12 2 12z'
+                        />
+                        <circle cx='12' cy='12' r='3' />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className='pt-3 flex justify-center'>
                 <button
                   type='submit'
-                  className='px-12 py-3 rounded-full font-serif font-bold text-dark-red bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] hover:scale-105 transition-transform shadow-md'
+                  disabled={isSubmitting}
+                  className='px-12 py-3 rounded-full font-serif font-bold text-dark-red bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] hover:scale-105 transition-transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100'
                   style={{
                     backgroundImage: 'url(/honey_pattern.png)',
                     backgroundSize: 'cover',
                   }}
                 >
-                  {t('login.title')}
+                  {isSubmitting ? t('login.loading') : t('login.title')}
                 </button>
               </div>
 

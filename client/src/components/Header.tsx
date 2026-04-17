@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
 import cart from '../assets/cart.svg';
 import profile from '../assets/profile.svg';
@@ -93,12 +94,13 @@ export function Header({
           >
             <img src={cart} alt='Cart' />
           </button>
-          <button
+          <Link
+            to='/login'
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
           >
             <img src={profile} alt='Account' />
-          </button>
+          </Link>
 
           <button
             onClick={toggleLanguage}
@@ -139,12 +141,13 @@ export function Header({
             >
               <img src={cart} alt='Cart' />
             </button>
-            <button
+            <Link
+              to='/login'
               className='text-dark-red transition-colors hover:text-gold'
               aria-label='Account'
             >
               <img src={profile} alt='Account' />
-            </button>
+            </Link>
             <button className='text-dark-red font-abee text-[24px] leading-[1.182] transition-colors hover:text-gold'>
               En
             </button>
