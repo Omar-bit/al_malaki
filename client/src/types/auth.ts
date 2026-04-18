@@ -17,6 +17,15 @@ export interface RegisterPayload {
   lastName: string;
   email: string;
   password: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+  expiresInSeconds: number;
+}
+
+export interface VerifyRegisterOtpPayload {
+  email: string;
   otpCode: string;
 }
 
@@ -25,6 +34,7 @@ export interface AuthUser {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  verifiedEmail: boolean;
   createdAt: string;
 }
 

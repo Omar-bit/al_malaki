@@ -26,6 +26,17 @@ export function LoginPage() {
       toast.success(t('login.success'));
       navigate('/dashboard', { replace: true });
     } catch (error) {
+      if (
+        error instanceof authService.ApiError &&
+        error.code === 'EMAIL_NOT_VERIFIED'
+      ) {
+        toast.error(error.message);
+        navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`, {
+          replace: true,
+        });
+        return;
+      }
+
       if (error instanceof Error && error.message) {
         toast.error(error.message);
       } else {

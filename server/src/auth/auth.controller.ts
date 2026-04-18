@@ -13,6 +13,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestRegisterOtpDto } from './dto/request-register-otp.dto';
+import { VerifyRegisterOtpDto } from './dto/verify-register-otp.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './types/auth-user.type';
@@ -31,11 +32,18 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(
-    @Body() registerDto: RegisterDto,
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
+
+  @Post('register/verify-otp')
+  @HttpCode(HttpStatus.OK)
+  async verifyRegisterOtp(
+    @Body() verifyRegisterOtpDto: VerifyRegisterOtpDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const result = await this.authService.register(registerDto);
+    const result =
+      await this.authService.verifyRegisterOtp(verifyRegisterOtpDto);
 
     response.cookie(
       this.authService.getAuthCookieName(),

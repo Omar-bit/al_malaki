@@ -14,6 +14,8 @@ export type {
   AuthResponse,
   AuthUser,
   RegisterPayload,
+  RegisterResponse,
   RequestRegisterOtpPayload,
   RequestRegisterOtpResponse,
+  VerifyRegisterOtpPayload,
 } from './auth';

@@ -3,7 +3,7 @@ CREATE TABLE `RegisterOtp` (
   `email` VARCHAR(191) NOT NULL,
   `otpHash` VARCHAR(191) NOT NULL,
   `expiresAt` DATETIME(3) NOT NULL,
-  `attemptsRemaining` INTEGER NOT NULL,
+  `attemptsRemaining` INTEGER NOT NULL DEFAULT 5,
   `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   `updatedAt` DATETIME(3) NOT NULL,
 

@@ -3,41 +3,13 @@ import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import OtpInput from 'react-otp-input';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
 import authModel from '../assets/auth-model.jpg';
 
-function splitFullName(fullName: string): {
-  firstName: string;
-  lastName: string;
-} {
-  const parts = fullName.trim().split(/\s+/).filter(Boolean);
-
-  if (parts.length === 0) {
-    return {
-      firstName: '',
-      lastName: '',
-    };
-  }
-
-  if (parts.length === 1) {
-    return {
-      firstName: parts[0],
-      lastName: '',
-    };
-  }
-
-  return {
-    firstName: parts[0],
-    lastName: parts.slice(1).join(' '),
-  };
-}
-
 export function RegisterPage() {
   const { t, i18n } = useTranslation();
-  const [isOTPSent, setIsOTPSent] = useState(false);
   const navigate = useNavigate();
   const isRtl = i18n.language === 'ar';
   const [firstName, setFirstName] = useState('');
@@ -46,50 +18,16 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [otpCode, setOtpCode] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRequestingOtp, setIsRequestingOtp] = useState(false);
-  const [isOtpRequested, setIsOtpRequested] = useState(false);
-  const [otpExpiresInSeconds, setOtpExpiresInSeconds] = useState<number | null>(
-    null,
-  );
-
-  const handleRequestOtp = async () => {
-    if (!email.trim()) {
-      toast.error(t('register.email_required'));
-      return;
-    }
-
-    setIsRequestingOtp(true);
-
-    try {
-      const response = await authService.requestRegisterOtp({
-        email,
-      });
-
-      setIsOtpRequested(true);
-      setOtpExpiresInSeconds(response.expiresInSeconds);
-      setIsOTPSent(true);
-      toast.success(t('register.otp_sent'));
-    } catch (error) {
-      if (error instanceof Error && error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error(t('register.generic_error'));
-      }
-    } finally {
-      setIsRequestingOtp(false);
-    }
-  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!firstName || !lastName) {
+    if (!firstName.trim() || !lastName.trim()) {
       toast.error(t('register.full_name_required'));
       return;
     }
@@ -99,24 +37,23 @@ export function RegisterPage() {
       return;
     }
 
-    if (!otpCode.trim()) {
-      toast.error(t('register.otp_required'));
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      await authService.register({
-        firstName: firstName,
-        lastName: lastName,
-        email,
+      const response = await authService.register({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
         password,
-        otpCode: otpCode.trim(),
       });
 
       toast.success(t('register.success'));
-      navigate('/dashboard', { replace: true });
+      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`, {
+        replace: true,
+        state: {
+          otpExpiresInSeconds: response.expiresInSeconds,
+        },
+      });
     } catch (error) {
       if (error instanceof Error && error.message) {
         toast.error(error.message);
@@ -209,11 +146,11 @@ export function RegisterPage() {
             >
               <div>
                 <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
-                  {t('register.name')}
+                  {t('register.first_name')}
                 </label>
                 <input
                   type='text'
-                  placeholder={t('register.name_placeholder')}
+                  placeholder={t('register.first_name_placeholder')}
                   value={firstName}
                   onChange={(event) => setFirstName(event.target.value)}
                   autoComplete='name'
@@ -223,11 +160,11 @@ export function RegisterPage() {
               </div>
               <div>
                 <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
-                  {t('register.name')}
+                  {t('register.last_name')}
                 </label>
                 <input
                   type='text'
-                  placeholder={t('register.name_placeholder')}
+                  placeholder={t('register.last_name_placeholder')}
                   value={lastName}
                   onChange={(event) => setLastName(event.target.value)}
                   autoComplete='name'
@@ -408,66 +345,10 @@ export function RegisterPage() {
                 </div>
               </div>
 
-              <div>
-                {isOTPSent && (
-                  <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
-                    {t('register.otp')}
-                  </label>
-                )}
-                <div className='space-y-3'>
-                  {isOTPSent && (
-                    <OtpInput
-                      value={otpCode}
-                      onChange={(value) =>
-                        setOtpCode(value.replace(/\D/g, '').slice(0, 6))
-                      }
-                      numInputs={6}
-                      shouldAutoFocus
-                      inputType='tel'
-                      containerStyle='flex items-center gap-2'
-                      renderInput={(props) => (
-                        <input
-                          {...props}
-                          dir='ltr'
-                          className='size-20 flex-1 rounded-xl border border-dark-red bg-transparent text-center text-dark-red text-lg font-bold focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
-                        />
-                      )}
-                    />
-                  )}
-                  {firstName &&
-                    lastName &&
-                    phoneNumber &&
-                    email &&
-                    password &&
-                    confirmPassword && (
-                      <button
-                        type='button'
-                        onClick={handleRequestOtp}
-                        disabled={isRequestingOtp}
-                        className='w-full px-4 py-2 rounded-full font-abhaya font-bold text-dark-red bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] hover:scale-105 transition-transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap'
-                      >
-                        {isRequestingOtp
-                          ? t('register.requesting_otp')
-                          : isOtpRequested
-                            ? t('register.resend_otp')
-                            : t('register.request_otp')}
-                      </button>
-                    )}
-                </div>
-
-                {otpExpiresInSeconds ? (
-                  <p className='mt-2 text-sm text-dark-red/70'>
-                    {t('register.otp_expiry_notice', {
-                      minutes: Math.ceil(otpExpiresInSeconds / 60),
-                    })}
-                  </p>
-                ) : null}
-              </div>
-
               <div className='pt-2 flex justify-center'>
                 <button
                   type='submit'
-                  disabled={isSubmitting || isRequestingOtp}
+                  disabled={isSubmitting}
                   className='px-12 py-3 rounded-full font-serif font-bold text-dark-red bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] hover:scale-105 transition-transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100'
                   style={{
                     backgroundImage: 'url(/honey_pattern.png)',
