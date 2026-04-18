@@ -12,6 +12,7 @@ import OtpInput from 'react-otp-input';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
+import { validateEmailValue, validateOtpValue } from '../utils/formValidation';
 import authModel from '../assets/auth-model.jpg';
 
 type VerifyEmailLocationState = {
@@ -43,8 +44,17 @@ export function VerifyEmailPage() {
   );
 
   const handleResendOtp = async () => {
-    if (!email.trim()) {
-      toast.error(t('register.email_required'));
+    const emailValidation = validateEmailValue(email, {
+      required: t('verify_email.email_required', {
+        defaultValue: 'Please enter your email first',
+      }),
+      invalid: t('verify_email.email_invalid', {
+        defaultValue: 'Please enter a valid email address',
+      }),
+    });
+
+    if (!emailValidation.isValid) {
+      toast.error(emailValidation.error);
       return;
     }
 
@@ -52,7 +62,7 @@ export function VerifyEmailPage() {
 
     try {
       const response = await authService.requestRegisterOtp({
-        email: email.trim(),
+        email: emailValidation.value,
       });
 
       setOtpExpiresInSeconds(response.expiresInSeconds);
@@ -71,13 +81,29 @@ export function VerifyEmailPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!email.trim()) {
-      toast.error(t('register.email_required'));
+    const emailValidation = validateEmailValue(email, {
+      required: t('verify_email.email_required', {
+        defaultValue: 'Please enter your email first',
+      }),
+      invalid: t('verify_email.email_invalid', {
+        defaultValue: 'Please enter a valid email address',
+      }),
+    });
+
+    if (!emailValidation.isValid) {
+      toast.error(emailValidation.error);
       return;
     }
 
-    if (!otpCode.trim()) {
-      toast.error(t('verify_email.otp_required'));
+    const otpValidation = validateOtpValue(otpCode, {
+      required: t('verify_email.otp_required'),
+      invalid: t('verify_email.otp_invalid', {
+        defaultValue: 'OTP must be a 6-digit code',
+      }),
+    });
+
+    if (!otpValidation.isValid) {
+      toast.error(otpValidation.error);
       return;
     }
 
@@ -85,8 +111,8 @@ export function VerifyEmailPage() {
 
     try {
       await authService.verifyRegisterOtp({
-        email: email.trim(),
-        otpCode: otpCode.trim(),
+        email: emailValidation.value,
+        otpCode: otpValidation.value,
       });
 
       toast.success(t('verify_email.success'));
@@ -195,6 +221,7 @@ export function VerifyEmailPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   autoComplete='email'
+                  maxLength={254}
                   required
                   className='w-full px-6 py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />

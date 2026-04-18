@@ -6,6 +6,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
+import {
+  validateEmailValue,
+  validatePasswordValue,
+} from '../utils/formValidation';
 import authModel from '../assets/auth-model.jpg';
 
 export function LoginPage() {
@@ -19,10 +23,45 @@ export function LoginPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const emailValidation = validateEmailValue(email, {
+      required: t('login.email_required', {
+        defaultValue: 'Please enter your email first',
+      }),
+      invalid: t('login.email_invalid', {
+        defaultValue: 'Please enter a valid email address',
+      }),
+    });
+
+    if (!emailValidation.isValid) {
+      toast.error(emailValidation.error);
+      return;
+    }
+
+    const passwordValidation = validatePasswordValue(password, {
+      required: t('login.password_required', {
+        defaultValue: 'Please enter your password',
+      }),
+      tooShort: t('login.password_too_short', {
+        defaultValue: 'Password must be at least 8 characters',
+      }),
+      tooLong: t('login.password_too_long', {
+        defaultValue: 'Password must be at most 64 characters',
+      }),
+    });
+
+    if (!passwordValidation.isValid) {
+      toast.error(passwordValidation.error);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await authService.login({ email, password });
+      await authService.login({
+        email: emailValidation.value,
+        password: passwordValidation.value,
+      });
       toast.success(t('login.success'));
       navigate('/dashboard', { replace: true });
     } catch (error) {
@@ -31,9 +70,12 @@ export function LoginPage() {
         error.code === 'EMAIL_NOT_VERIFIED'
       ) {
         toast.error(error.message);
-        navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`, {
-          replace: true,
-        });
+        navigate(
+          `/verify-email?email=${encodeURIComponent(emailValidation.value)}`,
+          {
+            replace: true,
+          },
+        );
         return;
       }
 
@@ -142,6 +184,7 @@ export function LoginPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   autoComplete='email'
+                  maxLength={254}
                   required
                   className='w-full px-6 py-3 font-(--font-abhaya) font-italic rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />
@@ -160,6 +203,7 @@ export function LoginPage() {
                     autoComplete='current-password'
                     required
                     minLength={8}
+                    maxLength={64}
                     className={`w-full py-3 font-(--font-abhaya) font-italic rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
                   />
 

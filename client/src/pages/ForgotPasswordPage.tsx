@@ -6,6 +6,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
+import { validateEmailValue } from '../utils/formValidation';
 import authModel from '../assets/auth-model.jpg';
 
 export function ForgotPasswordPage() {
@@ -25,8 +26,15 @@ export function ForgotPasswordPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!email.trim()) {
-      toast.error(t('forgot_password.email_required'));
+    const emailValidation = validateEmailValue(email, {
+      required: t('forgot_password.email_required'),
+      invalid: t('forgot_password.email_invalid', {
+        defaultValue: 'Please enter a valid email address',
+      }),
+    });
+
+    if (!emailValidation.isValid) {
+      toast.error(emailValidation.error);
       return;
     }
 
@@ -34,7 +42,7 @@ export function ForgotPasswordPage() {
 
     try {
       const response = await authService.requestPasswordResetLink({
-        email: email.trim(),
+        email: emailValidation.value,
       });
 
       toast.success(response.message || t('forgot_password.success'));
@@ -143,6 +151,7 @@ export function ForgotPasswordPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   autoComplete='email'
+                  maxLength={254}
                   required
                   className='w-full px-6 py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />

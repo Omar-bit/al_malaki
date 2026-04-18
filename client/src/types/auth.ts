@@ -23,6 +23,7 @@ export interface RequestPasswordResetLinkResponse {
 export interface RegisterPayload {
   firstName: string;
   lastName: string;
+  phoneNumber: string;
   email: string;
   password: string;
 }
@@ -59,6 +60,7 @@ export interface AuthUser {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  phoneNumber: string | null;
   verifiedEmail: boolean;
   createdAt: string;
 }

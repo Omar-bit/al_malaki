@@ -6,6 +6,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
+import {
+  validateEmailValue,
+  validateNameValue,
+  validatePasswordValue,
+  validatePhoneValue,
+} from '../utils/formValidation';
 import authModel from '../assets/auth-model.jpg';
 
 export function RegisterPage() {
@@ -23,16 +29,106 @@ export function RegisterPage() {
     useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasPasswordMismatch =
+    confirmPassword.length > 0 && password !== confirmPassword;
+
+  const handlePhoneNumberChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, '').slice(0, 8);
+    setPhoneNumber(digitsOnly);
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!firstName.trim() || !lastName.trim()) {
-      toast.error(t('register.full_name_required'));
+    const firstNameValidation = validateNameValue(firstName, {
+      required: t('register.first_name_required', {
+        defaultValue: 'Please enter your first name',
+      }),
+      tooLong: t('register.name_too_long', {
+        defaultValue: 'Name must be at most 100 characters',
+      }),
+    });
+
+    if (!firstNameValidation.isValid) {
+      toast.error(firstNameValidation.error);
       return;
     }
 
-    if (password !== confirmPassword) {
+    const lastNameValidation = validateNameValue(lastName, {
+      required: t('register.last_name_required', {
+        defaultValue: 'Please enter your last name',
+      }),
+      tooLong: t('register.name_too_long', {
+        defaultValue: 'Name must be at most 100 characters',
+      }),
+    });
+
+    if (!lastNameValidation.isValid) {
+      toast.error(lastNameValidation.error);
+      return;
+    }
+
+    const phoneValidation = validatePhoneValue(phoneNumber, {
+      required: t('register.phone_required', {
+        defaultValue: 'Please enter your phone number',
+      }),
+      invalid: t('register.phone_invalid', {
+        defaultValue: 'Please enter a valid phone number',
+      }),
+    });
+
+    if (!phoneValidation.isValid) {
+      toast.error(phoneValidation.error);
+      return;
+    }
+
+    const emailValidation = validateEmailValue(email, {
+      required: t('register.email_required'),
+      invalid: t('register.email_invalid', {
+        defaultValue: 'Please enter a valid email address',
+      }),
+    });
+
+    if (!emailValidation.isValid) {
+      toast.error(emailValidation.error);
+      return;
+    }
+
+    const passwordValidation = validatePasswordValue(password, {
+      required: t('register.password_required', {
+        defaultValue: 'Please enter a password',
+      }),
+      tooShort: t('register.password_too_short', {
+        defaultValue: 'Password must be at least 8 characters',
+      }),
+      tooLong: t('register.password_too_long', {
+        defaultValue: 'Password must be at most 64 characters',
+      }),
+    });
+
+    if (!passwordValidation.isValid) {
+      toast.error(passwordValidation.error);
+      return;
+    }
+
+    const confirmPasswordValidation = validatePasswordValue(confirmPassword, {
+      required: t('register.confirm_password_required', {
+        defaultValue: 'Please confirm your password',
+      }),
+      tooShort: t('register.password_too_short', {
+        defaultValue: 'Password must be at least 8 characters',
+      }),
+      tooLong: t('register.password_too_long', {
+        defaultValue: 'Password must be at most 64 characters',
+      }),
+    });
+
+    if (!confirmPasswordValidation.isValid) {
+      toast.error(confirmPasswordValidation.error);
+      return;
+    }
+
+    if (passwordValidation.value !== confirmPasswordValidation.value) {
       toast.error(t('register.password_mismatch'));
       return;
     }
@@ -41,19 +137,23 @@ export function RegisterPage() {
 
     try {
       const response = await authService.register({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email.trim(),
-        password,
+        firstName: firstNameValidation.value,
+        lastName: lastNameValidation.value,
+        phoneNumber: phoneValidation.value,
+        email: emailValidation.value,
+        password: passwordValidation.value,
       });
 
       toast.success(t('register.success'));
-      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`, {
-        replace: true,
-        state: {
-          otpExpiresInSeconds: response.expiresInSeconds,
+      navigate(
+        `/verify-email?email=${encodeURIComponent(emailValidation.value)}`,
+        {
+          replace: true,
+          state: {
+            otpExpiresInSeconds: response.expiresInSeconds,
+          },
         },
-      });
+      );
     } catch (error) {
       if (error instanceof Error && error.message) {
         toast.error(error.message);
@@ -154,6 +254,7 @@ export function RegisterPage() {
                   value={firstName}
                   onChange={(event) => setFirstName(event.target.value)}
                   autoComplete='name'
+                  maxLength={100}
                   required
                   className='w-full px-6 py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />
@@ -168,6 +269,7 @@ export function RegisterPage() {
                   value={lastName}
                   onChange={(event) => setLastName(event.target.value)}
                   autoComplete='name'
+                  maxLength={100}
                   required
                   className='w-full px-6 py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />
@@ -181,8 +283,13 @@ export function RegisterPage() {
                   type='tel'
                   placeholder={t('register.phone_placeholder')}
                   value={phoneNumber}
-                  onChange={(event) => setPhoneNumber(event.target.value)}
+                  onChange={(event) =>
+                    handlePhoneNumberChange(event.target.value)
+                  }
                   autoComplete='tel'
+                  inputMode='numeric'
+                  maxLength={8}
+                  pattern='[0-9]{8}'
                   required
                   className='w-full px-6 py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />
@@ -198,6 +305,7 @@ export function RegisterPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   autoComplete='email'
+                  maxLength={254}
                   required
                   className='w-full px-6 py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
                 />
@@ -216,6 +324,7 @@ export function RegisterPage() {
                     autoComplete='new-password'
                     required
                     minLength={8}
+                    maxLength={64}
                     className={`w-full py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
                   />
                   <button
@@ -286,7 +395,8 @@ export function RegisterPage() {
                     autoComplete='new-password'
                     required
                     minLength={8}
-                    className={`w-full py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
+                    maxLength={64}
+                    className={`w-full py-3 font-abhaya rounded-full border bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 transition-all ${hasPasswordMismatch ? 'border-red-500 focus:ring-red-500' : 'border-dark-red focus:ring-dark-red'} ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
                   />
                   <button
                     type='button'
@@ -343,6 +453,11 @@ export function RegisterPage() {
                     )}
                   </button>
                 </div>
+                {hasPasswordMismatch ? (
+                  <p className='mt-2 text-sm text-red-600'>
+                    {t('register.password_mismatch')}
+                  </p>
+                ) : null}
               </div>
 
               <div className='pt-2 flex justify-center'>

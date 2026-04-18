@@ -6,6 +6,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
+import { validatePasswordValue } from '../utils/formValidation';
 import authModel from '../assets/auth-model.jpg';
 
 export function ResetPasswordPage() {
@@ -68,17 +69,29 @@ export function ResetPasswordPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!newPassword.trim()) {
-      toast.error(t('reset_password.new_password_required'));
+    const newPasswordValidation = validatePasswordValue(newPassword, {
+      required: t('reset_password.new_password_required'),
+      tooShort: t('reset_password.password_too_short'),
+      tooLong: t('reset_password.password_too_long', {
+        defaultValue: 'Password must be at most 64 characters',
+      }),
+    });
+
+    if (!newPasswordValidation.isValid) {
+      toast.error(newPasswordValidation.error);
       return;
     }
 
-    if (newPassword.length < 8) {
-      toast.error(t('reset_password.password_too_short'));
+    if (!confirmPassword.trim()) {
+      toast.error(
+        t('reset_password.confirm_password_required', {
+          defaultValue: 'Please confirm your new password',
+        }),
+      );
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    if (newPasswordValidation.value !== confirmPassword) {
       toast.error(t('reset_password.password_mismatch'));
       return;
     }
@@ -88,7 +101,7 @@ export function ResetPasswordPage() {
     try {
       const response = await authService.resetPassword({
         token,
-        newPassword,
+        newPassword: newPasswordValidation.value,
       });
 
       toast.success(response.message || t('reset_password.success'));
@@ -214,6 +227,7 @@ export function ResetPasswordPage() {
                     autoComplete='new-password'
                     required
                     minLength={8}
+                    maxLength={64}
                     className={`w-full py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
                   />
                   <button
@@ -281,6 +295,7 @@ export function ResetPasswordPage() {
                     autoComplete='new-password'
                     required
                     minLength={8}
+                    maxLength={64}
                     className={`w-full py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
                   />
                   <button

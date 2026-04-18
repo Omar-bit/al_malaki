@@ -56,6 +56,7 @@ export interface AuthenticatedUserResponse {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  phoneNumber: string | null;
   verifiedEmail: boolean;
   createdAt: Date;
 }
@@ -179,6 +180,11 @@ export class AuthService {
 
   async register(registerDto: RegisterDto): Promise<RegisterResponse> {
     const normalizedEmail = this.normalizeEmail(registerDto.email);
+    const normalizedFirstName = this.normalizeName(registerDto.firstName);
+    const normalizedLastName = this.normalizeName(registerDto.lastName);
+    const normalizedPhoneNumber = this.normalizePhoneNumber(
+      registerDto.phoneNumber,
+    );
 
     const existingUser = await this.prismaService.user.findUnique({
       where: { email: normalizedEmail },
@@ -199,8 +205,9 @@ export class AuthService {
       const updatedUser = await this.prismaService.user.update({
         where: { id: existingUser.id },
         data: {
-          firstName: registerDto.firstName,
-          lastName: registerDto.lastName,
+          firstName: normalizedFirstName,
+          lastName: normalizedLastName,
+          phoneNumber: normalizedPhoneNumber,
           passwordHash,
           role: 'CUSTOMER',
           verifiedEmail: false,
@@ -213,8 +220,9 @@ export class AuthService {
         data: {
           email: normalizedEmail,
           passwordHash,
-          firstName: registerDto.firstName,
-          lastName: registerDto.lastName,
+          firstName: normalizedFirstName,
+          lastName: normalizedLastName,
+          phoneNumber: normalizedPhoneNumber,
           role: 'CUSTOMER',
           verifiedEmail: false,
         },
@@ -375,6 +383,14 @@ export class AuthService {
 
   private normalizeEmail(email: string): string {
     return email.trim().toLowerCase();
+  }
+
+  private normalizeName(name: string): string {
+    return name.trim();
+  }
+
+  private normalizePhoneNumber(phoneNumber: string): string {
+    return phoneNumber.trim();
   }
 
   private async verifyRegisterOtpCode(
@@ -670,6 +686,7 @@ export class AuthService {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
       verifiedEmail: user.verifiedEmail,
       createdAt: user.createdAt,
     };
