@@ -12,6 +12,14 @@ export interface RequestRegisterOtpResponse {
   expiresInSeconds: number;
 }
 
+export interface RequestPasswordResetLinkPayload {
+  email: string;
+}
+
+export interface RequestPasswordResetLinkResponse {
+  message: string;
+}
+
 export interface RegisterPayload {
   firstName: string;
   lastName: string;
@@ -27,6 +35,23 @@ export interface RegisterResponse {
 export interface VerifyRegisterOtpPayload {
   email: string;
   otpCode: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
+export interface ValidateResetPasswordTokenPayload {
+  token: string;
+}
+
+export interface ValidateResetPasswordTokenResponse {
+  message: string;
 }
 
 export interface AuthUser {

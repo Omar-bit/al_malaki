@@ -11,8 +11,11 @@ import {
 import type { Response } from 'express';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
+import { RequestPasswordResetLinkDto } from './dto/request-password-reset-link.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestRegisterOtpDto } from './dto/request-register-otp.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ValidateResetPasswordTokenDto } from './dto/validate-reset-password-token.dto';
 import { VerifyRegisterOtpDto } from './dto/verify-register-otp.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
@@ -28,6 +31,32 @@ export class AuthController {
     @Body() requestRegisterOtpDto: RequestRegisterOtpDto,
   ) {
     return this.authService.requestRegisterOtp(requestRegisterOtpDto);
+  }
+
+  @Post('password/forgot')
+  @HttpCode(HttpStatus.OK)
+  async requestPasswordResetLink(
+    @Body() requestPasswordResetLinkDto: RequestPasswordResetLinkDto,
+  ) {
+    return this.authService.requestPasswordResetLink(
+      requestPasswordResetLinkDto,
+    );
+  }
+
+  @Post('password/validate-token')
+  @HttpCode(HttpStatus.OK)
+  async validateResetPasswordToken(
+    @Body() validateResetPasswordTokenDto: ValidateResetPasswordTokenDto,
+  ) {
+    return this.authService.validateResetPasswordToken(
+      validateResetPasswordTokenDto,
+    );
+  }
+
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   @Post('register')

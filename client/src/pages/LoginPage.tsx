@@ -233,9 +233,12 @@ export function LoginPage() {
               </div>
 
               <div className='text-center mt-2'>
-                <a href='#' className='text-sm  text-dark-red hover:underline'>
+                <Link
+                  to={`/forgot-password?email=${encodeURIComponent(email.trim())}`}
+                  className='text-sm text-dark-red hover:underline'
+                >
                   {t('login.forgot_password')}
-                </a>
+                </Link>
               </div>
             </motion.form>
           </div>

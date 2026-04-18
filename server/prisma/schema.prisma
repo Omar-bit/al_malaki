@@ -27,6 +27,7 @@ model User {
   passwordHash  String
   verifiedEmail Boolean @default(false)
   registerOtp RegisterOtp?
+  resetPasswordOtp ResetPasswordOtp?
 
 
 
@@ -56,6 +57,21 @@ model RegisterOtp {
   @@index([email, expiresAt])
   @@index([userId])
   
+}
+
+model ResetPasswordOtp {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  otpHash           String
+  expiresAt         DateTime
+  attemptsRemaining Int @default(5)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([email, expiresAt])
+  @@index([userId])
 }
 
 enum Role {

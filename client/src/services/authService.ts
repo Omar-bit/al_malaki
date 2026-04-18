@@ -2,10 +2,16 @@ import type {
   AuthCredentials,
   AuthResponse,
   AuthUser,
+  ResetPasswordPayload,
+  ResetPasswordResponse,
   RegisterPayload,
   RegisterResponse,
+  RequestPasswordResetLinkPayload,
+  RequestPasswordResetLinkResponse,
   RequestRegisterOtpPayload,
   RequestRegisterOtpResponse,
+  ValidateResetPasswordTokenPayload,
+  ValidateResetPasswordTokenResponse,
   VerifyRegisterOtpPayload,
 } from '../types/auth';
 
@@ -140,6 +146,66 @@ export async function verifyRegisterOtp(
 
   const responsePayload = (await response.json()) as AuthResponse;
   return responsePayload.user;
+}
+
+export async function requestPasswordResetLink(
+  payload: RequestPasswordResetLinkPayload,
+): Promise<RequestPasswordResetLinkResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/password/forgot`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as RequestPasswordResetLinkResponse;
+}
+
+export async function validateResetPasswordToken(
+  payload: ValidateResetPasswordTokenPayload,
+): Promise<ValidateResetPasswordTokenResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/password/validate-token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as ValidateResetPasswordTokenResponse;
+}
+
+export async function resetPassword(
+  payload: ResetPasswordPayload,
+): Promise<ResetPasswordResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/password/reset`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as ResetPasswordResponse;
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {

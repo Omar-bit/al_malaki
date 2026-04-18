@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '../generated/prisma';
 import { compare, hash } from 'bcryptjs';
 import { CookieOptions } from 'express';
-import { randomInt } from 'crypto';
+import { createHash, randomInt } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import {
@@ -22,8 +22,11 @@ import {
   DEFAULT_JWT_SECRET,
 } from './constants/auth.constants';
 import { LoginDto } from './dto/login.dto';
+import { RequestPasswordResetLinkDto } from './dto/request-password-reset-link.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestRegisterOtpDto } from './dto/request-register-otp.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ValidateResetPasswordTokenDto } from './dto/validate-reset-password-token.dto';
 import { VerifyRegisterOtpDto } from './dto/verify-register-otp.dto';
 
 export interface RequestRegisterOtpResponse {
@@ -34,6 +37,18 @@ export interface RequestRegisterOtpResponse {
 export interface RegisterResponse {
   message: string;
   expiresInSeconds: number;
+}
+
+export interface RequestPasswordResetLinkResponse {
+  message: string;
+}
+
+export interface ValidateResetPasswordTokenResponse {
+  message: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
 }
 
 export interface AuthenticatedUserResponse {
@@ -48,6 +63,13 @@ export interface AuthenticatedUserResponse {
 export interface AuthResult {
   user: AuthenticatedUserResponse;
   token: string;
+}
+
+interface ResetPasswordTokenPayload {
+  sub: string;
+  email: string;
+  type: 'password_reset';
+  pwd: string;
 }
 
 @Injectable()
@@ -97,6 +119,61 @@ export class AuthService {
     return {
       message: 'OTP code sent successfully',
       expiresInSeconds,
+    };
+  }
+
+  async requestPasswordResetLink(
+    requestPasswordResetLinkDto: RequestPasswordResetLinkDto,
+  ): Promise<RequestPasswordResetLinkResponse> {
+    const normalizedEmail = this.normalizeEmail(
+      requestPasswordResetLinkDto.email,
+    );
+
+    const user = await this.prismaService.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (user?.verifiedEmail) {
+      const resetToken = await this.createResetPasswordToken(user);
+      await this.sendResetPasswordEmail(normalizedEmail, resetToken);
+
+      this.logger.log(`Reset-password link emailed to ${normalizedEmail}`);
+    }
+
+    return {
+      message:
+        'If an account exists for this email, a password reset link has been sent',
+    };
+  }
+
+  async validateResetPasswordToken(
+    validateResetPasswordTokenDto: ValidateResetPasswordTokenDto,
+  ): Promise<ValidateResetPasswordTokenResponse> {
+    await this.validateResetPasswordTokenOrThrow(
+      validateResetPasswordTokenDto.token,
+    );
+
+    return {
+      message: 'Reset link is valid',
+    };
+  }
+
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<ResetPasswordResponse> {
+    const user = await this.validateResetPasswordTokenOrThrow(
+      resetPasswordDto.token,
+    );
+
+    const nextPasswordHash = await hash(resetPasswordDto.newPassword, 12);
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { passwordHash: nextPasswordHash },
+    });
+
+    return {
+      message: 'Password reset successful. You can now log in',
     };
   }
 
@@ -427,6 +504,149 @@ export class AuthService {
     }
 
     return parsedValue;
+  }
+
+  private async createResetPasswordToken(user: User): Promise<string> {
+    return this.jwtService.signAsync(
+      {
+        sub: user.id,
+        email: user.email,
+        type: 'password_reset',
+        pwd: this.buildPasswordFingerprint(user.passwordHash),
+      },
+      {
+        secret: this.getResetPasswordTokenSecret(),
+        expiresIn: this.getResetPasswordTokenExpiresInSeconds(),
+      },
+    );
+  }
+
+  private async validateResetPasswordTokenOrThrow(
+    token: string,
+  ): Promise<User> {
+    try {
+      const payload =
+        await this.jwtService.verifyAsync<ResetPasswordTokenPayload>(token, {
+          secret: this.getResetPasswordTokenSecret(),
+        });
+
+      if (
+        !payload?.sub ||
+        !payload?.email ||
+        payload.type !== 'password_reset'
+      ) {
+        throw new UnauthorizedException('Invalid or expired reset link');
+      }
+
+      const user = await this.prismaService.user.findUnique({
+        where: { id: payload.sub },
+      });
+
+      if (!user || !user.verifiedEmail) {
+        throw new UnauthorizedException('Invalid or expired reset link');
+      }
+
+      if (
+        this.normalizeEmail(user.email) !== this.normalizeEmail(payload.email)
+      ) {
+        throw new UnauthorizedException('Invalid or expired reset link');
+      }
+
+      if (this.buildPasswordFingerprint(user.passwordHash) !== payload.pwd) {
+        throw new UnauthorizedException('Invalid or expired reset link');
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+
+      throw new UnauthorizedException('Invalid or expired reset link');
+    }
+  }
+
+  private async sendResetPasswordEmail(
+    email: string,
+    token: string,
+  ): Promise<void> {
+    const resetUrl = this.buildResetPasswordUrl(token);
+
+    await this.mailService.sendEmail({
+      to: email,
+      subject:
+        this.configService.get<string>('RESET_PASSWORD_EMAIL_SUBJECT') ??
+        'Reset your AL MALAKI password',
+      text: `Use this link to reset your password: ${resetUrl}`,
+      html: `
+        <div style="margin:0;padding:24px;background:#f6efe3;font-family:Georgia,'Times New Roman',serif;color:#3f060f;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #ead8bf;">
+            <tr>
+              <td style="padding:28px 28px 16px;background:linear-gradient(120deg,#f8ecd8,#e8d4b5);text-align:center;">
+                <p style="margin:0;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#7d5645;">AL MALAKI</p>
+                <h1 style="margin:10px 0 0;font-size:26px;line-height:1.3;color:#3f060f;">Reset your password</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px 28px 8px;">
+                <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#5a3b33;">Click the button below to create a new password for your account.</p>
+                <div style="text-align:center;padding:14px 0 6px;">
+                  <a href="${resetUrl}" style="display:inline-block;padding:12px 28px;border-radius:9999px;background:#3f060f;color:#fdf8f0;text-decoration:none;font-weight:700;">Reset Password</a>
+                </div>
+                <p style="margin:14px 0 0;font-size:14px;line-height:1.6;color:#7a5b4f;text-align:center;">If you did not request this, you can safely ignore this email.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `,
+    });
+  }
+
+  private buildResetPasswordUrl(token: string): string {
+    const baseUrl = this.getResetPasswordClientUrl();
+    const separator = baseUrl.includes('?') ? '&' : '?';
+    return `${baseUrl}${separator}token=${encodeURIComponent(token)}`;
+  }
+
+  private getResetPasswordClientUrl(): string {
+    const configuredUrl = this.configService
+      .get<string>('CLIENT_RESET_PASSWORD_URL')
+      ?.trim();
+
+    if (configuredUrl) {
+      return configuredUrl;
+    }
+
+    const clientOrigin =
+      this.configService.get<string>('CLIENT_ORIGIN') ??
+      'http://localhost:5173';
+    const firstOrigin =
+      clientOrigin.split(',')[0]?.trim() || 'http://localhost:5173';
+    return `${firstOrigin.replace(/\/+$/, '')}/reset-password`;
+  }
+
+  private getResetPasswordTokenSecret(): string {
+    return (
+      this.configService.get<string>('RESET_PASSWORD_TOKEN_SECRET') ??
+      this.getJwtSecret()
+    );
+  }
+
+  private getResetPasswordTokenExpiresInSeconds(): number {
+    const rawValue = this.configService.get<string>(
+      'RESET_PASSWORD_TOKEN_EXPIRES_IN_SECONDS',
+    );
+    const parsedValue = Number(rawValue);
+
+    if (Number.isNaN(parsedValue) || parsedValue <= 0) {
+      return 15 * 60;
+    }
+
+    return parsedValue;
+  }
+
+  private buildPasswordFingerprint(passwordHash: string): string {
+    return createHash('sha256').update(passwordHash).digest('hex').slice(0, 32);
   }
 
   private getCookieMaxAge(): number {
