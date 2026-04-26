@@ -5,7 +5,7 @@ export function Follow() {
   const { t, i18n } = useTranslation();
 
   return (
-    <section className='bg-cream px-6 mt-5'>
+    <section className='bg-cream px-6 mt-20'>
       <div className='mx-auto flex w-full  justify-center'>
         <motion.div
           initial={{ opacity: 0, y: 50 }}

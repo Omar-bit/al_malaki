@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
@@ -22,7 +22,36 @@ export function Header({
   withBackground?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollYRef = useRef(0);
   const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (isOpen) {
+        setIsVisible(true);
+        lastScrollYRef.current = currentScrollY;
+        return;
+      }
+
+      const shouldShowHeader =
+        currentScrollY <= 10 || currentScrollY < lastScrollYRef.current;
+
+      setIsVisible((prevIsVisible) =>
+        prevIsVisible === shouldShowHeader ? prevIsVisible : shouldShowHeader,
+      );
+
+      lastScrollYRef.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isOpen]);
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'en' ? 'ar' : 'en');
@@ -30,9 +59,9 @@ export function Header({
 
   return (
     <header
-      className={`relative top-0 left-0 z-30 w-full p-4 md:p-0 backdrop-blur  ${withBackground ? 'bg-[#E1D0BC] ' : ' '}`}
+      className={`fixed top-0 left-0 z-30 w-full p-4 py-0 md:p-0 backdrop-blur opacity-80 transition-transform duration-300 ease-in-out ${isVisible || isOpen ? 'translate-y-0' : '-translate-y-full'} ${withBackground ? 'bg-[#e1d0bc79] ' : ' '}`}
     >
-      <nav className=' flex w-full items-center justify-between test bg-transparent'>
+      <nav className=' flex w-full items-center justify-between px-5 py-1 bg-transparent'>
         <Logo />
 
         {/* Mobile Burger Toggle */}
@@ -73,7 +102,7 @@ export function Header({
         </button>
 
         {/* Desktop Navigation */}
-        <ul className='hidden md:flex items-center gap-20 '>
+        <ul className='hidden md:flex items-center gap-x-20 '>
           {navLinks.map((link) => (
             <li key={link.labelKey} className=''>
               <a

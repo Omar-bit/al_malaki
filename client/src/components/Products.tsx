@@ -43,22 +43,22 @@ export function Products() {
           initial='hidden'
           whileInView='visible'
           viewport={{ once: true, margin: '-50px' }}
-          className=' w-[100%] items-center justify-center  grid grid-cols-1 justify-items-center gap-10 md:grid-cols-3 md:gap-[47px]'
+          className=' w-[85%] items-center justify-center  grid grid-cols-1 justify-items-center gap-10 md:grid-cols-3 '
         >
           {products.map((product) => (
             <motion.article
               variants={itemVariants}
               key={product.id}
-              className='w-full max-w-[400px] md:w-[400px] '
+              className='w-full  '
             >
-              <div className='h-[300px] md:h-[400px]  w-full  bg-[#d9d9d9] '></div>
-              <h3 className='mt-[20px] text-center font-[var(--font-abhaya)] text-3xl md:text-4xl !font-semibold font-italic leading-[1.05] text-black'>
+              <div className='w-full aspect-square  w-full  bg-[#d9d9d9] '></div>
+              <h3 className='mt-[20px] text-center font-[var(--font-abhaya)] text-3xl md:text-2xl !font-semibold font-italic leading-[1.05] text-black'>
                 {t('products.name')}
               </h3>
               <div className='mt-[15px] flex justify-center'>
                 <button
                   type='button'
-                  className='h-[56px] w-[279px] rounded-[41px]  bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300'
+                  className='px-5 py-3 rounded-[41px]  bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300'
                 >
                   {t('products.button')}
                 </button>
