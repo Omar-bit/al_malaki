@@ -2,12 +2,10 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Header } from '../components/Header';
 import { authService } from '../services';
 import { validateEmailValue } from '../utils/formValidation';
-import authModel from '../assets/auth-model.jpg';
 
 export function ForgotPasswordPage() {
   const { t, i18n } = useTranslation();
@@ -59,122 +57,87 @@ export function ForgotPasswordPage() {
   };
 
   return (
-    <div className='min-h-screen flex flex-col font-["Abhaya_Libre"] auth-page'>
-      <div className='bg-transparent'>
-        <Header withBackground={false} />
-      </div>
+    <div className='relative min-h-screen overflow-hidden font-["Abhaya_Libre"]'>
+      <div className='absolute inset-0 auth-page' />
+      <div className='absolute -bottom-20 left-[2%] h-[36vh] w-[68%] rounded-[26px] bg-[#5f0a13]/78 blur-sm' />
+      <div className='absolute bottom-0 right-0 h-[44vh] w-[34%] rounded-tl-[40px] bg-[#f2ebe2]/82 blur-[2px]' />
+      <div className='absolute inset-0 bg-[#f7edde]/36 backdrop-blur-[10px]' />
 
-      <main className='flex-1 flex items-center justify-center p-4 md:p-8'>
-        <motion.div
+      <main className='relative z-10 flex min-h-screen items-center justify-center p-4 md:p-8'>
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className='bg-white rounded-[32px] shadow-2xl flex flex-col md:flex-row w-full max-w-[95%] sm:max-w-[70%] md:max-w-[58%] overflow-hidden'
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className='w-full max-w-150 rounded-[36px] bg-[#efe0c4] px-5 py-6 shadow-[0_20px_46px_rgba(28,6,10,0.22)] md:px-10 md:py-8'
+          dir={isRtl ? 'rtl' : 'ltr'}
         >
-          <div className='w-full md:w-[42%] relative bg-gradient-to-b from-[#FCECD8] to-[#986E58] flex flex-col items-center justify-start p-8 min-h-[350px] md:min-h-[unset]'>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className='absolute top-5 left-0 w-full text-center z-10'
+          <div className='flex items-start justify-between gap-4'>
+            <div className='w-full' />
+            <button
+              type='button'
+              onClick={() => navigate('/login')}
+              aria-label={t('forgot_password.close', { defaultValue: 'Close' })}
+              className='leading-none text-[38px] text-dark-red transition-opacity hover:opacity-75'
             >
-              <h2 className='text-3xl text-dark-red font-abhaya mb-1'>
-                {t('hero.welcome')}
-              </h2>
-              <h1 className='text-5xl text-dark-red font-abhaya font-bold uppercase tracking-wider'>
-                {t('hero.al_malaki')}
-              </h1>
-            </motion.div>
+              ×
+            </button>
+          </div>
 
-            <div className='flex-1 w-full flex items-end justify-center absolute inset-0 z-0'>
-              <motion.img
-                initial={{ opacity: 0, filter: 'blur(5px)' }}
-                animate={{ opacity: 1, filter: 'blur(0px)' }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-                src={authModel}
-                alt='Al Malaki'
-                className='object-cover w-full rounded-[32px] md:rounded-none h-full relative inset-0 top-0'
-                style={{
-                  objectPosition: 'center top',
-                }}
+          <h1 className='-mt-2 text-center text-3xl font-extrabold text-dark-red md:text-[38px]'>
+            {t('forgot_password.title')}
+          </h1>
+
+          <p className='mx-auto mt-2 max-w-116 text-center text-xl leading-[1.2] text-dark-red/95 md:text-[26px]'>
+            {t('forgot_password.subtitle')}
+          </p>
+
+          <motion.form
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.4 }}
+            className='mx-auto mt-6 max-w-108 space-y-4'
+            onSubmit={handleSubmit}
+          >
+            <div>
+              <label className='mb-2 block text-center text-base font-semibold text-dark-red md:text-lg'>
+                {t('forgot_password.email')}
+              </label>
+              <input
+                type='email'
+                placeholder={t('forgot_password.email_placeholder')}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete='email'
+                maxLength={254}
+                required
+                className='h-11 w-full rounded-xl border border-[#6d232f]/35 bg-transparent px-4 text-sm text-dark-red outline-none placeholder:text-dark-red/45 transition focus:border-[#6d232f] focus:ring-2 focus:ring-[#6d232f]/20 md:h-12 md:text-base'
               />
             </div>
-          </div>
 
-          <div className='w-full md:w-[58%] flex flex-col justify-center bg-white relative p-3'>
-            <motion.h2
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className='text-3xl md:text-4xl text-dark-red font-abhaya font-extrabold text-center mb-2 md:mb-4'
-            >
-              {t('forgot_password.title')}
-            </motion.h2>
-
-            <p className='text-dark-red/80 text-center text-lg mb-4'>
-              {t('forgot_password.subtitle')}
-            </p>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className='text-center mb-6 md:mb-8 flex flex-wrap justify-center items-center gap-1 md:gap-2 text-sm md:text-md'
-              dir={isRtl ? 'rtl' : 'ltr'}
-            >
-              <span className='text-dark-red text-xl text-center'>
-                {t('forgot_password.remember_password')}
-              </span>
-              <Link
-                to='/login'
-                className='font-bold text-lg md:text-2xl text-dark-red font-abhaya underline decoration-dark-er underline-offset-5 tracking-wide'
+            <div className='pt-1 text-center text-sm text-dark-red/80 md:text-base'>
+              {t('forgot_password.remember_password')}{' '}
+              <button
+                type='button'
+                onClick={() => navigate('/login')}
+                className='font-bold underline underline-offset-4 transition hover:opacity-80'
               >
                 {t('forgot_password.login_link')}
-              </Link>
-            </motion.div>
+              </button>
+            </div>
 
-            <motion.form
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className='max-w-md mx-auto w-full space-y-5'
-              dir={isRtl ? 'rtl' : 'ltr'}
-              onSubmit={handleSubmit}
-            >
-              <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
-                  {t('forgot_password.email')}
-                </label>
-                <input
-                  type='email'
-                  placeholder={t('forgot_password.email_placeholder')}
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  autoComplete='email'
-                  maxLength={254}
-                  required
-                  className='w-full px-6 py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
-                />
-              </div>
-
-              <div className='pt-2 flex justify-center'>
-                <button
-                  type='submit'
-                  disabled={isSubmitting}
-                  className='px-12 py-3 rounded-full font-serif font-bold text-dark-red bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] hover:scale-105 transition-transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100'
-                  style={{
-                    backgroundImage: 'url(/honey_pattern.png)',
-                    backgroundSize: 'cover',
-                  }}
-                >
-                  {isSubmitting
-                    ? t('forgot_password.sending')
-                    : t('forgot_password.submit')}
-                </button>
-              </div>
-            </motion.form>
-          </div>
-        </motion.div>
+            <div className='mt-2 flex justify-center'>
+              <button
+                type='submit'
+                disabled={isSubmitting}
+                className='min-h-12 min-w-60 rounded-full bg-[#4f0010] px-6 text-base font-semibold text-[#f7e8cc] shadow-[0_10px_24px_rgba(45,4,12,0.28)] transition hover:-translate-y-px hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-65 md:min-w-76 md:text-2xl'
+              >
+                {isSubmitting
+                  ? t('forgot_password.sending')
+                  : t('forgot_password.submit')}
+              </button>
+            </div>
+          </motion.form>
+        </motion.section>
       </main>
     </div>
   );

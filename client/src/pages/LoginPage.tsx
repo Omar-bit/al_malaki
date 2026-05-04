@@ -90,12 +90,12 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen  flex flex-col font-['Abhaya_Libre'] auth-page">
+    <div className="min-h-screen  flex flex-col font-['Abhaya_Libre'] auth-page ">
       <div className='bg-transparent'>
         <Header withBackground={false} />
       </div>
 
-      <main className='flex-1 flex items-center justify-center p-4 md:p-8'>
+      <main className='flex-1 flex items-center justify-center p-4 md:p-8 mt-10'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -160,7 +160,7 @@ export function LoginPage() {
               </span>
               <Link
                 to='/register'
-                className='font-bold text-lg md:text-2xl text-dark-red font-(--font-abhaya) underline decoration-dark-er underline-offset-5 tracking-wide'
+                className='font-semibold text-lg md:text-xl text-dark-red font-(--font-abhaya) underline decoration-dark-red underline-offset-8 tracking-wide'
               >
                 {t('login.sign_up')}
               </Link>

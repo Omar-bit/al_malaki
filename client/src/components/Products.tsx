@@ -52,7 +52,7 @@ export function Products() {
               className='w-full  '
             >
               <div className='w-full aspect-square  w-full  bg-[#d9d9d9] '></div>
-              <h3 className='mt-[20px] text-center font-[var(--font-abhaya)] text-3xl md:text-2xl !font-semibold font-italic leading-[1.05] text-black'>
+              <h3 className='mt-[20px] text-center qq text-4xl md:text-2xl  font-italic leading-[1.05] text-black'>
                 {t('products.name')}
               </h3>
               <div className='mt-[15px] flex justify-center'>

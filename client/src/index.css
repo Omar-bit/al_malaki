@@ -1,12 +1,14 @@
 @import 'tailwindcss';
 
-@import url('https://fonts.googleapis.com/css2?family=Italiana&family=ABeeZee&family=Abril+Fatface&family=Abhaya+Libre:wght@400;500;700;800&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Italiana&family=ABeeZee&family=Abril+Fatface&family=Abhaya+Libre:wght@400;500;700;800&display=swap'); */
+
+@import url('https://fonts.googleapis.com/css2?family=Italiana&display=swap');
 
 @theme {
   --color-dark-red: #3f060f;
   --color-cream: #fdf8f0;
   --color-gold: #be9d61;
-  --font-italic: 'Italiana', serif;
+  --font-italic: 'Italiana';
   --font-abee: 'ABeeZee', sans-serif;
   --font-abril: 'Abril Fatface', serif;
   --font-abhaya: 'Abhaya Libre', serif;
@@ -18,11 +20,14 @@
   }
 
   body {
-    font-family: var(--font-abee);
+    font-family: 'Italiana', sans-serif;
+
     color: var(--color-dark-red);
     background-color: var(--color-cream);
   }
-
+  button {
+    cursor: pointer;
+  }
   #root {
     min-height: 100vh;
   }
@@ -40,4 +45,8 @@
 .auth-page {
   background: url('/src/assets/gradient-bg.png') no-repeat center fixed;
   background-size: cover;
+}
+
+.qq {
+  font-family: 'Cairo', sans-serif;
 }

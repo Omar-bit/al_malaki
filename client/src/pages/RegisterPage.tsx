@@ -171,7 +171,7 @@ export function RegisterPage() {
         <Header withBackground={false} />
       </div>
 
-      <main className='flex-1 flex items-center justify-center p-4 md:p-8'>
+      <main className='flex-1 flex items-center justify-center p-4 md:p-8 mt-10'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -213,7 +213,7 @@ export function RegisterPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className='text-3xl md:text-4xl text-dark-red font-abhaya font-extrabold text-center mb-4 md:mb-6'
+              className='text-3xl md:text-4xl text-dark-red font-abhaya font-extrabold text-center mb-3 '
             >
               {t('register.title')}
             </motion.h2>
@@ -230,7 +230,7 @@ export function RegisterPage() {
               </span>
               <Link
                 to='/login'
-                className='font-bold text-lg md:text-2xl text-dark-red font-abhaya underline decoration-dark-er underline-offset-5 tracking-wide'
+                className='font-semibold text-lg md:text-xl text-dark-red font-abhaya underline decoration-dark-red underline-offset-8 tracking-wide'
               >
                 {t('register.login_link')}
               </Link>
