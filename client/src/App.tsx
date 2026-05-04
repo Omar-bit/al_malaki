@@ -13,6 +13,7 @@ import {
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { AdminRoute, GuestRoute } from './components';
 
 export default function App() {
   const { i18n } = useTranslation();
@@ -37,13 +38,22 @@ export default function App() {
       />
       <Routes>
         <Route path='/' element={<LandingPage />} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/forgot-password' element={<ForgotPasswordPage />} />
-        <Route path='/reset-password' element={<ResetPasswordPage />} />
-        <Route path='/register' element={<RegisterPage />} />
-        <Route path='/verify-email' element={<VerifyEmailPage />} />
+
+        {/* Guest Routes (Only accessible if NOT logged in) */}
+        <Route element={<GuestRoute />}>
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='/forgot-password' element={<ForgotPasswordPage />} />
+          <Route path='/reset-password' element={<ResetPasswordPage />} />
+          <Route path='/register' element={<RegisterPage />} />
+          <Route path='/verify-email' element={<VerifyEmailPage />} />
+        </Route>
+
         <Route path='/dashboard' element={<DashboardPage />} />
-        <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
+
+        {/* Protected Admin Routes */}
+        <Route element={<AdminRoute />}>
+          <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

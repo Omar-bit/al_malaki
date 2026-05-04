@@ -6,3 +6,5 @@ export { ProductCard } from './ProductCard';
 export { About } from './About';
 export { Follow } from './Follow';
 export { Footer } from './Footer';
+export { AdminRoute } from './AdminRoute';
+export { GuestRoute } from './GuestRoute';
