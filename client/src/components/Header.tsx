@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from './Logo';
 import cart from '../assets/cart.svg';
 import profile from '../assets/profile.svg';
@@ -25,6 +25,7 @@ export function Header({
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollYRef = useRef(0);
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +63,11 @@ export function Header({
       className={`fixed top-0 left-0 z-30 w-full p-4 py-0 md:p-0 backdrop-blur opacity-80 transition-transform duration-300 ease-in-out ${isVisible || isOpen ? 'translate-y-0' : '-translate-y-full'} ${withBackground ? 'bg-[#e1d0bc79] ' : ' '}`}
     >
       <nav className=' flex w-full items-center justify-between px-5 py-1 bg-transparent'>
-        <Logo />
+        <Logo
+          onClick={() => {
+            navigate('/');
+          }}
+        />
 
         {/* Mobile Burger Toggle */}
         <button
