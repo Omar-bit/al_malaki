@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
+import { useAuth } from '../contexts';
 import {
   validateEmailValue,
   validatePasswordValue,
@@ -20,6 +21,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setUser } = useAuth();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -58,12 +60,18 @@ export function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await authService.login({
+      const user = await authService.login({
         email: emailValidation.value,
         password: passwordValidation.value,
       });
+      setUser(user);
       toast.success(t('login.success'));
-      navigate('/dashboard', { replace: true });
+      console.log('USER :', user);
+      if (user.role === 'ADMIN') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (error) {
       if (
         error instanceof authService.ApiError &&

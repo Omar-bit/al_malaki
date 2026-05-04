@@ -12,6 +12,8 @@ import {
   DashboardPage,
 } from './pages';
 
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+
 export default function App() {
   const { i18n } = useTranslation();
 
@@ -41,6 +43,7 @@ export default function App() {
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/verify-email' element={<VerifyEmailPage />} />
         <Route path='/dashboard' element={<DashboardPage />} />
+        <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
       </Routes>
     </BrowserRouter>
   );

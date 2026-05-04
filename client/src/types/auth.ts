@@ -61,6 +61,7 @@ export interface AuthUser {
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;
+  role: 'CUSTOMER' | 'ADMIN';
   verifiedEmail: boolean;
   createdAt: string;
 }

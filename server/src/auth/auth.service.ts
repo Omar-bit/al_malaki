@@ -57,6 +57,8 @@ export interface AuthenticatedUserResponse {
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;
+  role: string;
+
   verifiedEmail: boolean;
   createdAt: Date;
 }
@@ -688,6 +690,7 @@ export class AuthService {
       lastName: user.lastName,
       phoneNumber: user.phoneNumber,
       verifiedEmail: user.verifiedEmail,
+      role: user.role,
       createdAt: user.createdAt,
     };
   }
