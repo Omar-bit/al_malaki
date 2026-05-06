@@ -19,3 +19,12 @@ export type {
   RequestRegisterOtpResponse,
   VerifyRegisterOtpPayload,
 } from './auth';
+
+export type {
+  AcceptAdminInvitationPayload,
+  AcceptAdminInvitationResponse,
+  AdminTeamMember,
+  CreateAdminInvitationPayload,
+  CreateAdminInvitationResponse,
+  TeamRole,
+} from './admin';

@@ -1,7 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import crown from '../assets/crown.png';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -11,6 +10,7 @@ import {
   Ticket,
   MessageSquare,
   BarChart,
+  UserCog,
   LogOut,
 } from 'lucide-react';
 import { authService } from '../services';
@@ -25,7 +25,6 @@ const sidebarMenu = [
         icon: LayoutDashboard,
         label: 'Dashboard Overview',
         path: '/admin/dashboard',
-        active: true,
       },
     ],
   },
@@ -36,7 +35,6 @@ const sidebarMenu = [
         icon: ShoppingCart,
         label: 'Orders Management',
         path: '/admin/orders',
-        active: false,
       },
     ],
   },
@@ -47,13 +45,11 @@ const sidebarMenu = [
         icon: Users,
         label: 'Loyalty Control',
         path: '/admin/loyalty',
-        active: false,
       },
       {
         icon: Trophy,
         label: 'Top Clients',
         path: '/admin/top-clients',
-        active: false,
       },
     ],
   },
@@ -64,13 +60,11 @@ const sidebarMenu = [
         icon: Megaphone,
         label: 'Influencer Tracking',
         path: '/admin/influencers',
-        active: false,
       },
       {
         icon: Ticket,
         label: 'Promo Codes',
         path: '/admin/promo-codes',
-        active: false,
       },
     ],
   },
@@ -81,13 +75,16 @@ const sidebarMenu = [
         icon: MessageSquare,
         label: 'Contact Messages',
         path: '/admin/messages',
-        active: false,
+      },
+      {
+        icon: UserCog,
+        label: 'Admin Management',
+        path: '/admin/management',
       },
       {
         icon: BarChart,
         label: 'Product Analytics',
         path: '/admin/analytics',
-        active: false,
       },
     ],
   },
@@ -96,6 +93,7 @@ const sidebarMenu = [
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -131,7 +129,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <h2 className='text-lg font-bold text-black tracking-wide capitalize font-bona! leading-tight'>
               {user ? `${user.firstName} ${user.lastName}` : 'Super Admin'}
             </h2>
-            <div className='bg-dark-red text-white text-xs px-4 py-[5px] rounded-md flex  mt-1 items-center gap-1 shadow-sm'>
+            <div className='bg-dark-red text-white text-xs px-4 py-1.25 rounded-md flex mt-1 items-center gap-1 shadow-sm'>
               <img className='w-7 ' src={crown} alt='crown' />
               <span className='text-md font-thin tracking-wide'>
                 {user?.role === 'ADMIN' ? 'Super Admin' : 'Admin'}
@@ -152,9 +150,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     <Link
                       to={item.path}
                       className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 ${
-                        item.active
-                          ? 'bg-[#FCECD8] text-[#3f060f] shadow-sm font-bold'
-                          : 'text-black hover:bg-[#D5BD9D] hover:text-[#3f060f]'
+                        location.pathname === item.path
+                          ? 'bg-[#FCECD8] text-dark-red shadow-sm font-bold'
+                          : 'text-black hover:bg-[#D5BD9D] hover:text-dark-red'
                       }`}
                     >
                       <item.icon className='w-5 h-5' />
@@ -170,7 +168,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className='p-2 mt-auto'>
           <button
             onClick={handleLogout}
-            className='flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-[#3f060f] rounded-xl transition-all duration-200'
+            className='flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
           >
             <LogOut className='w-5 h-5' />
             <span className='text-md'>Logout</span>

@@ -38,6 +38,16 @@ export interface SendOtpEmailPayload {
   template?: OtpEmailTemplateOptions;
 }
 
+export interface SendAdminInvitationEmailPayload {
+  to: string;
+  inviteUrl: string;
+  roleLabel: string;
+  invitedByName?: string;
+  expiresInHours: number;
+  subject?: string;
+  from?: string;
+}
+
 interface OtpEmailContent {
   text: string;
   html: string;
@@ -88,6 +98,48 @@ export class MailService {
         'Your verification code',
       text: content.text,
       html: content.html,
+    });
+  }
+
+  async sendAdminInvitationEmail(
+    payload: SendAdminInvitationEmailPayload,
+  ): Promise<void> {
+    const brandName =
+      this.configService.get<string>('ADMIN_INVITE_BRAND_NAME') ?? 'AL MALAKI';
+    const subject =
+      payload.subject ??
+      this.configService.get<string>('ADMIN_INVITE_EMAIL_SUBJECT') ??
+      `You're invited to ${brandName}`;
+    const inviterLine = payload.invitedByName
+      ? `${payload.invitedByName} invited you to join ${brandName} as a ${payload.roleLabel}.`
+      : `You're invited to join ${brandName} as a ${payload.roleLabel}.`;
+
+    await this.sendEmail({
+      to: payload.to,
+      from: payload.from,
+      subject,
+      text: `${inviterLine} Confirm your invitation here: ${payload.inviteUrl}. This invitation expires in ${payload.expiresInHours} hour(s).`,
+      html: `
+        <div style="margin:0;padding:24px;background:#f6efe3;font-family:Georgia,'Times New Roman',serif;color:#3f060f;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #ead8bf;">
+            <tr>
+              <td style="padding:28px 28px 16px;background:linear-gradient(120deg,#f8ecd8,#e8d4b5);text-align:center;">
+                <p style="margin:0;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#7d5645;">${brandName}</p>
+                <h1 style="margin:10px 0 0;font-size:26px;line-height:1.3;color:#3f060f;">You're invited</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px 28px 8px;">
+                <p style="margin:0 0 14px;font-size:15px;line-height:1.7;color:#5a3b33;">${inviterLine}</p>
+                <div style="text-align:center;padding:14px 0 6px;">
+                  <a href="${payload.inviteUrl}" style="display:inline-block;padding:12px 28px;border-radius:9999px;background:#3f060f;color:#fdf8f0;text-decoration:none;font-weight:700;">Confirm Invitation</a>
+                </div>
+                <p style="margin:14px 0 0;font-size:14px;line-height:1.6;color:#7a5b4f;text-align:center;">This invitation expires in ${payload.expiresInHours} hour(s).</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `,
     });
   }
 

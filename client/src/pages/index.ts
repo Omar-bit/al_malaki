@@ -5,3 +5,5 @@ export { ResetPasswordPage } from './ResetPasswordPage';
 export { RegisterPage } from './RegisterPage';
 export { VerifyEmailPage } from './VerifyEmailPage';
 export { DashboardPage } from './DashboardPage';
+export { InviteAcceptPage } from './InviteAcceptPage';
+export { AdminManagementPage } from './admin/AdminManagementPage';

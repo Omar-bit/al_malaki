@@ -10,6 +10,8 @@ import {
   RegisterPage,
   VerifyEmailPage,
   DashboardPage,
+  InviteAcceptPage,
+  AdminManagementPage,
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -48,11 +50,14 @@ export default function App() {
           <Route path='/verify-email' element={<VerifyEmailPage />} />
         </Route>
 
+        <Route path='/invite/accept' element={<InviteAcceptPage />} />
+
         <Route path='/dashboard' element={<DashboardPage />} />
 
         {/* Protected Admin Routes */}
         <Route element={<AdminRoute />}>
           <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
+          <Route path='/admin/management' element={<AdminManagementPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

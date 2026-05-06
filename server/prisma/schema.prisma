@@ -29,6 +29,7 @@ model User {
   verifiedEmail Boolean @default(false)
   registerOtp RegisterOtp?
   resetPasswordOtp ResetPasswordOtp?
+  sentInvitations UserInvitation[] @relation("UserInvitations")
 
 
 
@@ -78,4 +79,21 @@ model ResetPasswordOtp {
 enum Role {
   CUSTOMER
   ADMIN
+  VENDOR
+}
+
+model UserInvitation {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  role         Role
+  tokenHash    String   @unique
+  invitedById  String
+  invitedBy    User     @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email, expiresAt])
+  @@index([invitedById])
 }

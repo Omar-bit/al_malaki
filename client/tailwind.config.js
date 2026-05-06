@@ -7,6 +7,7 @@ export default {
         'dark-red': '#3F060F',
         cream: '#FFF9F1',
         gold: '#BE9D61',
+        'light-gold': '#F8E5C6',
       },
       fontFamily: {
         italic: ['Italiana', 'serif'],

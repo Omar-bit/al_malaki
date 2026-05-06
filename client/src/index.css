@@ -8,6 +8,7 @@
   --color-dark-red: #3f060f;
   --color-cream: #fdf8f0;
   --color-gold: #be9d61;
+  --light-gold: #f8e5c6;
   --font-italic: 'Italiana';
   --font-abee: 'ABeeZee', sans-serif;
   --font-abril: 'Abril Fatface', serif;
@@ -64,4 +65,9 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #a68f74;
+}
+
+.admin-management-container {
+  background: url('/src/assets/gemini-generated-bg.png') no-repeat center fixed;
+  background-size: cover;
 }
