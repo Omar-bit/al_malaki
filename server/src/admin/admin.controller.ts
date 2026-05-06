@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -39,5 +41,18 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   async acceptInvitation(@Body() dto: AcceptInvitationDto) {
     return this.adminService.acceptInvitation(dto);
+  }
+
+  @Get('invitations')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async listInvitations() {
+    return this.adminService.listInvitations();
+  }
+
+  @Delete('invitations/:id')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  async deleteInvitation(@Param('id') id: string) {
+    return this.adminService.deleteInvitation(id);
   }
 }

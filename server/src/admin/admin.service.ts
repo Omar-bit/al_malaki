@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -27,6 +28,19 @@ export interface AdminTeamMemberResponse {
 export interface CreateInvitationResponse {
   message: string;
   expiresAt: Date;
+}
+
+export type AdminInvitationStatus = 'PENDING' | 'ACCEPTED' | 'EXPIRED';
+
+export interface AdminInvitationResponse {
+  id: string;
+  email: string;
+  role: Role;
+  status: AdminInvitationStatus;
+  invitedByName: string;
+  expiresAt: Date;
+  acceptedAt: Date | null;
+  createdAt: Date;
 }
 
 export interface AcceptInvitationResponse {
@@ -136,6 +150,57 @@ export class AdminService {
     return {
       message: 'Invitation sent successfully',
       expiresAt,
+    };
+  }
+
+  async listInvitations(): Promise<AdminInvitationResponse[]> {
+    const invitations = await this.prismaService.userInvitation.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        invitedBy: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    return invitations.map((invitation) => {
+      const invitedByName =
+        `${invitation.invitedBy.firstName} ${invitation.invitedBy.lastName}`.trim();
+
+      return {
+        id: invitation.id,
+        email: invitation.email,
+        role: invitation.role,
+        status: this.getInvitationStatus(invitation),
+        invitedByName,
+        expiresAt: invitation.expiresAt,
+        acceptedAt: invitation.acceptedAt,
+        createdAt: invitation.createdAt,
+      };
+    });
+  }
+
+  async deleteInvitation(invitationId: string): Promise<{ message: string }> {
+    const invitation = await this.prismaService.userInvitation.findUnique({
+      where: { id: invitationId },
+      select: { id: true },
+    });
+
+    if (!invitation) {
+      throw new NotFoundException('Invitation not found');
+    }
+
+    await this.prismaService.userInvitation.delete({
+      where: { id: invitationId },
+    });
+
+    return {
+      message: 'Invitation deleted successfully',
     };
   }
 
@@ -260,5 +325,20 @@ export class AdminService {
     }
 
     return 'Team member';
+  }
+
+  private getInvitationStatus(invitation: {
+    acceptedAt: Date | null;
+    expiresAt: Date;
+  }): AdminInvitationStatus {
+    if (invitation.acceptedAt) {
+      return 'ACCEPTED';
+    }
+
+    if (invitation.expiresAt.getTime() <= Date.now()) {
+      return 'EXPIRED';
+    }
+
+    return 'PENDING';
   }
 }

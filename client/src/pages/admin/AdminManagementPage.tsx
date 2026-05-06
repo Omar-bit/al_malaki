@@ -4,7 +4,12 @@ import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/AdminLayout';
 import { adminService } from '../../services';
 import { useAuth } from '../../contexts';
-import type { AdminTeamMember, TeamRole } from '../../types/admin';
+import type {
+  AdminInvitation,
+  AdminInvitationStatus,
+  AdminTeamMember,
+  TeamRole,
+} from '../../types/admin';
 import { validateEmailValue } from '../../utils/formValidation';
 import { Logo } from '../../components';
 
@@ -16,37 +21,48 @@ const roleBadgeMap: Record<TeamRole, string> = {
 export function AdminManagementPage() {
   const { user } = useAuth();
   const [teamMembers, setTeamMembers] = useState<AdminTeamMember[]>([]);
+  const [invitations, setInvitations] = useState<AdminInvitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInvitationsLoading, setIsInvitationsLoading] = useState(true);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<TeamRole>('ADMIN');
   const [isInviting, setIsInviting] = useState(false);
+  const [deletingInvitationId, setDeletingInvitationId] = useState<
+    string | null
+  >(null);
+
+  const loadAdminData = async () => {
+    setIsLoading(true);
+    setIsInvitationsLoading(true);
+
+    try {
+      const [members, inviteList] = await Promise.all([
+        adminService.getAdminTeam(),
+        adminService.getAdminInvitations(),
+      ]);
+      setTeamMembers(members);
+      setInvitations(inviteList);
+      setSelectedMemberId((currentId) =>
+        currentId && members.some((member) => member.id === currentId)
+          ? currentId
+          : (members[0]?.id ?? null),
+      );
+    } catch (error) {
+      if (error instanceof Error && error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error('Unable to load admin data. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+      setIsInvitationsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadTeam = async () => {
-      setIsLoading(true);
-
-      try {
-        const members = await adminService.getAdminTeam();
-        setTeamMembers(members);
-        setSelectedMemberId((currentId) =>
-          currentId && members.some((member) => member.id === currentId)
-            ? currentId
-            : (members[0]?.id ?? null),
-        );
-      } catch (error) {
-        if (error instanceof Error && error.message) {
-          toast.error(error.message);
-        } else {
-          toast.error('Unable to load admin team. Please try again.');
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTeam();
+    loadAdminData();
   }, []);
 
   const selectedMember = useMemo(
@@ -84,6 +100,7 @@ export function AdminManagementPage() {
       setInviteEmail('');
       setInviteRole('ADMIN');
       setIsInviteOpen(false);
+      await loadAdminData();
     } catch (error) {
       if (error instanceof Error && error.message) {
         toast.error(error.message);
@@ -93,6 +110,34 @@ export function AdminManagementPage() {
     } finally {
       setIsInviting(false);
     }
+  };
+
+  const handleDeleteInvitation = async (invitationId: string) => {
+    setDeletingInvitationId(invitationId);
+
+    try {
+      await adminService.deleteAdminInvitation(invitationId);
+      setInvitations((current) =>
+        current.filter((invitation) => invitation.id !== invitationId),
+      );
+      toast.success('Invitation deleted successfully.');
+    } catch (error) {
+      if (error instanceof Error && error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error('Unable to delete invitation. Please try again.');
+      }
+    } finally {
+      setDeletingInvitationId(null);
+    }
+  };
+
+  const formatDate = (value: string) => new Date(value).toLocaleDateString();
+
+  const statusStyles: Record<AdminInvitationStatus, string> = {
+    PENDING: 'bg-gold text-white',
+    ACCEPTED: 'bg-[#3bb24a] text-white',
+    EXPIRED: 'bg-[#6d5a46] text-white',
   };
 
   return (
@@ -143,7 +188,7 @@ export function AdminManagementPage() {
                     key={member.id}
                     type='button'
                     onClick={() => setSelectedMemberId(member.id)}
-                    className={`text-left rounded-[28px] border-[1px] p-6 shadow-[0_16px_40px_rgba(60,12,12,0.16)] backdrop-blur transition-all ${
+                    className={`text-left rounded-[28px] border p-6 shadow-[0_16px_40px_rgba(60,12,12,0.16)] backdrop-blur transition-all ${
                       isSelected
                         ? 'border-dark-red border-2! bg-[#D9D9D92E]/50 '
                         : 'border-dark-red bg-[#D9D9D92E]/50 hover:-translate-y-1'
@@ -285,6 +330,87 @@ export function AdminManagementPage() {
                   {isInviting ? 'Sending...' : 'Send Invite'}
                 </button>
               </form>
+            )}
+          </motion.section>
+
+          <motion.section
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className='mt-6 rounded-[30px] border border-dark-red bg-[#D9D9D92E] p-6 shadow-[0_20px_50px_rgba(60,12,12,0.16)] backdrop-blur'
+          >
+            <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
+              <div>
+                <h2 className='text-xl font-bold text-[#F8E5C6] tracking-wide font-bona'>
+                  Invitations
+                </h2>
+                <p className='text-sm text-white mt-2'>
+                  Track pending invites and manage their status.
+                </p>
+              </div>
+              <span className='text-xs text-[#D9D9D9]'>
+                {invitations.length} total
+              </span>
+            </div>
+
+            {isInvitationsLoading ? (
+              <div className='mt-6 grid gap-3'>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={`invite-skeleton-${index}`}
+                    className='flex items-center justify-between rounded-2xl border border-[#6a4c41]/40 bg-white/40 px-4 py-3'
+                  >
+                    <div className='h-4 w-32 rounded-full bg-[#dbc6b2]' />
+                    <div className='h-6 w-24 rounded-full bg-[#5b111a]' />
+                  </div>
+                ))}
+              </div>
+            ) : invitations.length === 0 ? (
+              <div className='mt-6 rounded-2xl border border-[#6a4c41]/40 bg-white/55 p-4 text-center text-[#6d5a46]'>
+                No invitations sent yet.
+              </div>
+            ) : (
+              <div className='mt-6 grid gap-3'>
+                {invitations.map((invitation) => (
+                  <div
+                    key={invitation.id}
+                    className='flex flex-col gap-3 rounded-2xl border border-[#6a4c41]/40 bg-white/60 px-4 py-3 md:flex-row md:items-center md:justify-between'
+                  >
+                    <div>
+                      <p className='text-sm font-semibold text-dark-red'>
+                        {invitation.email}
+                      </p>
+                      <p className='text-xs text-[#6d5a46]'>
+                        Role: {roleBadgeMap[invitation.role]} · Invited by{' '}
+                        {invitation.invitedByName}
+                      </p>
+                      <p className='text-xs text-[#6d5a46]'>
+                        Sent {formatDate(invitation.createdAt)} · Expires{' '}
+                        {formatDate(invitation.expiresAt)}
+                      </p>
+                    </div>
+                    <div className='flex flex-wrap items-center gap-3'>
+                      <span
+                        className={`rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                          statusStyles[invitation.status]
+                        }`}
+                      >
+                        {invitation.status}
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => handleDeleteInvitation(invitation.id)}
+                        disabled={deletingInvitationId === invitation.id}
+                        className='rounded-full border border-dark-red/60 px-4 py-1 text-xs font-semibold text-dark-red transition hover:bg-dark-red hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
+                      >
+                        {deletingInvitationId === invitation.id
+                          ? 'Deleting...'
+                          : 'Delete'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </motion.section>
         </div>

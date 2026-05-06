@@ -1,9 +1,11 @@
 import type {
   AcceptAdminInvitationPayload,
   AcceptAdminInvitationResponse,
+  AdminInvitation,
   AdminTeamMember,
   CreateAdminInvitationPayload,
   CreateAdminInvitationResponse,
+  DeleteAdminInvitationResponse,
 } from '../types/admin';
 import { ApiError } from './authService';
 
@@ -62,6 +64,20 @@ export async function getAdminTeam(): Promise<AdminTeamMember[]> {
   return (await response.json()) as AdminTeamMember[];
 }
 
+export async function getAdminInvitations(): Promise<AdminInvitation[]> {
+  const response = await fetch(`${API_BASE_URL}/admin/invitations`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as AdminInvitation[];
+}
+
 export async function createAdminInvitation(
   payload: CreateAdminInvitationPayload,
 ): Promise<CreateAdminInvitationResponse> {
@@ -99,4 +115,23 @@ export async function acceptAdminInvitation(
   }
 
   return (await response.json()) as AcceptAdminInvitationResponse;
+}
+
+export async function deleteAdminInvitation(
+  invitationId: string,
+): Promise<DeleteAdminInvitationResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/admin/invitations/${encodeURIComponent(invitationId)}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+    },
+  );
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as DeleteAdminInvitationResponse;
 }

@@ -23,8 +23,11 @@ export type {
 export type {
   AcceptAdminInvitationPayload,
   AcceptAdminInvitationResponse,
+  AdminInvitation,
+  AdminInvitationStatus,
   AdminTeamMember,
   CreateAdminInvitationPayload,
   CreateAdminInvitationResponse,
+  DeleteAdminInvitationResponse,
   TeamRole,
 } from './admin';
