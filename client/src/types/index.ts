@@ -31,3 +31,5 @@ export type {
   DeleteAdminInvitationResponse,
   TeamRole,
 } from './admin';
+
+export type { ProductAnalyticsProduct, ProductCategory } from './product';

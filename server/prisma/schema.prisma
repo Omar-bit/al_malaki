@@ -97,3 +97,50 @@ model UserInvitation {
   @@index([email, expiresAt])
   @@index([invitedById])
 }
+
+enum ProductStatus {
+  ACTIVE
+  HIDDEN
+}
+
+enum ProductPerformance {
+  NEW_ARRIVAL
+  RECOMMENDED
+  FEATURED
+}
+
+model ProductCategory {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([name])
+}
+
+model Product {
+  id               String              @id @default(uuid())
+  name             String
+  category         ProductCategory     @relation(fields: [categoryId], references: [id])
+  categoryId       String
+  brand            String?
+  description      String?
+  price            Float
+  discountPrice    Float?
+  images           Json                @default("[]")
+  primaryPlacement String?
+  collection       String?
+  promoCode        String?
+  campaign         String?
+  status           ProductStatus       @default(ACTIVE)
+  performance      ProductPerformance  @default(NEW_ARRIVAL)
+  slug             String              @unique
+  metaTitle        String?
+  metaDescription  String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@index([slug])
+  @@index([categoryId])
+}

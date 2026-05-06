@@ -15,6 +15,7 @@ import {
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { AdminRoute, GuestRoute } from './components';
 
 export default function App() {
@@ -57,6 +58,7 @@ export default function App() {
         {/* Protected Admin Routes */}
         <Route element={<AdminRoute />}>
           <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
+          <Route path='/admin/analytics' element={<AdminAnalyticsPage />} />
           <Route path='/admin/management' element={<AdminManagementPage />} />
         </Route>
       </Routes>
