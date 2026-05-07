@@ -143,6 +143,42 @@ model Product {
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
+  promoCodes     PromoCode[]
+
   @@index([slug])
   @@index([categoryId])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum PromoCodeStatus {
+  ACTIVE
+  EXPIRED
+  DISABLED
+}
+
+model PromoCode {
+  id             String          @id @default(uuid())
+  code           String          @unique
+  discountType   DiscountType
+  value          Float
+  usageLimit     Int?            // per-user limit; null = unlimited
+  productId      String?
+  product        Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  startDate      DateTime
+  expiration     DateTime?       // null = lifetime code
+  isLifetime     Boolean         @default(false)
+  source         String?
+  totalUsage     Int             @default(0)
+  totalRevenue   Float           @default(0)
+  status         PromoCodeStatus @default(ACTIVE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([code])
+  @@index([status])
+  @@index([productId])
 }

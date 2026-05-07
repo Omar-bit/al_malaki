@@ -33,3 +33,10 @@ export type {
 } from './admin';
 
 export type { ProductAnalyticsProduct, ProductCategory } from './product';
+
+export type {
+  PromoCode,
+  PromoCodeStats,
+  CreatePromoCodePayload,
+  UpdatePromoCodePayload,
+} from './promo';

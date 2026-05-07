@@ -16,6 +16,7 @@ import {
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
+import { AdminPromoCodesPage } from './pages/admin/AdminPromoCodesPage';
 import { AdminRoute, GuestRoute } from './components';
 
 export default function App() {
@@ -60,6 +61,7 @@ export default function App() {
           <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
           <Route path='/admin/analytics' element={<AdminAnalyticsPage />} />
           <Route path='/admin/management' element={<AdminManagementPage />} />
+          <Route path='/admin/promo-codes' element={<AdminPromoCodesPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
