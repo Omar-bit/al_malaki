@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
 import { promoService, productService } from '../../services';
 import type { PromoCode, PromoCodeStats, CreatePromoCodePayload } from '../../types';
@@ -13,6 +13,9 @@ import {
   ToggleLeft,
   ToggleRight,
   Loader2,
+  X,
+  Plus,
+  AlertTriangle,
 } from 'lucide-react';
 
 /* ───────────────────────────── helpers ───────────────────────────── */
@@ -102,6 +105,8 @@ export function AdminPromoCodesPage() {
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [promoToDelete, setPromoToDelete] = useState<PromoCode | null>(null);
 
   /* ── fetch ── */
   const fetchAll = useCallback(async () => {
@@ -152,6 +157,7 @@ export function AdminPromoCodesPage() {
         activeCodes: prev.activeCodes + 1,
       }));
       setForm({ ...INITIAL_FORM });
+      setIsAddModalOpen(false);
       toast.success('Promo code created!');
     } catch (err: any) {
       toast.error(err?.message ?? 'Failed to create promo code');
@@ -161,14 +167,18 @@ export function AdminPromoCodesPage() {
   };
 
   /* ── delete ── */
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
+  const confirmDelete = (promo: PromoCode) => setPromoToDelete(promo);
+
+  const handleDelete = async () => {
+    if (!promoToDelete) return;
+    setDeletingId(promoToDelete.id);
     try {
-      await promoService.deletePromoCode(id);
-      setPromoCodes((prev) => prev.filter((p) => p.id !== id));
+      await promoService.deletePromoCode(promoToDelete.id);
+      setPromoCodes((prev) => prev.filter((p) => p.id !== promoToDelete.id));
       const statsRefresh = await promoService.getPromoStats();
       setStats(statsRefresh);
       toast.success('Promo code deleted');
+      setPromoToDelete(null);
     } catch (err: any) {
       toast.error(err?.message ?? 'Failed to delete');
     } finally {
@@ -205,11 +215,20 @@ export function AdminPromoCodesPage() {
     <AdminLayout>
       <div className='px-8 py-5 w-full font-bona!'>
         {/* ── Header ── */}
-        <header className='mb-6'>
-          <h1 className='text-3xl font-bold text-black mb-1'>Promo Codes</h1>
-          <p className='text-[#6D5A46]'>
-            Create, track and optimize your marketing promo codes.
-          </p>
+        <header className='mb-6 flex items-center justify-between'>
+          <div>
+            <h1 className='text-3xl font-bold text-black mb-1'>Promo Codes</h1>
+            <p className='text-[#6D5A46]'>
+              Create, track and optimize your marketing promo codes.
+            </p>
+          </div>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className='bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md'
+          >
+            <Plus className='w-4 h-4' />
+            Create Code
+          </button>
         </header>
 
         {loading ? (
@@ -242,14 +261,149 @@ export function AdminPromoCodesPage() {
               />
             </div>
 
-            {/* ── Create Form Card ── */}
+
+
+            {/* ── Performance Table Card ── */}
             <div className='bg-[#D9D9D957] rounded-2xl p-6 shadow-sm border border-[#3F060F]/40'>
-              <h2 className='text-xl font-bold text-black mb-1'>
-                Create promo code
-              </h2>
+              <div className='flex items-center gap-2 mb-1'>
+                <TrendingUp className='w-5 h-5 text-black' />
+                <h2 className='text-xl font-bold text-black'>Performance</h2>
+              </div>
               <p className='text-sm text-[#6D5A46] mb-5'>
-                Set up a new code for a campaign, influencer or channel.
+                All promo codes with attribution and revenue impact.
               </p>
+
+              <div className='overflow-x-auto custom-scrollbar'>
+                <table className='w-full text-sm'>
+                  <thead>
+                    <tr className='border-b border-[#3F060F]/20'>
+                      <th className='text-left py-3 px-3 font-semibold text-black'>
+                        Code
+                      </th>
+                      <th className='text-left py-3 px-3 font-semibold text-black'>
+                        Discount
+                      </th>
+                      <th className='text-left py-3 px-3 font-semibold text-black'>
+                        Usage
+                      </th>
+                      <th className='text-left py-3 px-3 font-semibold text-black'>
+                        Revenue
+                      </th>
+                      <th className='text-left py-3 px-3 font-semibold text-black'>
+                        Source
+                      </th>
+                      <th className='text-left py-3 px-3 font-semibold text-black'>
+                        Status
+                      </th>
+                      <th className='text-left py-3 px-3 font-semibold text-black'>
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {promoCodes.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className='text-center py-12 text-[#a68f74]'
+                        >
+                          No promo codes yet. Create your first one above.
+                        </td>
+                      </tr>
+                    ) : (
+                      promoCodes.map((promo) => (
+                        <tr
+                          key={promo.id}
+                          className='border-b border-[#3F060F]/10 hover:bg-[#D5BD9D]/20 transition-colors'
+                        >
+                          <td className='py-3 px-3 font-semibold text-black'>
+                            {promo.code}
+                          </td>
+                          <td className='py-3 px-3 text-[#6D5A46]'>
+                            {promo.discountType === 'percentage'
+                              ? `${promo.value}%`
+                              : formatCurrency(promo.value)}
+                          </td>
+                          <td className='py-3 px-3 text-[#6D5A46]'>
+                            {promo.totalUsage.toLocaleString()}
+                          </td>
+                          <td className='py-3 px-3 text-[#6D5A46]'>
+                            {formatCurrency(promo.totalRevenue)}
+                          </td>
+                          <td className='py-3 px-3 text-[#6D5A46]'>
+                            {promo.source ?? '—'}
+                          </td>
+                          <td className='py-3 px-3'>
+                            <StatusBadge status={promo.status} />
+                          </td>
+                          <td className='py-3 px-3'>
+                            <div className='flex items-center gap-4'>
+                              <button
+                                onClick={() => handleToggle(promo.id)}
+                                disabled={togglingId === promo.id}
+                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${
+                                  promo.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
+                                }`}
+                                title={promo.status === 'active' ? 'Disable' : 'Enable'}
+                              >
+                                {togglingId === promo.id ? (
+                                  <Loader2 className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`} />
+                                ) : (
+                                  <span
+                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                      promo.status === 'active' ? 'translate-x-5' : 'translate-x-0'
+                                    }`}
+                                  />
+                                )}
+                              </button>
+
+                              <button
+                                onClick={() => confirmDelete(promo)}
+                                title='Delete'
+                                className='p-1.5 rounded-lg hover:bg-red-100 transition-colors text-[#6D5A46] hover:text-red-600'
+                              >
+                                <Trash2 className='w-4 h-4' />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {/* ── Add Promo Code Modal ── */}
+        {isAddModalOpen && (
+          <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm font-bona!'>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className='bg-white rounded-2xl p-6 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar'
+            >
+              <div className='flex items-center justify-between mb-5'>
+                <div>
+                  <h2 className='text-xl font-bold text-black mb-1'>
+                    Create promo code
+                  </h2>
+                  <p className='text-sm text-[#6D5A46]'>
+                    Set up a new code for a campaign, influencer or channel.
+                  </p>
+                </div>
+                <button
+                  type='button'
+                  onClick={() => setIsAddModalOpen(false)}
+                  className='p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors'
+                >
+                  <X className='w-5 h-5' />
+                </button>
+              </div>
 
               <form onSubmit={handleCreate}>
                 {/* Row 1 */}
@@ -404,7 +558,7 @@ export function AdminPromoCodesPage() {
                 </div>
 
                 {/* Row 3 – Lifetime + submit */}
-                <div className='flex items-center justify-between mt-2'>
+                <div className='flex items-center justify-between mt-6 pt-4 border-t border-[#3F060F]/10'>
                   <label
                     htmlFor='promo-lifetime'
                     className='flex items-center gap-2.5 cursor-pointer select-none'
@@ -424,140 +578,76 @@ export function AdminPromoCodesPage() {
                     </span>
                   </label>
 
-                  <button
-                    type='submit'
-                    disabled={creating}
-                    className='bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md'
-                  >
-                    {creating ? (
-                      <Loader2 className='w-4 h-4 animate-spin' />
-                    ) : (
-                      '+'
-                    )}
-                    Create code
-                  </button>
+                  <div className='flex items-center gap-3'>
+                    <button
+                      type='button'
+                      onClick={() => setIsAddModalOpen(false)}
+                      className='px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors'
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type='submit'
+                      disabled={creating}
+                      className='bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md'
+                    >
+                      {creating ? (
+                        <Loader2 className='w-4 h-4 animate-spin' />
+                      ) : (
+                        <Plus className='w-4 h-4' />
+                      )}
+                      Create code
+                    </button>
+                  </div>
                 </div>
               </form>
-            </div>
-
-            {/* ── Performance Table Card ── */}
-            <div className='bg-[#D9D9D957] rounded-2xl p-6 shadow-sm border border-[#3F060F]/40'>
-              <div className='flex items-center gap-2 mb-1'>
-                <TrendingUp className='w-5 h-5 text-black' />
-                <h2 className='text-xl font-bold text-black'>Performance</h2>
-              </div>
-              <p className='text-sm text-[#6D5A46] mb-5'>
-                All promo codes with attribution and revenue impact.
-              </p>
-
-              <div className='overflow-x-auto custom-scrollbar'>
-                <table className='w-full text-sm'>
-                  <thead>
-                    <tr className='border-b border-[#3F060F]/20'>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Code
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Discount
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Usage
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Revenue
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Source
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Status
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {promoCodes.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={7}
-                          className='text-center py-12 text-[#a68f74]'
-                        >
-                          No promo codes yet. Create your first one above.
-                        </td>
-                      </tr>
-                    ) : (
-                      promoCodes.map((promo) => (
-                        <tr
-                          key={promo.id}
-                          className='border-b border-[#3F060F]/10 hover:bg-[#D5BD9D]/20 transition-colors'
-                        >
-                          <td className='py-3 px-3 font-semibold text-black'>
-                            {promo.code}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
-                            {promo.discountType === 'percentage'
-                              ? `${promo.value}%`
-                              : formatCurrency(promo.value)}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
-                            {promo.totalUsage.toLocaleString()}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
-                            {formatCurrency(promo.totalRevenue)}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
-                            {promo.source ?? '—'}
-                          </td>
-                          <td className='py-3 px-3'>
-                            <StatusBadge status={promo.status} />
-                          </td>
-                          <td className='py-3 px-3'>
-                            <div className='flex items-center gap-2'>
-                              <button
-                                onClick={() => handleToggle(promo.id)}
-                                disabled={togglingId === promo.id}
-                                title={
-                                  promo.status === 'active'
-                                    ? 'Disable'
-                                    : 'Enable'
-                                }
-                                className='p-1.5 rounded-lg hover:bg-[#D5BD9D]/40 transition-colors text-[#6D5A46] hover:text-dark-red disabled:opacity-50'
-                              >
-                                {togglingId === promo.id ? (
-                                  <Loader2 className='w-4 h-4 animate-spin' />
-                                ) : promo.status === 'active' ? (
-                                  <ToggleRight className='w-4 h-4 text-green-700' />
-                                ) : (
-                                  <ToggleLeft className='w-4 h-4' />
-                                )}
-                              </button>
-
-                              <button
-                                onClick={() => handleDelete(promo.id)}
-                                disabled={deletingId === promo.id}
-                                title='Delete'
-                                className='p-1.5 rounded-lg hover:bg-red-100 transition-colors text-[#6D5A46] hover:text-red-600 disabled:opacity-50'
-                              >
-                                {deletingId === promo.id ? (
-                                  <Loader2 className='w-4 h-4 animate-spin' />
-                                ) : (
-                                  <Trash2 className='w-4 h-4' />
-                                )}
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
-      </div>
+
+        {/* ── Delete Confirmation Modal ── */}
+        {promoToDelete && (
+          <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm font-bona!'>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className='bg-white rounded-2xl p-6 shadow-xl w-full max-w-md'
+            >
+              <div className='flex items-center gap-3 text-red-600 mb-4'>
+                <div className='bg-red-100 p-2 rounded-full'>
+                  <AlertTriangle className='w-6 h-6' />
+                </div>
+                <h2 className='text-xl font-bold'>Delete Promo Code</h2>
+              </div>
+              <p className='text-gray-600 mb-6'>
+                Are you sure you want to delete the promo code <strong className='text-black'>{promoToDelete.code}</strong>? This action cannot be undone and will permanently remove its tracking data.
+              </p>
+              <div className='flex items-center justify-end gap-3'>
+                <button
+                  onClick={() => setPromoToDelete(null)}
+                  disabled={deletingId === promoToDelete.id}
+                  className='px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50'
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deletingId === promoToDelete.id}
+                  className='px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50'
+                >
+                  {deletingId === promoToDelete.id ? (
+                    <Loader2 className='w-4 h-4 animate-spin' />
+                  ) : (
+                    <Trash2 className='w-4 h-4' />
+                  )}
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </AdminLayout>
   );
 }
