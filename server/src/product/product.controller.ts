@@ -5,12 +5,16 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Patch,
+  Delete,
+  Param,
   UseGuards,
   UseInterceptors,
   UploadedFiles,
+  UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import {
@@ -21,10 +25,23 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 const storage = diskStorage({
   destination: './uploads/products',
+  filename: (req, file, cb) => {
+    const randomName = Array(32)
+      .fill(null)
+      .map(() => Math.round(Math.random() * 16).toString(16))
+      .join('');
+    cb(null, `${randomName}${extname(file.originalname)}`);
+  },
+});
+
+const categoryStorage = diskStorage({
+  destination: './uploads/categories',
   filename: (req, file, cb) => {
     const randomName = Array(32)
       .fill(null)
@@ -64,6 +81,20 @@ export class ProductController {
     return this.productService.createProduct(dto);
   }
 
+  @Patch('products/:id')
+  async updateProduct(
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDto,
+  ): Promise<ProductResponse> {
+    return this.productService.updateProduct(id, dto);
+  }
+
+  @Delete('products/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteProduct(@Param('id') id: string): Promise<void> {
+    return this.productService.deleteProduct(id);
+  }
+
   @Post('products/upload-images')
   @UseInterceptors(
     FilesInterceptor('images', 10, {
@@ -94,5 +125,38 @@ export class ProductController {
     @Body() dto: CreateCategoryDto,
   ): Promise<CategoryResponse> {
     return this.productService.createCategory(dto);
+  }
+
+  @Post('categories/upload-image')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: categoryStorage,
+      fileFilter,
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async uploadCategoryImage(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+    return { url: `/uploads/categories/${file.filename}` };
+  }
+
+  @Patch('categories/:id')
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() dto: UpdateCategoryDto,
+  ): Promise<CategoryResponse> {
+    return this.productService.updateCategory(id, dto);
+  }
+
+  @Delete('categories/:id')
+  @HttpCode(HttpStatus.OK)
+  async deleteCategory(
+    @Param('id') id: string,
+  ): Promise<{ message: string }> {
+    return this.productService.deleteCategory(id);
   }
 }

@@ -21,6 +21,8 @@ export interface ProductAnalyticsProduct {
 export interface ProductCategory {
   id: string;
   name: string;
+  image?: string;
+  color?: string;
 }
 
 export interface CreateProductPayload {
@@ -44,4 +46,12 @@ export interface CreateProductPayload {
 
 export interface CreateCategoryPayload {
   name: string;
+  image?: string;
+  color?: string;
+}
+
+export interface UpdateCategoryPayload {
+  name?: string;
+  image?: string;
+  color?: string;
 }

@@ -112,6 +112,8 @@ enum ProductPerformance {
 model ProductCategory {
   id        String    @id @default(uuid())
   name      String    @unique
+  image     String?
+  color     String?
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

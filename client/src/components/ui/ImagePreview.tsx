@@ -4,19 +4,21 @@ interface ImagePreviewProps {
   images: string[];
   onRemove?: (index: number) => void;
   readOnly?: boolean;
+  title?: string;
 }
 
 export const ImagePreview: React.FC<ImagePreviewProps> = ({
   images,
   onRemove,
   readOnly = false,
+  title,
 }) => {
   if (images.length === 0) return null;
 
   return (
     <div className='space-y-2'>
       <span className='block text-sm font-semibold text-black'>
-        Image Preview ({images.length})
+        {title || 'Image Preview'} ({images.length})
       </span>
       <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4'>
         {images.map((url, idx) => (

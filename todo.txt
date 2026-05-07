@@ -1,5 +1,1 @@
-✓ products upload images
-add image/icon/color to category
-show available categories/delete them
-add edit/delete product
 fix ui

@@ -3,6 +3,7 @@ import type {
   CreateProductPayload,
   ProductAnalyticsProduct,
   ProductCategory,
+  UpdateCategoryPayload,
 } from '../types/product';
 import { ApiError } from './authService';
 
@@ -95,6 +96,39 @@ export async function createProduct(
   return (await response.json()) as ProductAnalyticsProduct;
 }
 
+export async function updateProduct(
+  id: string,
+  payload: Partial<CreateProductPayload>,
+): Promise<ProductAnalyticsProduct> {
+  const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as ProductAnalyticsProduct;
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+}
+
 export async function createCategory(
   payload: CreateCategoryPayload,
 ): Promise<ProductCategory> {
@@ -113,6 +147,65 @@ export async function createCategory(
   }
 
   return (await response.json()) as ProductCategory;
+}
+
+export async function updateCategory(
+  id: string,
+  payload: UpdateCategoryPayload,
+): Promise<ProductCategory> {
+  const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as ProductCategory;
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+}
+
+export async function uploadCategoryImage(
+  file: File,
+): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch(
+    `${API_BASE_URL}/admin/categories/upload-image`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  const data = (await response.json()) as { url: string };
+  return {
+    url: data.url.startsWith('http')
+      ? data.url
+      : `${API_BASE_URL}${data.url}`,
+  };
 }
 
 export async function uploadProductImages(
