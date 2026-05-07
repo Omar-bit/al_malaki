@@ -1,6 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Pencil, Trash2, Eye, Currency } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  Search,
+  DollarSign,
+  Package,
+  TrendingUp,
+  Award,
+  Plus,
+  FolderTree,
+} from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { Modal } from '../../components/ui/Modal';
 import { ImageUpload } from '../../components/ui/ImageUpload';
@@ -64,11 +75,11 @@ const initialFormState: ProductFormState = {
 
 function formatCurrency(value: number) {
   //TND
-  return new Intl.NumberFormat("en-US",{
-    style:"currency",
-    currency:"TND",
-    maximumFractionDigits:0
-  }).format(value)
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'TND',
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 function createSlug(value: string) {
@@ -98,13 +109,21 @@ export function AdminAnalyticsPage() {
   const [categoryName, setCategoryName] = useState('');
   const [categoryColor, setCategoryColor] = useState('#D4B896');
   const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
-  const [categoryImagePreview, setCategoryImagePreview] = useState<string | null>(null);
-  const [editingCategory, setEditingCategory] = useState<ProductCategory | null>(null);
+  const [categoryImagePreview, setCategoryImagePreview] = useState<
+    string | null
+  >(null);
+  const [editingCategory, setEditingCategory] =
+    useState<ProductCategory | null>(null);
   const [editCategoryName, setEditCategoryName] = useState('');
   const [editCategoryColor, setEditCategoryColor] = useState('#D4B896');
-  const [editCategoryImageFile, setEditCategoryImageFile] = useState<File | null>(null);
-  const [editCategoryImagePreview, setEditCategoryImagePreview] = useState<string | null>(null);
-  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
+  const [editCategoryImageFile, setEditCategoryImageFile] =
+    useState<File | null>(null);
+  const [editCategoryImagePreview, setEditCategoryImagePreview] = useState<
+    string | null
+  >(null);
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(
+    null,
+  );
   // Each entry keeps the raw File (for upload) and a stable objectURL (for preview)
   const [pendingImages, setPendingImages] = useState<
     Array<{ file: File; previewUrl: string }>
@@ -340,7 +359,9 @@ export function AdminAnalyticsPage() {
     } catch (error) {
       console.error(error);
       toast.error(
-        error instanceof Error ? error.message : 'Unable to add category. Please try again.',
+        error instanceof Error
+          ? error.message
+          : 'Unable to add category. Please try again.',
       );
     }
   };
@@ -362,7 +383,9 @@ export function AdminAnalyticsPage() {
     setEditCategoryImagePreview(null);
   };
 
-  const handleUpdateCategory = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateCategory = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
     if (!editingCategory) return;
     const trimmedName = editCategoryName.trim();
@@ -403,7 +426,10 @@ export function AdminAnalyticsPage() {
       // If the deleted category was selected in the product form, reset
       setFormState((current) =>
         current.categoryId === id
-          ? { ...current, categoryId: categories.find((c) => c.id !== id)?.id ?? '' }
+          ? {
+              ...current,
+              categoryId: categories.find((c) => c.id !== id)?.id ?? '',
+            }
           : current,
       );
       toast.success('Category deleted.');
@@ -419,56 +445,70 @@ export function AdminAnalyticsPage() {
     <AdminLayout>
       <div className='min-h-full p-6 md:px-10'>
         <div className='mx-auto max-w-7xl'>
-          <header className='mb-8'>
-            <p className='text-sm uppercase tracking-[0.35em] text-[#6D5A46] font-semibold'>
-              Product analytics
-            </p>
-            <div className='mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between'>
-              <div>
-                <h1 className='text-4xl font-bold text-black'>
-                  Track product performance and sales insights
+          <header className='mb-10'>
+            <div className='flex items-center gap-3 mb-2'>
+              <div className='h-8 w-2 rounded-full bg-dark-red'></div>
+              <p className='text-sm uppercase tracking-[0.35em] text-[#6D5A46] font-bold'>
+                Product Analytics
+              </p>
+            </div>
+            <div className='mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between'>
+              <div className='max-w-2xl'>
+                <h1 className='text-4xl md:text-5xl font-extrabold text-black tracking-tight'>
+                  Track product performance <br className='hidden md:block' />{' '}
+                  and sales insights
                 </h1>
-                <p className='mt-3 max-w-2xl text-[#6D5A46]'>
+                <p className='mt-4 text-lg text-[#6D5A46] leading-relaxed'>
                   Review products from the catalog, add new inventory, and
-                  manage categories from one place.
+                  manage categories from one centralized hub.
                 </p>
               </div>
-              <div className='flex flex-wrap gap-3'>
+              <div className='flex flex-wrap items-center gap-3'>
                 <button
                   type='button'
                   onClick={() => setIsCategoryModalOpen(true)}
-                  className='rounded-full border border-[#6D5A46] bg-white px-5 py-3 text-sm font-semibold text-[#6D5A46] transition hover:border-dark-red hover:text-dark-red'
+                  className='group flex items-center gap-2 rounded-full border-2 border-[#d5bd9d] bg-white px-6 py-3 text-sm font-bold text-[#6D5A46] transition-all hover:border-dark-red hover:text-dark-red hover:shadow-sm'
                 >
+                  <FolderTree className='h-4 w-4 transition-transform group-hover:scale-110' />
                   Manage categories
                 </button>
                 <button
                   type='button'
                   onClick={() => setIsProductModalOpen(true)}
                   disabled={categories.length === 0}
-                  className={`rounded-full bg-dark-red px-5 py-3 text-sm font-semibold text-white ${categories.length === 0
-                    ? 'cursor-not-allowed opacity-50'
-                    : 'shadow-sm transition hover:bg-[#5c030f]'
-                    }`}
+                  className={`group flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition-all ${
+                    categories.length === 0
+                      ? 'cursor-not-allowed bg-gray-400 opacity-50'
+                      : 'bg-gradient-to-r from-dark-red to-[#7a0616] shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                  }`}
                 >
+                  <Plus className='h-4 w-4 transition-transform group-hover:rotate-90' />
                   Add product
                 </button>
               </div>
             </div>
           </header>
 
-          <section className='grid grid-cols-1 gap-5 xl:grid-cols-4'>
+          <section className='grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4'>
             <StatCard
               label='Total Revenue'
               value={formatCurrency(totalRevenue)}
+              icon={DollarSign}
             />
-            <StatCard label='Available Products' value={`${products.length}`} />
+            <StatCard
+              label='Available Products'
+              value={`${products.length}`}
+              icon={Package}
+            />
             <StatCard
               label='Best Selling Product'
               value={featuredProduct?.name ?? '—'}
+              icon={Award}
             />
             <StatCard
               label='Trending Product'
               value={trendingProduct?.name ?? '—'}
+              icon={TrendingUp}
             />
           </section>
 
@@ -481,54 +521,75 @@ export function AdminAnalyticsPage() {
             <InsightCard title='Insights' description='' />
           </section>
 
-          <section className='mt-10 rounded-4xl border border-[#d5bd9d] bg-[#f7efe6] p-6 shadow-sm'>
-            <div className='mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+          <section className='mt-10 rounded-[40px] border border-[#d5bd9d] bg-[#f7efe6] p-6 md:p-8 shadow-sm'>
+            <div className='mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between'>
               <div>
-                <h2 className='text-xl font-semibold text-black'>
+                <h2 className='text-2xl font-bold text-black'>
                   Product performance
                 </h2>
-                <p className='text-sm text-[#6D5A46]'>
-                  {filteredProducts.length} of {products.length} products
+                <p className='mt-1 text-sm font-medium text-[#6D5A46]'>
+                  Showing {filteredProducts.length} of {products.length}{' '}
+                  products
                 </p>
               </div>
 
-              <div className='flex flex-col gap-3 sm:flex-row'>
-                <input
-                  type='search'
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder='Search products'
-                  className='w-full min-w-55 rounded-full border border-[#d5bd9d] bg-white/90 px-4 py-3 text-sm text-dark-red outline-none focus:border-dark-red focus:ring-2 focus:ring-[#F4E0D4]'
-                />
-                <select
-                  value={statusFilter}
-                  onChange={(event) =>
-                    setStatusFilter(
-                      event.target.value as 'all' | 'active' | 'hidden',
-                    )
-                  }
-                  className='w-full min-w-40 rounded-full border border-[#d5bd9d] bg-white/90 px-4 py-3 text-sm text-dark-red outline-none focus:border-dark-red focus:ring-2 focus:ring-[#F4E0D4]'
-                >
-                  <option value='all'>All statuses</option>
-                  <option value='active'>Active</option>
-                  <option value='hidden'>Hidden</option>
-                </select>
+              <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
+                <div className='relative w-full sm:min-w-[300px]'>
+                  <Search className='absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#d5bd9d]' />
+                  <input
+                    type='search'
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder='Search products...'
+                    className='w-full rounded-full border-2 border-[#d5bd9d] bg-white/80 py-3 pl-12 pr-4 text-sm font-medium text-black placeholder-[#a89580] outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10'
+                  />
+                </div>
+                <div className='relative w-full sm:min-w-[180px]'>
+                  <select
+                    value={statusFilter}
+                    onChange={(event) =>
+                      setStatusFilter(
+                        event.target.value as 'all' | 'active' | 'hidden',
+                      )
+                    }
+                    className='w-full appearance-none rounded-full border-2 border-[#d5bd9d] bg-white/80 py-3 pl-5 pr-10 text-sm font-medium text-black outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10 cursor-pointer'
+                  >
+                    <option value='all'>All statuses</option>
+                    <option value='active'>Active</option>
+                    <option value='hidden'>Hidden</option>
+                  </select>
+                  <div className='pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#d5bd9d]'>
+                    <svg
+                      className='h-4 w-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M19 9l-7 7-7-7'
+                      />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className='overflow-hidden rounded-[28px] border border-[#c8b49c] bg-white shadow-sm'>
+            <div className='overflow-hidden rounded-[32px] border border-[#d5bd9d] bg-white/50 backdrop-blur-md shadow-sm'>
               <table className='min-w-full border-collapse text-left text-sm'>
-                <thead className='bg-[#F7EEE1]'>
+                <thead className='bg-white border-b border-[#d5bd9d]'>
                   <tr>
                     <TableHeader>Product</TableHeader>
                     <TableHeader>Category</TableHeader>
                     <TableHeader>Price</TableHeader>
                     <TableHeader>Status</TableHeader>
                     <TableHeader>Performance</TableHeader>
-                    <TableHeader>Actions</TableHeader>
+                    <TableHeader align='right'>Actions</TableHeader>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className='divide-y divide-[#E7D7C2] bg-transparent'>
                   {filteredProducts.length === 0 ? (
                     <tr>
                       <td
@@ -542,46 +603,71 @@ export function AdminAnalyticsPage() {
                     filteredProducts.map((product) => (
                       <tr
                         key={product.id}
-                        className='border-t border-[#E7D7C2] hover:bg-[#F4E0D4]/50'
+                        className='group transition-colors hover:bg-white/60'
                       >
-                        <td className='px-6 py-4'>
-                          <div className='font-semibold text-black'>
-                            {product.name}
-                          </div>
-                          <div className='text-xs text-[#6D5A46]'>
-                            {product.brand ?? 'Brand not set'}
+                        <td className='px-6 py-5'>
+                          <div className='flex items-center gap-4'>
+                            <div className='h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-[#E7D7C2] bg-[#F7EEE1]'>
+                              {product.images && product.images.length > 0 ? (
+                                <img
+                                  src={product.images[0]}
+                                  alt={product.name}
+                                  className='h-full w-full object-cover'
+                                />
+                              ) : (
+                                <div className='flex h-full w-full items-center justify-center text-[#d5bd9d]'>
+                                  <Package className='h-5 w-5' />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <div className='font-bold text-black group-hover:text-dark-red transition-colors'>
+                                {product.name}
+                              </div>
+                              <div className='text-xs font-medium text-[#8c7a66] mt-0.5'>
+                                {product.brand ?? 'No brand'}
+                              </div>
+                            </div>
                           </div>
                         </td>
-                        <td className='px-6 py-4 text-dark-red'>
+                        <td className='px-6 py-5 font-semibold text-dark-red'>
                           {product.category}
                         </td>
-                        <td className='px-6 py-4 text-dark-red'>
-                          {formatCurrency(
-                            product.discountPrice ?? product.price,
+                        <td className='px-6 py-5'>
+                          <div className='font-bold text-dark-red'>
+                            {formatCurrency(
+                              product.discountPrice ?? product.price,
+                            )}
+                          </div>
+                          {product.discountPrice && (
+                            <div className='text-xs text-[#a89580] line-through'>
+                              {formatCurrency(product.price)}
+                            </div>
                           )}
                         </td>
-                        <td className='px-6 py-4'>
+                        <td className='px-6 py-5'>
                           <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest ${product.status === 'active'
-                              ? 'bg-[#3bb24a] text-white'
-                              : 'bg-[#6d5a46] text-white'
-                              }`}
+                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${
+                              product.status === 'active'
+                                ? 'bg-[#e6f4ea] text-[#2e8540]'
+                                : 'bg-[#f5f5f5] text-[#6d5a46]'
+                            }`}
                           >
                             {product.status}
                           </span>
                         </td>
-                        <td className='px-6 py-4'>
-                          <span className='rounded-full bg-[#F4E0D4] px-3 py-1 text-xs font-semibold text-[#6D5A46]'>
+                        <td className='px-6 py-5'>
+                          <span className='rounded-full border border-[#d5bd9d] bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#6D5A46]'>
                             {product.performance}
                           </span>
                         </td>
-                        <td className='px-6 py-4'>
-                          <div className='flex items-center gap-2'>
+                        <td className='px-6 py-5'>
+                          <div className='flex items-center justify-end gap-1'>
                             <button
                               type='button'
                               title='View Details'
                               onClick={() => setViewingProduct(product)}
-                              className='rounded p-2 text-[#6D5A46] transition hover:bg-[#E7D7C2] hover:text-black'
+                              className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-white hover:text-dark-red hover:shadow-sm'
                             >
                               <Eye className='h-4 w-4' />
                             </button>
@@ -589,7 +675,7 @@ export function AdminAnalyticsPage() {
                               type='button'
                               title='Edit Product'
                               onClick={() => handleEditClick(product)}
-                              className='rounded p-2 text-[#6D5A46] transition hover:bg-[#E7D7C2] hover:text-black'
+                              className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-white hover:text-dark-red hover:shadow-sm'
                             >
                               <Pencil className='h-4 w-4' />
                             </button>
@@ -597,7 +683,7 @@ export function AdminAnalyticsPage() {
                               type='button'
                               title='Delete Product'
                               onClick={() => setDeletingProduct(product)}
-                              className='rounded p-2 text-dark-red transition hover:bg-red-100 hover:text-red-700'
+                              className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-[#fff0f0] hover:text-red-600 hover:shadow-sm'
                             >
                               <Trash2 className='h-4 w-4' />
                             </button>
@@ -671,23 +757,28 @@ export function AdminAnalyticsPage() {
               }))}
             />
             <div className='flex items-end gap-3'>
-              <SelectField
-                label='Placement'
-                value={formState.primaryPlacement}
-                onChange={(value) =>
-                  handleProductChange('primaryPlacement', value)
-                }
-                options={['Homepage', 'Collection', 'Featured'].map((item) => ({
-                  value: item,
-                  label: item,
-                }))}
-              />
+              <div className='flex-1'>
+                <SelectField
+                  label='Placement'
+                  value={formState.primaryPlacement}
+                  onChange={(value) =>
+                    handleProductChange('primaryPlacement', value)
+                  }
+                  options={['Homepage', 'Collection', 'Featured'].map(
+                    (item) => ({
+                      value: item,
+                      label: item,
+                    }),
+                  )}
+                />
+              </div>
               <button
                 type='button'
                 onClick={() => setIsCategoryModalOpen(true)}
-                className='rounded-full bg-[#F3E6D9] px-4 py-3 text-sm font-semibold text-[#6D5A46] transition hover:bg-[#E5D2BD]'
+                className='flex items-center gap-2 rounded-full border-2 border-[#d5bd9d] bg-white px-5 py-3 text-sm font-bold text-[#6D5A46] shadow-sm transition-all hover:border-dark-red hover:bg-[#F7EEE1] hover:text-dark-red mb-[2px]'
               >
-                Manage
+                <FolderTree className='h-4 w-4' />
+                <span className='hidden sm:inline'>Manage</span>
               </button>
             </div>
           </div>
@@ -825,7 +916,10 @@ export function AdminAnalyticsPage() {
           setCategoryName('');
           setCategoryColor('#D4B896');
           setCategoryImageFile(null);
-          if (categoryImagePreview) { URL.revokeObjectURL(categoryImagePreview); setCategoryImagePreview(null); }
+          if (categoryImagePreview) {
+            URL.revokeObjectURL(categoryImagePreview);
+            setCategoryImagePreview(null);
+          }
         }}
         footer={
           <div className='flex items-center justify-end'>
@@ -841,9 +935,11 @@ export function AdminAnalyticsPage() {
       >
         <div className='space-y-6'>
           {/* Category list */}
-          <div className='space-y-2'>
+          <div className='space-y-3'>
             {categories.length === 0 && (
-              <p className='py-4 text-center text-sm text-[#6D5A46]'>No categories yet. Add one below.</p>
+              <p className='py-6 text-center text-sm text-[#6D5A46] bg-[#F7EEE1] rounded-2xl border border-dashed border-[#d5bd9d]'>
+                No categories yet. Add one below.
+              </p>
             )}
             {categories.map((cat) =>
               editingCategory?.id === cat.id ? (
@@ -851,45 +947,69 @@ export function AdminAnalyticsPage() {
                 <form
                   key={cat.id}
                   onSubmit={handleUpdateCategory}
-                  className='rounded-2xl border border-dark-red/30 bg-[#FFF8F3] p-3 space-y-3'
+                  className='rounded-[24px] border-2 border-dark-red bg-[#fff9f5] p-5 space-y-4 shadow-sm'
                 >
-                  <div className='grid gap-3 sm:grid-cols-2'>
+                  <div className='grid gap-4 sm:grid-cols-2'>
                     <label className='block text-sm'>
-                      <span className='mb-1 block font-semibold text-black'>Name</span>
+                      <span className='mb-2 block font-bold text-black'>
+                        Name
+                      </span>
                       <input
                         value={editCategoryName}
                         onChange={(e) => setEditCategoryName(e.target.value)}
-                        className='w-full rounded-2xl border border-[#d5bd9d] bg-white px-3 py-2 text-sm text-dark-red outline-none focus:border-dark-red focus:ring-2 focus:ring-[#F4E0D4]'
+                        className='w-full rounded-full border-2 border-[#d5bd9d] bg-white px-4 py-2.5 text-sm text-black outline-none transition-all focus:border-dark-red focus:ring-4 focus:ring-dark-red/10'
                       />
                     </label>
                     <label className='block text-sm'>
-                      <span className='mb-1 block font-semibold text-black'>Color</span>
-                      <div className='flex items-center gap-2'>
+                      <span className='mb-2 block font-bold text-black'>
+                        Color
+                      </span>
+                      <div className='flex items-center gap-3'>
                         <input
                           type='color'
                           value={editCategoryColor}
                           onChange={(e) => setEditCategoryColor(e.target.value)}
-                          className='h-9 w-14 cursor-pointer rounded-xl border border-[#d5bd9d] p-0.5'
+                          className='h-11 w-16 cursor-pointer rounded-xl border-2 border-[#d5bd9d] bg-white p-0.5 transition-all focus:border-dark-red'
                         />
-                        <span className='text-xs text-[#6D5A46]'>{editCategoryColor}</span>
+                        <span className='text-sm font-semibold text-[#6D5A46] uppercase'>
+                          {editCategoryColor}
+                        </span>
                       </div>
                     </label>
                   </div>
                   {/* Image upload */}
                   <div>
-                    <span className='mb-1 block text-sm font-semibold text-black'>Image (optional)</span>
-                    <label className='flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-[#d5bd9d] bg-white px-4 py-3 hover:border-dark-red'>
+                    <span className='mb-2 block text-sm font-bold text-black'>
+                      Image (optional)
+                    </span>
+                    <label className='flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-[#d5bd9d] bg-white px-5 py-4 transition-colors hover:border-dark-red hover:bg-[#fff9f5]'>
                       {editCategoryImagePreview ? (
-                        <img src={editCategoryImagePreview} alt='preview' className='h-10 w-10 rounded-lg object-cover' />
+                        <img
+                          src={editCategoryImagePreview}
+                          alt='preview'
+                          className='h-12 w-12 rounded-xl object-cover border border-[#d5bd9d]'
+                        />
                       ) : (
-                        <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-[#F4E0D4]'>
-                          <svg className='h-5 w-5 text-[#6D5A46]' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5' />
+                        <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-[#F7EEE1] border border-[#d5bd9d]'>
+                          <svg
+                            className='h-6 w-6 text-[#a89580]'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={1.5}
+                              d='M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'
+                            />
                           </svg>
                         </div>
                       )}
-                      <span className='text-sm text-[#6D5A46]'>
-                        {editCategoryImagePreview ? 'Change image' : 'Upload image'}
+                      <span className='text-sm font-semibold text-dark-red'>
+                        {editCategoryImagePreview
+                          ? 'Change image'
+                          : 'Upload image'}
                       </span>
                       <input
                         type='file'
@@ -898,66 +1018,92 @@ export function AdminAnalyticsPage() {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          if (editCategoryImageFile && editCategoryImagePreview) URL.revokeObjectURL(editCategoryImagePreview);
+                          if (editCategoryImageFile && editCategoryImagePreview)
+                            URL.revokeObjectURL(editCategoryImagePreview);
                           setEditCategoryImageFile(file);
-                          setEditCategoryImagePreview(URL.createObjectURL(file));
+                          setEditCategoryImagePreview(
+                            URL.createObjectURL(file),
+                          );
                         }}
                       />
                     </label>
                   </div>
-                  <div className='flex justify-end gap-2'>
-                    <button type='button' onClick={cancelEditCategory} className='rounded-full border border-[#6D5A46] bg-white px-3 py-1.5 text-xs font-semibold text-[#6D5A46]'>Cancel</button>
-                    <button type='submit' className='rounded-full bg-dark-red px-3 py-1.5 text-xs font-semibold text-white'>Save</button>
+                  <div className='flex justify-end gap-3 pt-2'>
+                    <button
+                      type='button'
+                      onClick={cancelEditCategory}
+                      className='rounded-full border-2 border-[#d5bd9d] bg-white px-5 py-2 text-sm font-bold text-[#6D5A46] transition-colors hover:bg-[#F7EEE1]'
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type='submit'
+                      className='rounded-full bg-dark-red px-6 py-2 text-sm font-bold text-white shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg'
+                    >
+                      Save
+                    </button>
                   </div>
                 </form>
               ) : (
                 /* ── Read row ── */
                 <div
                   key={cat.id}
-                  className='flex items-center gap-3 rounded-2xl border border-[#E7D7C2] bg-white px-4 py-3'
+                  className='group flex items-center gap-4 rounded-2xl border border-[#d5bd9d] bg-white px-5 py-4 transition-colors hover:border-dark-red hover:shadow-sm'
                 >
                   {/* Visual: image OR color swatch */}
                   {cat.image ? (
-                    <img src={cat.image} alt={cat.name} className='h-9 w-9 rounded-lg object-cover flex-shrink-0' />
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className='h-10 w-10 rounded-xl object-cover flex-shrink-0 border border-[#E7D7C2]'
+                    />
                   ) : (
                     <div
-                      className='h-9 w-9 rounded-lg flex-shrink-0 border border-[#d5bd9d]'
+                      className='h-10 w-10 rounded-xl flex-shrink-0 border border-[#d5bd9d] shadow-inner'
                       style={{ background: cat.color || '#F4E0D4' }}
                     />
                   )}
-                  <span className='flex-1 text-sm font-semibold text-black'>{cat.name}</span>
+                  <span className='flex-1 text-sm font-bold text-black'>
+                    {cat.name}
+                  </span>
                   {/* Confirm delete inline */}
                   {deletingCategoryId === cat.id ? (
-                    <div className='flex items-center gap-2'>
-                      <span className='text-xs text-dark-red'>Delete?</span>
+                    <div className='flex items-center gap-3 bg-[#fff0f0] px-4 py-2 rounded-full border border-red-200'>
+                      <span className='text-xs font-bold text-red-600'>
+                        Delete?
+                      </span>
                       <button
                         type='button'
                         onClick={() => handleDeleteCategory(cat.id)}
-                        className='rounded-full bg-dark-red px-2.5 py-1 text-xs font-semibold text-white'
-                      >Yes</button>
+                        className='rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-red-700'
+                      >
+                        Yes
+                      </button>
                       <button
                         type='button'
                         onClick={() => setDeletingCategoryId(null)}
-                        className='rounded-full border border-[#6D5A46] px-2.5 py-1 text-xs font-semibold text-[#6D5A46]'
-                      >No</button>
+                        className='rounded-full border border-red-200 bg-white px-3 py-1 text-xs font-bold text-red-600 transition-colors hover:bg-red-50'
+                      >
+                        No
+                      </button>
                     </div>
                   ) : (
-                    <div className='flex items-center gap-1'>
+                    <div className='flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
                       <button
                         type='button'
                         title='Edit'
                         onClick={() => startEditCategory(cat)}
-                        className='rounded p-1.5 text-[#6D5A46] hover:bg-[#F4E0D4] hover:text-black'
+                        className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-[#F7EEE1] hover:text-dark-red'
                       >
-                        <Pencil className='h-3.5 w-3.5' />
+                        <Pencil className='h-4 w-4' />
                       </button>
                       <button
                         type='button'
                         title='Delete'
                         onClick={() => setDeletingCategoryId(cat.id)}
-                        className='rounded p-1.5 text-dark-red hover:bg-red-100'
+                        className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-[#fff0f0] hover:text-red-600'
                       >
-                        <Trash2 className='h-3.5 w-3.5' />
+                        <Trash2 className='h-4 w-4' />
                       </button>
                     </div>
                   )}
@@ -967,48 +1113,73 @@ export function AdminAnalyticsPage() {
           </div>
 
           {/* Divider */}
-          <div className='border-t border-[#E7D7C2]' />
+          <div className='border-t-2 border-dashed border-[#d5bd9d]' />
 
           {/* Add new category form */}
-          <form onSubmit={handleAddCategory} className='space-y-3'>
-            <p className='text-sm font-semibold text-black'>Add new category</p>
-            <div className='grid gap-3 sm:grid-cols-2'>
+          <form
+            onSubmit={handleAddCategory}
+            className='space-y-4 rounded-[24px] border border-[#d5bd9d] bg-[#F7EEE1] p-5'
+          >
+            <p className='text-sm font-bold text-black'>Add new category</p>
+            <div className='grid gap-4 sm:grid-cols-2'>
               <label className='block text-sm'>
-                <span className='mb-1 block font-semibold text-[#6D5A46]'>Name</span>
+                <span className='mb-2 block font-semibold text-[#6D5A46]'>
+                  Name
+                </span>
                 <input
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   placeholder='e.g. Perfumes'
-                  className='w-full rounded-2xl border border-[#d5bd9d] bg-white px-3 py-2 text-sm text-dark-red outline-none focus:border-dark-red focus:ring-2 focus:ring-[#F4E0D4]'
+                  className='w-full rounded-full border-2 border-[#d5bd9d] bg-white px-4 py-2.5 text-sm text-black outline-none transition-all focus:border-dark-red focus:ring-4 focus:ring-dark-red/10'
                 />
               </label>
               <label className='block text-sm'>
-                <span className='mb-1 block font-semibold text-[#6D5A46]'>Color</span>
-                <div className='flex items-center gap-2'>
+                <span className='mb-2 block font-semibold text-[#6D5A46]'>
+                  Color
+                </span>
+                <div className='flex items-center gap-3'>
                   <input
                     type='color'
                     value={categoryColor}
                     onChange={(e) => setCategoryColor(e.target.value)}
-                    className='h-9 w-14 cursor-pointer rounded-xl border border-[#d5bd9d] p-0.5'
+                    className='h-11 w-16 cursor-pointer rounded-xl border-2 border-[#d5bd9d] bg-white p-0.5 transition-all focus:border-dark-red'
                   />
-                  <span className='text-xs text-[#6D5A46]'>{categoryColor}</span>
+                  <span className='text-sm font-semibold text-[#6D5A46] uppercase'>
+                    {categoryColor}
+                  </span>
                 </div>
               </label>
             </div>
             {/* Image upload */}
             <div>
-              <span className='mb-1 block text-sm font-semibold text-[#6D5A46]'>Image (optional)</span>
-              <label className='flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-[#d5bd9d] bg-white px-4 py-3 hover:border-dark-red'>
+              <span className='mb-2 block text-sm font-semibold text-[#6D5A46]'>
+                Image (optional)
+              </span>
+              <label className='flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-[#d5bd9d] bg-white px-5 py-4 transition-colors hover:border-dark-red'>
                 {categoryImagePreview ? (
-                  <img src={categoryImagePreview} alt='preview' className='h-10 w-10 rounded-lg object-cover' />
+                  <img
+                    src={categoryImagePreview}
+                    alt='preview'
+                    className='h-12 w-12 rounded-xl object-cover border border-[#d5bd9d]'
+                  />
                 ) : (
-                  <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-[#F4E0D4]'>
-                    <svg className='h-5 w-5 text-[#6D5A46]' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5' />
+                  <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-[#F7EEE1] border border-[#d5bd9d]'>
+                    <svg
+                      className='h-6 w-6 text-[#a89580]'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={1.5}
+                        d='M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'
+                      />
                     </svg>
                   </div>
                 )}
-                <span className='text-sm text-[#6D5A46]'>
+                <span className='text-sm font-semibold text-dark-red'>
                   {categoryImagePreview ? 'Change image' : 'Upload image'}
                 </span>
                 <input
@@ -1018,15 +1189,19 @@ export function AdminAnalyticsPage() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (categoryImageFile && categoryImagePreview) URL.revokeObjectURL(categoryImagePreview);
+                    if (categoryImageFile && categoryImagePreview)
+                      URL.revokeObjectURL(categoryImagePreview);
                     setCategoryImageFile(file);
                     setCategoryImagePreview(URL.createObjectURL(file));
                   }}
                 />
               </label>
             </div>
-            <div className='flex justify-end'>
-              <button type='submit' className='rounded-full bg-dark-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#5c030f]'>
+            <div className='flex justify-end pt-2'>
+              <button
+                type='submit'
+                className='rounded-full bg-dark-red px-6 py-2.5 text-sm font-bold text-white shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg'
+              >
                 Add category
               </button>
             </div>
@@ -1055,7 +1230,10 @@ export function AdminAnalyticsPage() {
             <div className='grid gap-6 md:grid-cols-2'>
               {viewingProduct.images.length > 0 ? (
                 <div className='h-64 overflow-y-auto rounded-2xl bg-[#F7EEE1] p-4'>
-                  <ImagePreview images={viewingProduct.images} readOnly={true} />
+                  <ImagePreview
+                    images={viewingProduct.images}
+                    readOnly={true}
+                  />
                 </div>
               ) : (
                 <div className='flex h-64 w-full items-center justify-center rounded-2xl bg-[#F7EEE1] text-[#6D5A46]'>
@@ -1076,10 +1254,11 @@ export function AdminAnalyticsPage() {
                     {viewingProduct.category}
                   </span>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white ${viewingProduct.status === 'active'
-                      ? 'bg-[#3bb24a]'
-                      : 'bg-[#6d5a46]'
-                      }`}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white ${
+                      viewingProduct.status === 'active'
+                        ? 'bg-[#3bb24a]'
+                        : 'bg-[#6d5a46]'
+                    }`}
                   >
                     {viewingProduct.status}
                   </span>
@@ -1200,13 +1379,28 @@ export function AdminAnalyticsPage() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  icon?: React.ElementType;
+}) {
   return (
-    <div className='rounded-[28px] border border-[#d5bd9d] bg-white p-6 shadow-sm transition hover:-translate-y-1'>
-      <p className='text-sm uppercase tracking-[0.2em] text-[#6D5A46] font-semibold'>
-        {label}
-      </p>
-      <div className='mt-4 text-3xl font-bold text-black'>{value}</div>
+    <div className='group relative overflow-hidden rounded-[28px] border border-[#d5bd9d] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md'>
+      <div className='flex items-center justify-between'>
+        <p className='text-xs uppercase tracking-[0.2em] text-[#6D5A46] font-bold'>
+          {label}
+        </p>
+        {Icon && (
+          <div className='flex h-10 w-10 items-center justify-center rounded-full bg-[#F4E0D4]/50 text-dark-red transition-colors group-hover:bg-dark-red group-hover:text-white'>
+            <Icon className='h-5 w-5' />
+          </div>
+        )}
+      </div>
+      <div className='mt-4 text-3xl font-extrabold text-black'>{value}</div>
     </div>
   );
 }
@@ -1219,18 +1413,26 @@ function InsightCard({
   description: string;
 }) {
   return (
-    <div className='rounded-[28px] border border-[#d5bd9d] bg-[#F4E0D4]/50 p-6 min-h-45'>
-      <h3 className='text-lg font-semibold text-black'>{title}</h3>
-      <p className='mt-4 text-sm leading-6 text-[#6D5A46] min-h-20'>
+    <div className='group rounded-[28px] border border-[#d5bd9d] bg-gradient-to-br from-[#F4E0D4]/50 to-[#F7EEE1]/30 p-6 min-h-45 transition-all hover:shadow-sm hover:border-[#c8b49c]'>
+      <h3 className='text-lg font-bold text-black'>{title}</h3>
+      <p className='mt-4 text-sm leading-6 text-[#6D5A46] min-h-20 font-medium'>
         {description}
       </p>
     </div>
   );
 }
 
-function TableHeader({ children }: { children: React.ReactNode }) {
+function TableHeader({
+  children,
+  align = 'left',
+}: {
+  children: React.ReactNode;
+  align?: 'left' | 'right' | 'center';
+}) {
   return (
-    <th className='px-6 py-4 text-left text-xs uppercase tracking-[0.25em] text-[#6D5A46]'>
+    <th
+      className={`px-6 py-5 text-${align} text-[11px] font-bold uppercase tracking-[0.25em] text-[#8c7a66]`}
+    >
       {children}
     </th>
   );
@@ -1257,14 +1459,14 @@ function FormField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           rows={4}
-          className='mt-1 w-full rounded-3xl border border-[#d5bd9d] bg-white/90 px-4 py-3 text-sm text-dark-red outline-none focus:border-dark-red focus:ring-2 focus:ring-[#F4E0D4]'
+          className='mt-1 w-full rounded-2xl border-2 border-[#d5bd9d] bg-white/80 px-4 py-3 text-sm text-black placeholder-[#a89580] outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10 resize-none'
         />
       ) : (
         <input
           type={type}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className='mt-1 w-full rounded-3xl border border-[#d5bd9d] bg-white/90 px-4 py-3 text-sm text-dark-red outline-none focus:border-dark-red focus:ring-2 focus:ring-[#F4E0D4]'
+          className='mt-1 w-full rounded-full border-2 border-[#d5bd9d] bg-white/80 px-4 py-3 text-sm text-black placeholder-[#a89580] outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10'
         />
       )}
     </label>
@@ -1285,17 +1487,34 @@ function SelectField({
   return (
     <label className='block text-sm text-[#6D5A46]'>
       <span className='mb-2 block font-semibold text-black'>{label}</span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className='mt-1 w-full rounded-3xl border border-[#d5bd9d] bg-white/90 px-4 py-3 text-sm text-dark-red outline-none focus:border-dark-red focus:ring-2 focus:ring-[#F4E0D4]'
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <div className='relative'>
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className='mt-1 w-full appearance-none rounded-full border-2 border-[#d5bd9d] bg-white/80 py-3 pl-4 pr-10 text-sm text-black outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10 cursor-pointer'
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className='pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#d5bd9d] mt-0.5'>
+          <svg
+            className='h-4 w-4'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M19 9l-7 7-7-7'
+            />
+          </svg>
+        </div>
+      </div>
     </label>
   );
 }
