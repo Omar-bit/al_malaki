@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useAuth } from '../../contexts';
+import { StatCard } from '../../components/ui';
 
 export function AdminDashboardPage() {
   const { user } = useAuth();
@@ -28,25 +29,10 @@ export function AdminDashboardPage() {
           className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6'
         >
           {/* Top Stats Cards */}
-          <div className='bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-32 flex flex-col justify-between hover:shadow-md transition-shadow'>
-            <h3 className='text-black font-semibold text-lg'>Total Sales</h3>
-            <div className='mt-auto text-2xl font-bold text-black'>--</div>
-          </div>
-
-          <div className='bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-32 flex flex-col justify-between hover:shadow-md transition-shadow'>
-            <h3 className='text-black font-semibold text-lg'>Orders</h3>
-            <div className='mt-auto text-2xl font-bold text-black'>--</div>
-          </div>
-
-          <div className='bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-32 flex flex-col justify-between hover:shadow-md transition-shadow'>
-            <h3 className='text-black font-semibold text-lg'>Customers</h3>
-            <div className='mt-auto text-2xl font-bold text-black'>--</div>
-          </div>
-
-          <div className='bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-32 flex flex-col justify-between hover:shadow-md transition-shadow'>
-            <h3 className='text-black font-semibold text-lg'>Conversion</h3>
-            <div className='mt-auto text-2xl font-bold text-black'>--</div>
-          </div>
+          <StatCard label='Total Sales' value='--' />
+          <StatCard label='Orders' value='--' />
+          <StatCard label='Customers' value='--' />
+          <StatCard label='Conversion' value='--' />
 
           {/* Charts/Big Sections */}
           <div className='col-span-1 sm:col-span-2 md:col-span-3 bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-[380px] relative'>

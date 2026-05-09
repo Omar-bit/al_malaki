@@ -13,9 +13,22 @@ import {
   FolderTree,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
-import { Modal } from '../../components/ui/Modal';
-import { ImageUpload } from '../../components/ui/ImageUpload';
-import { ImagePreview } from '../../components/ui/ImagePreview';
+import {
+  Modal,
+  ImageUpload,
+  ImagePreview,
+  StatCard,
+  InsightCard,
+  TableHeader,
+  FormField,
+  SelectField,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from '../../components/ui';
 import {
   createCategory,
   createProduct,
@@ -34,6 +47,7 @@ import type {
   ProductCategory,
   UpdateCategoryPayload,
 } from '../../types/product';
+import { formatCurrency, createSlug } from '../../utils/format';
 
 interface ProductFormState {
   name: string;
@@ -73,22 +87,6 @@ const initialFormState: ProductFormState = {
   metaDescription: '',
 };
 
-function formatCurrency(value: number) {
-  //TND
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'TND',
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function createSlug(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
 
 export function AdminAnalyticsPage() {
   const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
@@ -493,22 +491,26 @@ export function AdminAnalyticsPage() {
             <StatCard
               label='Total Revenue'
               value={formatCurrency(totalRevenue)}
-              icon={DollarSign}
+              IconComponent={DollarSign}
+              variant='analytics'
             />
             <StatCard
               label='Available Products'
               value={`${products.length}`}
-              icon={Package}
+              IconComponent={Package}
+              variant='analytics'
             />
             <StatCard
               label='Best Selling Product'
               value={featuredProduct?.name ?? '—'}
-              icon={Award}
+              IconComponent={Award}
+              variant='analytics'
             />
             <StatCard
               label='Trending Product'
               value={trendingProduct?.name ?? '—'}
-              icon={TrendingUp}
+              IconComponent={TrendingUp}
+              variant='analytics'
             />
           </section>
 
@@ -577,35 +579,35 @@ export function AdminAnalyticsPage() {
               </div>
             </div>
 
-            <div className='overflow-x-auto rounded-[32px] border border-[#d5bd9d] bg-white/50 backdrop-blur-md shadow-sm custom-scrollbar'>
-              <table className='min-w-full border-collapse text-left text-sm'>
-                <thead className='bg-white border-b border-[#d5bd9d]'>
-                  <tr>
+            <TableContainer className='rounded-[32px] border border-[#d5bd9d] bg-white/50 backdrop-blur-md shadow-sm'>
+              <Table className='min-w-full text-left'>
+                <TableHead className='bg-white border-b border-[#d5bd9d]'>
+                  <TableRow>
                     <TableHeader>Product</TableHeader>
                     <TableHeader>Category</TableHeader>
                     <TableHeader>Price</TableHeader>
                     <TableHeader>Status</TableHeader>
                     <TableHeader>Performance</TableHeader>
                     <TableHeader align='right'>Actions</TableHeader>
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-[#E7D7C2] bg-transparent'>
+                  </TableRow>
+                </TableHead>
+                <TableBody className='divide-y divide-[#E7D7C2] bg-transparent'>
                   {filteredProducts.length === 0 ? (
-                    <tr>
-                      <td
+                    <TableRow>
+                      <TableCell
                         colSpan={6}
-                        className='px-6 py-8 text-center text-sm text-[#6D5A46]'
+                        className='!px-6 !py-8 text-center text-sm text-[#6D5A46]'
                       >
                         No products found for current filters.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     filteredProducts.map((product) => (
-                      <tr
+                      <TableRow
                         key={product.id}
                         className='group transition-colors hover:bg-white/60'
                       >
-                        <td className='px-6 py-5'>
+                        <TableCell className='!px-6 !py-5'>
                           <div className='flex items-center gap-4'>
                             <div className='h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-[#E7D7C2] bg-[#F7EEE1]'>
                               {product.images && product.images.length > 0 ? (
@@ -629,11 +631,11 @@ export function AdminAnalyticsPage() {
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className='px-6 py-5 font-semibold text-dark-red'>
+                        </TableCell>
+                        <TableCell className='!px-6 !py-5 font-semibold text-dark-red'>
                           {product.category}
-                        </td>
-                        <td className='px-6 py-5'>
+                        </TableCell>
+                        <TableCell className='!px-6 !py-5'>
                           <div className='font-bold text-dark-red'>
                             {formatCurrency(
                               product.discountPrice ?? product.price,
@@ -644,8 +646,8 @@ export function AdminAnalyticsPage() {
                               {formatCurrency(product.price)}
                             </div>
                           )}
-                        </td>
-                        <td className='px-6 py-5'>
+                        </TableCell>
+                        <TableCell className='!px-6 !py-5'>
                           <span
                             className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${
                               product.status === 'active'
@@ -655,13 +657,13 @@ export function AdminAnalyticsPage() {
                           >
                             {product.status}
                           </span>
-                        </td>
-                        <td className='px-6 py-5'>
+                        </TableCell>
+                        <TableCell className='!px-6 !py-5'>
                           <span className='rounded-full border border-[#d5bd9d] bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#6D5A46]'>
                             {product.performance}
                           </span>
-                        </td>
-                        <td className='px-6 py-5'>
+                        </TableCell>
+                        <TableCell className='!px-6 !py-5'>
                           <div className='flex items-center justify-end gap-1'>
                             <button
                               type='button'
@@ -688,13 +690,13 @@ export function AdminAnalyticsPage() {
                               <Trash2 className='h-4 w-4' />
                             </button>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))
                   )}
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </TableContainer>
           </section>
         </div>
       </div>
@@ -1379,142 +1381,4 @@ export function AdminAnalyticsPage() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: string;
-  icon?: React.ElementType;
-}) {
-  return (
-    <div className='group relative overflow-hidden rounded-[28px] border border-[#d5bd9d] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md'>
-      <div className='flex items-center justify-between'>
-        <p className='text-xs uppercase tracking-[0.2em] text-[#6D5A46] font-bold'>
-          {label}
-        </p>
-        {Icon && (
-          <div className='flex h-10 w-10 items-center justify-center rounded-full bg-[#F4E0D4]/50 text-dark-red transition-colors group-hover:bg-dark-red group-hover:text-white'>
-            <Icon className='h-5 w-5' />
-          </div>
-        )}
-      </div>
-      <div className='mt-4 text-3xl font-extrabold text-black'>{value}</div>
-    </div>
-  );
-}
 
-function InsightCard({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className='group rounded-[28px] border border-[#d5bd9d] bg-gradient-to-br from-[#F4E0D4]/50 to-[#F7EEE1]/30 p-6 min-h-45 transition-all hover:shadow-sm hover:border-[#c8b49c]'>
-      <h3 className='text-lg font-bold text-black'>{title}</h3>
-      <p className='mt-4 text-sm leading-6 text-[#6D5A46] min-h-20 font-medium'>
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function TableHeader({
-  children,
-  align = 'left',
-}: {
-  children: React.ReactNode;
-  align?: 'left' | 'right' | 'center';
-}) {
-  return (
-    <th
-      className={`px-6 py-5 text-${align} text-[11px] font-bold uppercase tracking-[0.25em] text-[#8c7a66]`}
-    >
-      {children}
-    </th>
-  );
-}
-
-function FormField({
-  label,
-  value,
-  onChange,
-  textarea,
-  type = 'text',
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  textarea?: boolean;
-  type?: React.HTMLInputTypeAttribute;
-}) {
-  return (
-    <label className='block text-sm text-[#6D5A46]'>
-      <span className='mb-2 block font-semibold text-black'>{label}</span>
-      {textarea ? (
-        <textarea
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          rows={4}
-          className='mt-1 w-full rounded-2xl border-2 border-[#d5bd9d] bg-white/80 px-4 py-3 text-sm text-black placeholder-[#a89580] outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10 resize-none'
-        />
-      ) : (
-        <input
-          type={type}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className='mt-1 w-full rounded-full border-2 border-[#d5bd9d] bg-white/80 px-4 py-3 text-sm text-black placeholder-[#a89580] outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10'
-        />
-      )}
-    </label>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: Array<{ value: string; label: string }>;
-}) {
-  return (
-    <label className='block text-sm text-[#6D5A46]'>
-      <span className='mb-2 block font-semibold text-black'>{label}</span>
-      <div className='relative'>
-        <select
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className='mt-1 w-full appearance-none rounded-full border-2 border-[#d5bd9d] bg-white/80 py-3 pl-4 pr-10 text-sm text-black outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10 cursor-pointer'
-        >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <div className='pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#d5bd9d] mt-0.5'>
-          <svg
-            className='h-4 w-4'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M19 9l-7 7-7-7'
-            />
-          </svg>
-        </div>
-      </div>
-    </label>
-  );
-}

@@ -4,76 +4,34 @@ import { AdminLayout } from '../../components/AdminLayout';
 import { promoService, productService } from '../../services';
 import type { PromoCode, PromoCodeStats, CreatePromoCodePayload } from '../../types';
 import type { ProductAnalyticsProduct } from '../../types/product';
+import { formatCurrency } from '../../utils/format';
 import toast from 'react-hot-toast';
 import {
   TrendingUp,
   TicketCheck,
   BadgeCheck,
   Trash2,
-  ToggleLeft,
-  ToggleRight,
   Loader2,
   X,
   Plus,
   AlertTriangle,
 } from 'lucide-react';
+import {
+  StatCard,
+  StatusBadge,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHeaderCell,
+} from '../../components/ui';
 
 /* ───────────────────────────── helpers ───────────────────────────── */
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
 
-/* ───────────────────────────── stat card ─────────────────────────── */
-
-interface StatCardProps {
-  label: string;
-  value: string | number;
-  icon: React.ReactNode;
-}
-
-function StatCard({ label, value, icon }: StatCardProps) {
-  return (
-    <div className='bg-[#D9D9D957] rounded-2xl p-5 shadow-sm border border-[#3F060F]/40 flex flex-col justify-between min-h-[110px] hover:shadow-md transition-shadow'>
-      <div className='flex items-center justify-between'>
-        <h3 className='text-black font-semibold text-base'>{label}</h3>
-        <span className='text-[#6D5A46]'>{icon}</span>
-      </div>
-      <div className='mt-auto text-2xl font-bold text-black'>{value}</div>
-    </div>
-  );
-}
-
-/* ─────────────────────────── status badge ────────────────────────── */
-
-function StatusBadge({ status }: { status: PromoCode['status'] }) {
-  const config: Record<string, { bg: string; text: string; label: string }> = {
-    active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
-    expired: { bg: 'bg-red-100', text: 'text-red-800', label: 'Expired' },
-    disabled: { bg: 'bg-gray-200', text: 'text-gray-600', label: 'Disabled' },
-  };
-  const c = config[status] ?? config.disabled;
-  return (
-    <span
-      className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${c.bg} ${c.text}`}
-    >
-      {c.label}
-    </span>
-  );
-}
 
 /* ────────────────────────── empty state ───────────────────────────── */
 
@@ -246,7 +204,7 @@ export function AdminPromoCodesPage() {
             <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
               <StatCard
                 label='Total revenue'
-                value={formatCurrency(stats.totalRevenue)}
+                value={formatCurrency(stats.totalRevenue, 'USD')}
                 icon={<TrendingUp className='w-5 h-5' />}
               />
               <StatCard
@@ -273,84 +231,64 @@ export function AdminPromoCodesPage() {
                 All promo codes with attribution and revenue impact.
               </p>
 
-              <div className='overflow-x-auto custom-scrollbar'>
-                <table className='w-full text-sm'>
-                  <thead>
-                    <tr className='border-b border-[#3F060F]/20'>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Code
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Discount
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Usage
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Revenue
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Source
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Status
-                      </th>
-                      <th className='text-left py-3 px-3 font-semibold text-black'>
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <TableContainer>
+                <Table>
+                  <TableHead className='border-b border-[#3F060F]/20'>
+                    <TableRow>
+                      <TableHeaderCell>Code</TableHeaderCell>
+                      <TableHeaderCell>Discount</TableHeaderCell>
+                      <TableHeaderCell>Usage</TableHeaderCell>
+                      <TableHeaderCell>Revenue</TableHeaderCell>
+                      <TableHeaderCell>Source</TableHeaderCell>
+                      <TableHeaderCell>Status</TableHeaderCell>
+                      <TableHeaderCell>Actions</TableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
                     {promoCodes.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={7}
-                          className='text-center py-12 text-[#a68f74]'
-                        >
+                      <TableRow>
+                        <TableCell colSpan={7} className='text-center py-12 text-[#a68f74]'>
                           No promo codes yet. Create your first one above.
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ) : (
                       promoCodes.map((promo) => (
-                        <tr
-                          key={promo.id}
-                          className='border-b border-[#3F060F]/10 hover:bg-[#D5BD9D]/20 transition-colors'
-                        >
-                          <td className='py-3 px-3 font-semibold text-black'>
-                            {promo.code}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
+                        <TableRow key={promo.id} className='border-b border-[#3F060F]/10 hover:bg-[#D5BD9D]/20'>
+                          <TableCell className='font-semibold text-black'>{promo.code}</TableCell>
+                          <TableCell className='text-[#6D5A46]'>
                             {promo.discountType === 'percentage'
                               ? `${promo.value}%`
-                              : formatCurrency(promo.value)}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
+                              : formatCurrency(promo.value, 'USD')}
+                          </TableCell>
+                          <TableCell className='text-[#6D5A46]'>
                             {promo.totalUsage.toLocaleString()}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
-                            {formatCurrency(promo.totalRevenue)}
-                          </td>
-                          <td className='py-3 px-3 text-[#6D5A46]'>
+                          </TableCell>
+                          <TableCell className='text-[#6D5A46]'>
+                            {formatCurrency(promo.totalRevenue, 'USD')}
+                          </TableCell>
+                          <TableCell className='text-[#6D5A46]'>
                             {promo.source ?? '—'}
-                          </td>
-                          <td className='py-3 px-3'>
+                          </TableCell>
+                          <TableCell>
                             <StatusBadge status={promo.status} />
-                          </td>
-                          <td className='py-3 px-3'>
+                          </TableCell>
+                          <TableCell>
                             <div className='flex items-center gap-4'>
                               <button
                                 onClick={() => handleToggle(promo.id)}
                                 disabled={togglingId === promo.id}
-                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${promo.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
-                                  }`}
+                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${
+                                  promo.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
+                                }`}
                                 title={promo.status === 'active' ? 'Disable' : 'Enable'}
                               >
                                 {togglingId === promo.id ? (
                                   <Loader2 className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`} />
                                 ) : (
                                   <span
-                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${promo.status === 'active' ? 'translate-x-5' : 'translate-x-0'
-                                      }`}
+                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                      promo.status === 'active' ? 'translate-x-5' : 'translate-x-0'
+                                    }`}
                                   />
                                 )}
                               </button>
@@ -363,13 +301,13 @@ export function AdminPromoCodesPage() {
                                 <Trash2 className='w-4 h-4' />
                               </button>
                             </div>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))
                     )}
-                  </tbody>
-                </table>
-              </div>
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </div>
           </motion.div>
         )}
