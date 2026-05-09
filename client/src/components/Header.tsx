@@ -182,9 +182,6 @@ export function Header({
             >
               <img src={profile} alt='Account' />
             </Link>
-            <button className='text-dark-red font-abee text-[24px] leading-[1.182] transition-colors hover:text-gold'>
-              En
-            </button>
           </div>
         </div>
       )}

@@ -577,7 +577,7 @@ export function AdminAnalyticsPage() {
               </div>
             </div>
 
-            <div className='overflow-hidden rounded-[32px] border border-[#d5bd9d] bg-white/50 backdrop-blur-md shadow-sm'>
+            <div className='overflow-x-auto rounded-[32px] border border-[#d5bd9d] bg-white/50 backdrop-blur-md shadow-sm custom-scrollbar'>
               <table className='min-w-full border-collapse text-left text-sm'>
                 <thead className='bg-white border-b border-[#d5bd9d]'>
                   <tr>

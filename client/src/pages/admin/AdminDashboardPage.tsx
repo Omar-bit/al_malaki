@@ -7,12 +7,12 @@ export function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <div className='px-8 py-5 w-full font-bona!'>
+      <div className='px-4 md:px-8 py-5 w-full font-bona!'>
         <header className='mb-5'>
           <p className='text-sm font-medium text-[#6D5A46] uppercase tracking-wide mb-1'>
             Dashboard Overview
           </p>
-          <h1 className='text-3xl font-bold text-black mb-1'>
+          <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>
             Welcome back, {user ? user.firstName : 'Super Admin'}
           </h1>
 
@@ -25,7 +25,7 @@ export function AdminDashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className='grid grid-cols-1 md:grid-cols-4 gap-6'
+          className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6'
         >
           {/* Top Stats Cards */}
           <div className='bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-32 flex flex-col justify-between hover:shadow-md transition-shadow'>
@@ -49,7 +49,7 @@ export function AdminDashboardPage() {
           </div>
 
           {/* Charts/Big Sections */}
-          <div className='col-span-1 md:col-span-3 bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-[380px] relative'>
+          <div className='col-span-1 sm:col-span-2 md:col-span-3 bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-[380px] relative'>
             <div className='flex justify-between items-center mb-6'>
               <h3 className='text-black font-semibold text-lg'>
                 Sales Overview
@@ -64,7 +64,7 @@ export function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className='col-span-1 md:col-span-1 bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-[380px]'>
+          <div className='col-span-1 sm:col-span-2 md:col-span-1 bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-[380px]'>
             <h3 className='text-black font-semibold text-lg mb-6'>
               Recent Activity
             </h3>

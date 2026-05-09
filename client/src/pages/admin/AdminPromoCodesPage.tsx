@@ -213,18 +213,18 @@ export function AdminPromoCodesPage() {
 
   return (
     <AdminLayout>
-      <div className='px-8 py-5 w-full font-bona!'>
+      <div className='px-4 md:px-8 py-5 w-full font-bona!'>
         {/* ── Header ── */}
-        <header className='mb-6 flex items-center justify-between'>
+        <header className='mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
           <div>
-            <h1 className='text-3xl font-bold text-black mb-1'>Promo Codes</h1>
-            <p className='text-[#6D5A46]'>
+            <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>Promo Codes</h1>
+            <p className='text-sm md:text-base text-[#6D5A46]'>
               Create, track and optimize your marketing promo codes.
             </p>
           </div>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className='bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md'
+            className='w-full sm:w-auto justify-center bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md'
           >
             <Plus className='w-4 h-4' />
             Create Code
@@ -405,7 +405,7 @@ export function AdminPromoCodesPage() {
 
               <form onSubmit={handleCreate}>
                 {/* Row 1 */}
-                <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mb-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
                   <div>
                     <label
                       htmlFor='promo-code-name'
@@ -491,7 +491,7 @@ export function AdminPromoCodesPage() {
                 </div>
 
                 {/* Row 2 */}
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4'>
                   <div>
                     <label
                       htmlFor='promo-product'
@@ -556,7 +556,7 @@ export function AdminPromoCodesPage() {
                 </div>
 
                 {/* Row 3 – Lifetime + submit */}
-                <div className='flex items-center justify-between mt-6 pt-4 border-t border-[#3F060F]/10'>
+                <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between mt-6 pt-4 border-t border-[#3F060F]/10 gap-4'>
                   <label
                     htmlFor='promo-lifetime'
                     className='flex items-center gap-2.5 cursor-pointer select-none'
@@ -576,18 +576,18 @@ export function AdminPromoCodesPage() {
                     </span>
                   </label>
 
-                  <div className='flex items-center gap-3'>
+                  <div className='flex items-center gap-3 w-full sm:w-auto'>
                     <button
                       type='button'
                       onClick={() => setIsAddModalOpen(false)}
-                      className='px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors'
+                      className='flex-1 sm:flex-none px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors'
                     >
                       Cancel
                     </button>
                     <button
                       type='submit'
                       disabled={creating}
-                      className='bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md'
+                      className='flex-1 sm:flex-none justify-center bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md'
                     >
                       {creating ? (
                         <Loader2 className='w-4 h-4 animate-spin' />
@@ -621,18 +621,18 @@ export function AdminPromoCodesPage() {
               <p className='text-gray-600 mb-6'>
                 Are you sure you want to delete the promo code <strong className='text-black'>{promoToDelete.code}</strong>? This action cannot be undone and will permanently remove its tracking data.
               </p>
-              <div className='flex items-center justify-end gap-3'>
+              <div className='flex items-center justify-end gap-3 mt-4 w-full sm:w-auto'>
                 <button
                   onClick={() => setPromoToDelete(null)}
                   disabled={deletingId === promoToDelete.id}
-                  className='px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50'
+                  className='flex-1 sm:flex-none px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50'
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={deletingId === promoToDelete.id}
-                  className='px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50'
+                  className='flex-1 sm:flex-none justify-center px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50'
                 >
                   {deletingId === promoToDelete.id ? (
                     <Loader2 className='w-4 h-4 animate-spin' />
