@@ -10,6 +10,26 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+const extractFilename = (url: string | null | undefined): string | undefined => {
+  if (!url) return undefined;
+  const parts = url.split('/');
+  return parts[parts.length - 1];
+};
+
+const getCategoryUrl = (filename: string | null | undefined): string | undefined => {
+  if (!filename) return undefined;
+  if (filename.startsWith('http')) return filename;
+  const baseUrl = process.env.API_URL || 'http://localhost:3000';
+  return `${baseUrl}/uploads/categories/${filename}`;
+};
+
+const getProductUrl = (filename: string | null | undefined): string | undefined => {
+  if (!filename) return undefined;
+  if (filename.startsWith('http')) return filename;
+  const baseUrl = process.env.API_URL || 'http://localhost:3000';
+  return `${baseUrl}/uploads/products/${filename}`;
+};
+
 
 export interface ProductResponse {
   id: string;
@@ -78,7 +98,7 @@ export class ProductService {
       description: product.description ?? undefined,
       price: product.price,
       discountPrice: product.discountPrice ?? undefined,
-      images: Array.isArray(product.images) ? (product.images as string[]) : [],
+      images: Array.isArray(product.images) ? (product.images as string[]).map(img => getProductUrl(img) as string) : [],
       primaryPlacement: product.primaryPlacement ?? undefined,
       collection: product.collection ?? undefined,
       promoCode: product.promoCode ?? undefined,
@@ -126,7 +146,7 @@ export class ProductService {
         description: dto.description?.trim() || null,
         price: dto.price,
         discountPrice: dto.discountPrice ?? null,
-        images: dto.images ?? [],
+        images: dto.images ? dto.images.map(extractFilename).filter(Boolean) as string[] : [],
         primaryPlacement: dto.primaryPlacement?.trim() || null,
         collection: dto.collection?.trim() || null,
         promoCode: dto.promoCode?.trim() || null,
@@ -152,7 +172,7 @@ export class ProductService {
       price: createdProduct.price,
       discountPrice: createdProduct.discountPrice ?? undefined,
       images: Array.isArray(createdProduct.images)
-        ? (createdProduct.images as string[])
+        ? (createdProduct.images as string[]).map(img => getProductUrl(img) as string)
         : [],
       primaryPlacement: createdProduct.primaryPlacement ?? undefined,
       collection: createdProduct.collection ?? undefined,
@@ -217,7 +237,7 @@ export class ProductService {
     if (dto.price !== undefined) updateData.price = dto.price;
     if (dto.discountPrice !== undefined)
       updateData.discountPrice = dto.discountPrice ?? null;
-    if (dto.images !== undefined) updateData.images = dto.images ?? [];
+    if (dto.images !== undefined) updateData.images = dto.images ? dto.images.map(extractFilename).filter(Boolean) as string[] : [];
     if (dto.primaryPlacement !== undefined)
       updateData.primaryPlacement = dto.primaryPlacement?.trim() || null;
     if (dto.collection !== undefined)
@@ -254,7 +274,7 @@ export class ProductService {
       price: updatedProduct.price,
       discountPrice: updatedProduct.discountPrice ?? undefined,
       images: Array.isArray(updatedProduct.images)
-        ? (updatedProduct.images as string[])
+        ? (updatedProduct.images as string[]).map(img => getProductUrl(img) as string)
         : [],
       primaryPlacement: updatedProduct.primaryPlacement ?? undefined,
       collection: updatedProduct.collection ?? undefined,
@@ -297,7 +317,7 @@ export class ProductService {
 
     return categories.map((category) => ({
       ...category,
-      image: category.image ?? undefined,
+      image: getCategoryUrl(category.image),
       color: category.color ?? undefined,
     }));
   }
@@ -321,14 +341,14 @@ export class ProductService {
     const created = await this.prisma.productCategory.create({
       data: {
         name: trimmedName,
-        image: dto.image?.trim() || null,
+        image: extractFilename(dto.image?.trim()) || null,
         color: dto.color?.trim() || null,
       },
     });
 
     return {
       ...created,
-      image: created.image ?? undefined,
+      image: getCategoryUrl(created.image),
       color: created.color ?? undefined,
     };
   }
@@ -367,14 +387,14 @@ export class ProductService {
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name.trim() }),
-        ...(dto.image !== undefined && { image: dto.image || null }),
+        ...(dto.image !== undefined && { image: extractFilename(dto.image) || null }),
         ...(dto.color !== undefined && { color: dto.color || null }),
       },
     });
 
     return {
       ...updated,
-      image: updated.image ?? undefined,
+      image: getCategoryUrl(updated.image),
       color: updated.color ?? undefined,
     };
   }
