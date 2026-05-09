@@ -341,18 +341,16 @@ export function AdminPromoCodesPage() {
                               <button
                                 onClick={() => handleToggle(promo.id)}
                                 disabled={togglingId === promo.id}
-                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${
-                                  promo.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
-                                }`}
+                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${promo.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
+                                  }`}
                                 title={promo.status === 'active' ? 'Disable' : 'Enable'}
                               >
                                 {togglingId === promo.id ? (
                                   <Loader2 className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`} />
                                 ) : (
                                   <span
-                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                      promo.status === 'active' ? 'translate-x-5' : 'translate-x-0'
-                                    }`}
+                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${promo.status === 'active' ? 'translate-x-5' : 'translate-x-0'
+                                      }`}
                                   />
                                 )}
                               </button>
@@ -497,7 +495,7 @@ export function AdminPromoCodesPage() {
                   <div>
                     <label
                       htmlFor='promo-product'
-                      className='block text-sm font-semibold text-black mb-1.5'
+                      className='block text-xs font-semibold text-black mb-1.5'
                     >
                       Apply to specific product (optional)
                     </label>
