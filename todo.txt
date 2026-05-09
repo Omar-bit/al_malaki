@@ -1,2 +1,0 @@
-*lets  implement seed db  with admin account if there is no admin account in the db (the default admin credentials should come from .env variables)
-*productcategory file with http://localhost:3000
