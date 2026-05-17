@@ -76,6 +76,32 @@ export async function getCategories(): Promise<ProductCategory[]> {
   return (await response.json()) as ProductCategory[];
 }
 
+export async function getPublicProducts(): Promise<ProductAnalyticsProduct[]> {
+  const response = await fetch(`${API_BASE_URL}/public/products`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as ProductAnalyticsProduct[];
+}
+
+export async function getPublicCategories(): Promise<ProductCategory[]> {
+  const response = await fetch(`${API_BASE_URL}/public/categories`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as ProductCategory[];
+}
+
 export async function createProduct(
   payload: CreateProductPayload,
 ): Promise<ProductAnalyticsProduct> {

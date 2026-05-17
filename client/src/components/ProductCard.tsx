@@ -1,26 +1,29 @@
+import { useTranslation } from 'react-i18next';
+
 interface ProductCardProps {
-  name: string;
+  name?: string;
   image?: string;
 }
 
 export function ProductCard({ name, image }: ProductCardProps) {
+  const { t } = useTranslation();
+
   return (
-    <div className='bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow'>
-      <div className='bg-gray-200 h-64 flex items-center justify-center'>
-        {image ? (
-          <img src={image} alt={name} className='w-full h-full object-cover' />
-        ) : (
-          <div className='text-gray-400'>Product Image</div>
-        )}
+    <article className='w-full'>
+      <div className='w-full aspect-square bg-[#d9d9d9] flex items-center justify-center overflow-hidden'>
+        {image && <img src={image} alt={name || 'Product'} className='w-full h-full object-cover' />}
       </div>
-
-      <div className='p-6'>
-        <h3 className='text-dark-red font-italic text-lg mb-4'>{name}</h3>
-
-        <button className='w-full border-2 border-dark-red text-dark-red hover:bg-dark-red hover:text-white font-bold py-2 px-4 rounded-full transition-colors'>
-          Show details
+      <h3 className='mt-[20px] text-center qq text-4xl md:text-2xl font-italic leading-[1.05] text-black'>
+        {name || t('products.name')}
+      </h3>
+      <div className='mt-[15px] flex justify-center'>
+        <button
+          type='button'
+          className='px-8 py-2 rounded-[41px] bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300'
+        >
+          {t('products.button')}
         </button>
       </div>
-    </div>
+    </article>
   );
 }

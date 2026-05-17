@@ -10,10 +10,10 @@ type NavLink = {
 };
 
 const navLinks: NavLink[] = [
-  { labelKey: 'home', href: '#home' },
-  { labelKey: 'about', href: '#about' },
-  { labelKey: 'products', href: '#products' },
-  { labelKey: 'customize', href: '#customize' },
+  { labelKey: 'home', href: '/' },
+  { labelKey: 'about', href: '/#about' },
+  { labelKey: 'products', href: '/products' },
+  { labelKey: 'customize', href: '/#customize' },
 ];
 
 export function Header({

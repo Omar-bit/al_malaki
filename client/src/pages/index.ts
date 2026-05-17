@@ -7,3 +7,4 @@ export { VerifyEmailPage } from './VerifyEmailPage';
 export { DashboardPage } from './DashboardPage';
 export { InviteAcceptPage } from './InviteAcceptPage';
 export { AdminManagementPage } from './admin/AdminManagementPage';
+export { ProductsPage } from './ProductsPage';
