@@ -12,6 +12,7 @@ export default {
       fontFamily: {
         italic: ['Italiana', 'serif'],
         abee: ['ABeeZee', 'sans-serif'],
+        nova: ['Nova', 'serif'],
       },
       fontSize: {
         xs: '0.75rem',

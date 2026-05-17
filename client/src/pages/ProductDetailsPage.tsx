@@ -37,7 +37,7 @@ export function ProductDetailsPage() {
   const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   return (
-    <div className='relative bg-cream min-h-screen overflow-x-hidden flex flex-col'>
+    <div className='relative bg-[#f7eee1] min-h-screen overflow-x-hidden flex flex-col'>
       <Header />
 
       <main className='flex-grow pt-[120px] px-5 pb-20 max-w-7xl mx-auto w-full'>
@@ -70,12 +70,12 @@ export function ProductDetailsPage() {
                 {product.name}
               </h1>
 
-              <p className='text-lg md:text-xl font-abee mb-10 leading-relaxed max-w-md'>
+              <p className='text-lg md:text-xl text-black! font-abee mb-10 leading-relaxed max-w-md'>
                 {product.description ||
                   'A refined and pure honey selection, carefully crafted by nature to bring you energy, balance, and a quiet moment of indulgence.'}
               </p>
 
-              <div className='flex items-center gap-10 mb-10'>
+              <div className='flex items-center gap-10 mb-10 text-black!'>
                 <span className='text-2xl font-bold font-abril'>
                   {product.price.toFixed(2)} DT
                 </span>

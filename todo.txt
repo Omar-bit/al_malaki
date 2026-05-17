@@ -1,4 +1,7 @@
 *CUSTOMER: cart
+*CUSTOMER: order
 *ADMIN: orders
+*CUSTOMER: track orders 
+*USER: Profile page
 *push to git
 *deploy app

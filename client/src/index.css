@@ -81,8 +81,13 @@
 }
 
 .bg-honeyPattern {
-  background: url('./assets/honey_pattern.png') no-repeat center fixed;
-  background-size: contain;
+  background: url('./assets/honey_pattern.png');
+  background-size: cover;
+  background-position: top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   background-position: center;
+  /* background-position: ; */
+  /* background-attachment: fixed !important; */
 
 }

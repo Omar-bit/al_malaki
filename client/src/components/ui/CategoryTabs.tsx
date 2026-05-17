@@ -1,4 +1,4 @@
-import crown from '../../assets/crown.svg';
+import crown from '../../assets/crown.png';
 
 interface CategoryTabsProps {
   categories: string[];
@@ -18,11 +18,11 @@ export function CategoryTabs({ categories, activeCategory, onSelectCategory }: C
             onClick={() => onSelectCategory(category)}
           >
             {isActive ? (
-              <img src={crown} alt='Crown' className='w-12 h-10 mb-2' />
+              <img src={crown} alt='Crown' className='w-20  mb-2' />
             ) : (
               <div className='h-12' /> /* Placeholder for crown to maintain layout */
             )}
-            <h2 className={`text-4xl md:text-5xl font-abril font-bold text-dark-red ${isActive ? '' : 'opacity-80'}`}>
+            <h2 className={`text-2xl font-nova md:text-5xl  font-bold text-dark-red ${isActive ? '' : 'opacity-80'}`}>
               {category}
             </h2>
           </div>

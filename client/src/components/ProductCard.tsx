@@ -22,10 +22,10 @@ export function ProductCard({ name, image, slug }: ProductCardProps) {
       <div className='w-full aspect-square bg-[#d9d9d9] flex items-center justify-center overflow-hidden'>
         {image && <img src={image} alt={name || 'Product'} className='w-full h-full object-cover' />}
       </div>
-      <h3 className='mt-[20px] text-center qq text-4xl md:text-2xl font-italic leading-[1.05] text-black'>
+      <h3 className='mt-2 text-center qq text-4xl md:text-2xl font-italic leading-[1.05] text-black'>
         {name || t('products.name')}
       </h3>
-      <div className='mt-[15px] flex justify-center'>
+      <div className='mt-2 flex justify-center'>
         <button
           type='button'
           onClick={handleDetailsClick}
