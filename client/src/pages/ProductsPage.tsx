@@ -80,7 +80,7 @@ export function ProductsPage() {
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16 justify-items-center mt-10'>
               {filteredProducts.map((product) => (
                 <div key={product.id} className='w-full max-w-[350px]'>
-                  <ProductCard name={product.name} image={product.images[0]} />
+                  <ProductCard name={product.name} image={product.images[0]} slug={product.slug} />
                 </div>
               ))}
               

@@ -13,6 +13,7 @@ import {
   InviteAcceptPage,
   AdminManagementPage,
   ProductsPage,
+  ProductDetailsPage,
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -44,6 +45,7 @@ export default function App() {
       <Routes>
         <Route path='/' element={<LandingPage />} />
         <Route path='/products' element={<ProductsPage />} />
+        <Route path='/products/:slug' element={<ProductDetailsPage />} />
 
         {/* Guest Routes (Only accessible if NOT logged in) */}
         <Route element={<GuestRoute />}>

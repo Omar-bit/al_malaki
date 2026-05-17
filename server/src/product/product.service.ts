@@ -116,6 +116,42 @@ export class ProductService {
     }));
   }
 
+  async getProductBySlug(slug: string): Promise<ProductResponse> {
+    const product = await this.prisma.product.findUnique({
+      where: { slug },
+      include: { category: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return {
+      id: product.id,
+      name: product.name,
+      category: product.category?.name ?? 'Uncategorized',
+      brand: product.brand ?? undefined,
+      description: product.description ?? undefined,
+      price: product.price,
+      discountPrice: product.discountPrice ?? undefined,
+      images: Array.isArray(product.images) ? (product.images as string[]).map(img => getProductUrl(img) as string) : [],
+      primaryPlacement: product.primaryPlacement ?? undefined,
+      collection: product.collection ?? undefined,
+      promoCode: product.promoCode ?? undefined,
+      campaign: product.campaign ?? undefined,
+      status: product.status.toLowerCase() as 'active' | 'hidden',
+      performance:
+        performanceReverseMap[
+          product.performance as 'NEW_ARRIVAL' | 'RECOMMENDED' | 'FEATURED'
+        ],
+      slug: product.slug,
+      metaTitle: product.metaTitle ?? undefined,
+      metaDescription: product.metaDescription ?? undefined,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+    };
+  }
+
   async createProduct(dto: CreateProductDto): Promise<ProductResponse> {
     const category = await this.prisma.productCategory.findUnique({
       where: { id: dto.categoryId },

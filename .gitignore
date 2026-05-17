@@ -9,4 +9,4 @@ server/src/generated
 /server/dist
 ./server/dist
 server/dist
-.claude
+./.claude/settings.json

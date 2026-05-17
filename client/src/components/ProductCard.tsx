@@ -1,12 +1,21 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   name?: string;
   image?: string;
+  slug?: string;
 }
 
-export function ProductCard({ name, image }: ProductCardProps) {
+export function ProductCard({ name, image, slug }: ProductCardProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleDetailsClick = () => {
+    if (slug) {
+      navigate(`/products/${slug}`);
+    }
+  };
 
   return (
     <article className='w-full'>
@@ -19,6 +28,7 @@ export function ProductCard({ name, image }: ProductCardProps) {
       <div className='mt-[15px] flex justify-center'>
         <button
           type='button'
+          onClick={handleDetailsClick}
           className='px-8 py-2 rounded-[41px] bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300'
         >
           {t('products.button')}
