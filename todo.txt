@@ -1,2 +1,3 @@
-badal taswiret lhero*CUSTOMER: product explore
+badal taswiret lhero
+*CUSTOMER: product explore
 *CUSTOMER: cart
