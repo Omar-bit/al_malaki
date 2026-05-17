@@ -1,4 +1,4 @@
-badal taswiret lhero
-*CUSTOMER: product explore
 *CUSTOMER: cart
-push to git
+*ADMIN: orders
+*push to git
+*deploy app

@@ -10,7 +10,7 @@ export function Hero() {
       id='home'
       className='relative h-screen w-full overflow-hidden bg-cover bg-center bg-no-repeat'
       style={{
-        backgroundImage: 'url(/hero-bg.png)',
+        backgroundImage: 'url(/hero-bg.jpg)',
         backgroundPosition: width < 768 ? '90% 100%' : '',
       }}
     >
