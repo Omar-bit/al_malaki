@@ -3,8 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Header, Footer, ProductCard } from '../components';
 import { CategoryTabs } from '../components/ui/CategoryTabs';
 import { FilterBar } from '../components/ui/FilterBar';
-import { getPublicProducts, getPublicCategories } from '../services/productService';
-import type { ProductAnalyticsProduct, ProductCategory } from '../types/product';
+import {
+  getPublicProducts,
+  getPublicCategories,
+} from '../services/productService';
+import type {
+  ProductAnalyticsProduct,
+  ProductCategory,
+} from '../types/product';
 import toast from 'react-hot-toast';
 
 export function ProductsPage() {
@@ -26,7 +32,7 @@ export function ProductsPage() {
           getPublicCategories(),
         ]);
 
-        setProducts(fetchedProducts.filter(p => p.status === 'active'));
+        setProducts(fetchedProducts.filter((p) => p.status === 'active'));
         setCategories(fetchedCategories);
 
         if (fetchedCategories.length > 0) {
@@ -42,20 +48,27 @@ export function ProductsPage() {
     fetchData();
   }, []);
 
-  const categoryNames = categories.map(c => c.name);
+  const categoryNames = categories.map((c) => c.name);
 
   const sortOptions = [
     { value: 'all', label: t('products.sortAll', 'Tous') },
     { value: 'price_asc', label: t('products.sortPriceAsc', 'Prix croissant') },
-    { value: 'price_desc', label: t('products.sortPriceDesc', 'Prix décroissant') },
+    {
+      value: 'price_desc',
+      label: t('products.sortPriceDesc', 'Prix décroissant'),
+    },
     { value: 'date_desc', label: t('products.sortDateDesc', 'Plus récents') },
     { value: 'date_asc', label: t('products.sortDateAsc', 'Plus anciens') },
   ];
 
   const filteredProducts = useMemo(() => {
     let result = products.filter((product) => {
-      const matchesCategory = activeCategory ? product.category === activeCategory : true;
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = activeCategory
+        ? product.category === activeCategory
+        : true;
+      const matchesSearch = product.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
 
@@ -72,15 +85,19 @@ export function ProductsPage() {
         case 'date_desc':
           // @ts-ignore - Check if createdAt exists, otherwise fallback to id comparison
           if (a.createdAt && b.createdAt) {
-             // @ts-ignore
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            // @ts-ignore
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
           }
           return b.id.localeCompare(a.id);
         case 'date_asc':
           // @ts-ignore
           if (a.createdAt && b.createdAt) {
-             // @ts-ignore
-            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            // @ts-ignore
+            return (
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
           }
           return a.id.localeCompare(b.id);
         case 'all':
@@ -93,7 +110,7 @@ export function ProductsPage() {
   }, [products, activeCategory, searchQuery, sortBy]);
 
   return (
-    <div className='relative bg-cream min-h-screen overflow-x-hidden flex flex-col'>
+    <div className='relative bg-[#f7eee1] min-h-screen overflow-x-hidden flex flex-col'>
       <Header />
 
       <main className='flex-grow pt-[25px] px-10 w-auto w-full'>
@@ -120,13 +137,20 @@ export function ProductsPage() {
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 justify-items-center mt-5'>
               {filteredProducts.map((product) => (
                 <div key={product.id} className='w-full max-w-[350px]'>
-                  <ProductCard name={product.name} image={product.images[0]} slug={product.slug} />
+                  <ProductCard
+                    name={product.name}
+                    image={product.images[0]}
+                    slug={product.slug}
+                  />
                 </div>
               ))}
 
               {filteredProducts.length === 0 && (
                 <div className='col-span-1 md:col-span-2 lg:col-span-3 text-center text-dark-red py-10'>
-                  {t('products.noResults', 'No products found matching your criteria.')}
+                  {t(
+                    'products.noResults',
+                    'No products found matching your criteria.',
+                  )}
                 </div>
               )}
             </div>

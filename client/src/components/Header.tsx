@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from './Logo';
-import cart from '../assets/cart.svg';
+import { useCart } from '../contexts/CartContext';
+import cartIcon from '../assets/cart.svg';
 import profile from '../assets/profile.svg';
 type NavLink = {
   labelKey: string;
@@ -26,6 +27,7 @@ export function Header({
   const lastScrollYRef = useRef(0);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { openCart, totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -123,10 +125,16 @@ export function Header({
         {/* Desktop Icons */}
         <div className='hidden md:flex items-center gap-10 '>
           <button
-            className='text-dark-red transition-colors hover:text-gold'
+            className='text-dark-red transition-colors hover:text-gold relative'
             aria-label='Cart'
+            onClick={openCart}
           >
-            <img src={cart} alt='Cart' />
+            <img src={cartIcon} alt='Cart' />
+            {totalItems > 0 && (
+              <span className='absolute -top-1.5 -right-2 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-[#3f060f] text-[#fdf8f0] text-[11px] font-abee font-bold px-1'>
+                {totalItems}
+              </span>
+            )}
           </button>
           <Link
             to='/login'
@@ -170,10 +178,16 @@ export function Header({
               {t('header.lang')}
             </button>
             <button
-              className='text-dark-red transition-colors hover:text-gold'
+              className='text-dark-red transition-colors hover:text-gold relative'
               aria-label='Cart'
+              onClick={() => { setIsOpen(false); openCart(); }}
             >
-              <img src={cart} alt='Cart' />
+              <img src={cartIcon} alt='Cart' />
+              {totalItems > 0 && (
+                <span className='absolute -top-1.5 -right-2 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-[#3f060f] text-[#fdf8f0] text-[11px] font-abee font-bold px-1'>
+                  {totalItems}
+                </span>
+              )}
             </button>
             <Link
               to='/login'

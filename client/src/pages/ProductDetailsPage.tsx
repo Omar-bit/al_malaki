@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Header, Footer } from '../components';
 import { getPublicProduct } from '../services/productService';
+import { useCart } from '../contexts/CartContext';
 import type { ProductAnalyticsProduct } from '../types/product';
 import toast from 'react-hot-toast';
 
@@ -14,6 +15,7 @@ export function ProductDetailsPage() {
   const [product, setProduct] = useState<ProductAnalyticsProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart, openCart } = useCart();
 
   useEffect(() => {
     async function loadProduct() {
@@ -34,13 +36,14 @@ export function ProductDetailsPage() {
   }, [slug, navigate]);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
-  const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const handleDecrement = () =>
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   return (
     <div className='relative bg-[#f7eee1] min-h-screen overflow-x-hidden flex flex-col'>
       <Header />
 
-      <main className='flex-grow pt-[120px] px-5 pb-20 max-w-7xl mx-auto w-full'>
+      <main className='flex-grow pt-[100px] px-5 pb-20 max-w-7xl mx-auto w-full'>
         {isLoading ? (
           <div className='flex justify-center items-center h-64'>
             <div className='text-dark-red text-xl'>Loading...</div>
@@ -104,7 +107,25 @@ export function ProductDetailsPage() {
                 </div>
               </div>
 
-              <button className='w-fit px-12 py-4 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold text-dark-red hover:opacity-90 transition-opacity shadow-md mb-16'>
+              <button
+                onClick={() => {
+                  if (!product) return;
+                  addToCart(
+                    {
+                      id: product.id,
+                      name: product.name,
+                      price: product.discountPrice || product.price,
+                      image: product.images?.[0] || '',
+                      slug: product.slug,
+                    },
+                    quantity,
+                  );
+                  toast.success(`${product.name} added to cart`);
+                  setQuantity(1);
+                  openCart();
+                }}
+                className='w-fit px-12 py-4 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold text-dark-red hover:opacity-90 transition-opacity shadow-md mb-16'
+              >
                 Add to cart
               </button>
 

@@ -89,5 +89,25 @@
   background-position: center;
   /* background-position: ; */
   /* background-attachment: fixed !important; */
+}
 
+/* Cart modal slide-in animation */
+@keyframes cart-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.cart-modal-slide-in {
+  animation: cart-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.cart-container {
+  background: url('/src/assets/honey-pattern.png') no-repeat center fixed;
+  background-size: cover;
+  /* background-position: center; */
 }
