@@ -14,12 +14,13 @@ import {
   AdminManagementPage,
   ProductsPage,
   ProductDetailsPage,
+  OrderPage,
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { AdminPromoCodesPage } from './pages/admin/AdminPromoCodesPage';
-import { AdminRoute, GuestRoute } from './components';
+import { AdminRoute, CartModal, GuestRoute } from './components';
 
 export default function App() {
   const { i18n } = useTranslation();
@@ -42,10 +43,13 @@ export default function App() {
           },
         }}
       />
+      <CartModal />
       <Routes>
         <Route path='/' element={<LandingPage />} />
         <Route path='/products' element={<ProductsPage />} />
         <Route path='/products/:slug' element={<ProductDetailsPage />} />
+        <Route path='/checkout' element={<OrderPage />} />
+        <Route path='/order' element={<OrderPage />} />
 
         {/* Guest Routes (Only accessible if NOT logged in) */}
         <Route element={<GuestRoute />}>

@@ -9,3 +9,4 @@ export { InviteAcceptPage } from './InviteAcceptPage';
 export { AdminManagementPage } from './admin/AdminManagementPage';
 export { ProductsPage } from './ProductsPage';
 export { ProductDetailsPage } from './ProductDetailsPage';
+export { OrderPage } from './OrderPage';

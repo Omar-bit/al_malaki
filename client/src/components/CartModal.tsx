@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 
 export function CartModal() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const {
     items,
     isCartOpen,
@@ -42,12 +44,9 @@ export function CartModal() {
       />
 
       {/* Modal Panel */}
-      <div className='fixed top-0 right-0 z-50 h-full w-full max-w-[420px] shadow-2xl flex flex-col overflow-hidden cart-modal-slide-in cart-container'>
+      <div className='fixed top-0 right-0 z-50 h-full w-full max-w-105 shadow-2xl flex flex-col overflow-hidden cart-modal-slide-in cart-container'>
         {/* Warm tint overlay so pattern doesn't overpower */}
-        <div
-          className='absolute inset-0 pointer-events-none'
-
-        />
+        <div className='absolute inset-0 pointer-events-none' />
 
         {/* Close button */}
         <button
@@ -72,10 +71,7 @@ export function CartModal() {
         </button>
 
         {/* Scrollable content */}
-        <div
-          ref={contentRef}
-          className='relative z-10 flex flex-col h-full  '
-        >
+        <div ref={contentRef} className='relative z-10 flex flex-col h-full  '>
           {/* ── Cart Items ── */}
           <div className=' px-5 pt-8  space-y-1 max-h-[55vh]! overflow-y-auto custom-scrollbar'>
             {items.length === 0 ? (
@@ -109,7 +105,7 @@ export function CartModal() {
                 >
                   {/* Product Image */}
                   <div
-                    className='flex-shrink-0 overflow-hidden'
+                    className='shrink-0 overflow-hidden'
                     style={{
                       width: 100,
                       height: 100,
@@ -359,6 +355,15 @@ export function CartModal() {
               {/* Checkout button — centered pill, not full-width */}
               <div className='flex justify-center pt-2'>
                 <button
+                  type='button'
+                  onClick={() => {
+                    if (items.length === 0) {
+                      return;
+                    }
+
+                    closeCart();
+                    navigate('/checkout');
+                  }}
                   className='px-14 py-3 font-abhaya text-base font-extrabold transition-opacity hover:opacity-90'
                   style={{
                     background: '#3f060f',
