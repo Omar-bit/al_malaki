@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { Header, Footer } from '../components';
 import { getPublicProduct } from '../services/productService';
 import { useCart } from '../contexts/CartContext';
@@ -10,7 +9,6 @@ import toast from 'react-hot-toast';
 export function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const [product, setProduct] = useState<ProductAnalyticsProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);

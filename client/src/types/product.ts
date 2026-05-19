@@ -16,6 +16,7 @@ export interface ProductAnalyticsProduct {
   slug: string;
   metaTitle?: string;
   metaDescription?: string;
+  createdAt: string;
 }
 
 export interface ProductCategory {
