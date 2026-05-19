@@ -1,5 +1,5 @@
 -- AlterTable
-ALTER TABLE `user` MODIFY `role` ENUM('CUSTOMER', 'ADMIN', 'VENDOR') NOT NULL;
+ALTER TABLE `User` MODIFY `role` ENUM('CUSTOMER', 'ADMIN', 'VENDOR') NOT NULL;
 
 -- CreateTable
 CREATE TABLE `UserInvitation` (

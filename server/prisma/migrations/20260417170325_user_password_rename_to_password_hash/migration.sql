@@ -6,5 +6,5 @@
 
 */
 -- AlterTable
-ALTER TABLE `user` DROP COLUMN `password`,
+ALTER TABLE `User` DROP COLUMN `password`,
     ADD COLUMN `passwordHash` VARCHAR(191) NOT NULL;
