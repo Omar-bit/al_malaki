@@ -1,15 +1,13 @@
 @import 'tailwindcss';
 
-@import url('https://fonts.googleapis.com/css2?family=Italiana&family=ABeeZee&family=Abril+Fatface&family=Abhaya+Libre:wght@400;500;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Bona+Nova:ital,wght@0,400;0,700;1,400&family=Italiana&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Italiana&display=swap');
+
 
 @theme {
   --color-dark-red: #3f060f;
   --color-cream: #fdf8f0;
   --color-gold: #be9d61;
   --light-gold: #f8e5c6;
-  --font-italic: 'Italiana';
+  --font-italic: 'Italiana', serif;
   --font-abee: 'ABeeZee', sans-serif;
   --font-abril: 'Abril Fatface', serif;
   --font-abhaya: 'Abhaya Libre', serif;
@@ -22,8 +20,7 @@
   }
 
   body {
-    font-family: 'Italiana', sans-serif;
-
+    font-family: 'Italiana', serif;
     color: var(--color-dark-red);
     background-color: var(--color-cream);
   }

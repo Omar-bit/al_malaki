@@ -12,6 +12,9 @@ export default {
       fontFamily: {
         italic: ['Italiana', 'serif'],
         abee: ['ABeeZee', 'sans-serif'],
+        abril: ['"Abril Fatface"', 'serif'],
+        abhaya: ['"Abhaya Libre"', 'serif'],
+        bona: ['"Bona Nova"', 'serif'],
         nova: ['Nova', 'serif'],
       },
       fontSize: {
