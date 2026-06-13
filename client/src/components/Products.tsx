@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { getPublicProducts } from '../services/productService';
 import type { ProductAnalyticsProduct } from '../types/product';
+import Button from './ui/Button';
 
 export function Products() {
   const { t, i18n } = useTranslation();
@@ -13,12 +14,14 @@ export function Products() {
       try {
         const fetchedProducts = await getPublicProducts();
         // Display up to 3 active products
-        setProducts(fetchedProducts.filter(p => p.status === 'active').slice(0, 3));
+        setProducts(
+          fetchedProducts.filter((p) => p.status === 'active').slice(0, 3),
+        );
       } catch (error) {
         console.error('Failed to fetch products', error);
       }
     }
-    
+
     loadProducts();
   }, []);
 
@@ -69,20 +72,24 @@ export function Products() {
             >
               <div className='w-full aspect-square w-full bg-[#d9d9d9] flex items-center justify-center overflow-hidden'>
                 {product.images?.[0] && (
-                  <img src={product.images[0]} alt={product.name} className='w-full h-full object-cover' />
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className='w-full h-full object-cover'
+                  />
                 )}
               </div>
-              <h3 className='mt-[20px] text-center qq text-4xl md:text-2xl font-italic leading-[1.05] text-black'>
+              <h3 className='mt-[20px] text-center qq text-4xl md:text-2xl font-italic leading-[1.05] text-black '>
                 {product.name}
               </h3>
-              <div className='mt-[15px] flex justify-center'>
-                <a
-                  href={`/products/${product.slug}`}
-                  className='px-8 py-2 rounded-[41px] bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300'
-                >
-                  {t('products.button')}
-                </a>
-              </div>
+              <Button
+                backgroundVariant='honeyPattern'
+                classNames='mx-auto flex mt-5 px-16 !rounded-[30px]'
+              >
+                <span className='text-dark-red font-abhaya  font-bold text-[18px]'>
+                  Show Details
+                </span>
+              </Button>
             </motion.article>
           ))}
         </motion.div>

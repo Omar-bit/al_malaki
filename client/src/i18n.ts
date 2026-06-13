@@ -23,7 +23,7 @@ const resources = {
       },
       about: {
         title: 'About us',
-        text: 'Our project emphasizes a return to nature, purity, and authentic flavor. Each product is carefully crafted to be healthy, nutritious, and valuable, supporting your daily energy, well-being, and beauty. More than just a product, it offers a delightful taste experience, a source of positive energy, and a natural elegance that reconnects you with the benefits of nature.',
+        text: 'More than a collection of products  ALMALAKI  is an invitation to enjoy nature’s finest selections through a carefully curated experience rooted in quality, authenticity, and refined taste. ',
         button: 'See more',
       },
       follow: {
@@ -179,7 +179,7 @@ const resources = {
       },
       about: {
         title: 'تعرف علينا',
-        text: 'في مشروعنا الجديد، اخترنا نرجعو للأصل، للطبيعة، للنقي، وللنكهة اللي تحسّها من أول مغرفة. كل منتج نعملوه بنية إنه يكون نظيف، مغذي، وذو قيمة، يعاونك على صحتك، جمالك، طاقتك، وتوازنك اليومي. مشروعنا ماهوش كان بيع، هو تجربة تذوق، طاقة إيجابية، وعودة للطبيعة بنكهة راقية. خلي طاقتك ترتفع، وجمالك يبان، وصحتك تتحسن، من قلب العسل ومن خير الطبيعة.',
+        text: 'في ALMALAKI ،  نؤمن بجمال البساطة. أكثر من مجرد مجموعة من المنتجات، ALMALAKI هي دعوة لاكتشاف أرقى ما تقدمه الطبيعة من خلال تجربة مختارة بعناية، ترتكز على الجودة والأصالة ورفاهية المذاق. ',
         button: 'عرض المزيد',
       },
       follow: {

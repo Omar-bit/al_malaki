@@ -81,14 +81,13 @@
 }
 
 .bg-honeyPattern {
-  background: url('./assets/honey_pattern.png');
-  background-size: cover;
-  background-position: top;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
-  /* background-position: ; */
-  /* background-attachment: fixed !important; */
+  background: url('./assets/honey_pattern.png') fixed !important ;
+
+  /* background-size: contain; */
+  background-size: 400px 400px !important;
+
+  background-position: center center !important;
+  background-attachment: fixed !important;
 }
 
 /* Cart modal slide-in animation */

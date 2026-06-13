@@ -10,7 +10,7 @@ export function Logo({
     <img
       src={logo}
       alt='Al Malaki Logo'
-      className={className + ' w-26'}
+      className={className + ' w-26 -mt-3'}
       onClick={onClick ? onClick : undefined}
       style={{
         cursor: onClick ? 'pointer' : 'default',

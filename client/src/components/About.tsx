@@ -1,6 +1,6 @@
-import crown from './../assets/crown.svg';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import Seperator from './ui/Seperator';
 
 export function About() {
   const { t, i18n } = useTranslation();
@@ -8,24 +8,13 @@ export function About() {
   return (
     <section id='about' className='bg-cream px-6 '>
       <div className='mx-auto w-full '>
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6 }}
-          className='relative flex items-center justify-center'
-        >
-          <div className='absolute left-0 h-[2px] w-[45%] bg-dark-red'></div>
-          <div className='absolute right-0 h-[2px] w-[45%] bg-dark-red'></div>
-          <img src={crown} alt='crown' className='z-10 ' />
-        </motion.div>
-
+        <Seperator />
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className={`text-center font-[var(--font-abril)] ${i18n.language === 'en' ? 'font-italic' : 'font-taviraj'} text-[36px] md:text-[55px] font-bold leading-[1] tracking-wide text-dark-red  uppercase`}
+          className={`text-center font-abhaya  text-[36px] md:text-[55px] font-bold  tracking-wide text-dark-red  uppercase`}
         >
           {t('about.title')}
         </motion.h2>

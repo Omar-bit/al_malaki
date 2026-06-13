@@ -31,7 +31,7 @@ export function Follow() {
             href='https://instagram.com/almalaki'
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center justify-center gap-2 font-[var(--font-abhaya)] text-[32px] md:text-[50px] leading-[1.05] text-dark-red transition-colors hover:text-[#7d2b35] lg:text-[30px]'
+            className='inline-flex items-center justify-center gap-2 font-[var(--font-abhaya)] text-[32px] md:text-[50px] leading-[1.05] text-dark-red transition-color !font-light hover:text-[#7d2b35] lg:text-[24px]'
           >
             @almalaki
             <span aria-hidden='true'>→</span>

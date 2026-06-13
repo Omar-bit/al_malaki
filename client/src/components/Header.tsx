@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from './Logo';
 import { useCart } from '../contexts/CartContext';
 import cartIcon from '../assets/cart.svg';
+import scoopIcon from '../assets/scoop.svg';
 import profile from '../assets/profile.svg';
 type NavLink = {
   labelKey: string;
@@ -109,12 +110,12 @@ export function Header({
         </button>
 
         {/* Desktop Navigation */}
-        <ul className='hidden md:flex items-center gap-x-20 '>
+        <ul className='hidden md:flex items-center gap-x-14 '>
           {navLinks.map((link) => (
             <li key={link.labelKey} className=''>
               <a
                 href={link.href}
-                className={`whitespace-nowrap text-dark-red text-[24px] leading-[1.178] transition-colors hover:text-gold testing ${i18n.language === 'en' ? 'font-italic' : 'font-taviraj font-bold'}`}
+                className={`whitespace-nowrap text-dark-red text-[22px] leading-[1.178] transition-colors hover:text-gold testing ${i18n.language === 'en' ? 'font-italic' : 'font-taviraj font-bold'}`}
               >
                 {t(`header.${link.labelKey}`)}
               </a>
@@ -123,13 +124,20 @@ export function Header({
         </ul>
 
         {/* Desktop Icons */}
-        <div className='hidden md:flex items-center gap-10 '>
+        <div className='hidden md:flex items-center gap-7 '>
+          <button
+            className='text-dark-red transition-colors hover:text-gold relative'
+            aria-label='Scoop'
+            // onClick={openCart}
+          >
+            <img className='size-6' src={scoopIcon} alt='scoop' />
+          </button>
           <button
             className='text-dark-red transition-colors hover:text-gold relative'
             aria-label='Cart'
             onClick={openCart}
           >
-            <img src={cartIcon} alt='Cart' />
+            <img className='size-6' src={cartIcon} alt='Cart' />
             {totalItems > 0 && (
               <span className='absolute -top-1.5 -right-2 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-[#3f060f] text-[#fdf8f0] text-[11px] font-abee font-bold px-1'>
                 {totalItems}
@@ -141,7 +149,7 @@ export function Header({
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
           >
-            <img src={profile} alt='Account' />
+            <img className='size-6' src={profile} alt='Account' />
           </Link>
 
           <button
@@ -180,7 +188,10 @@ export function Header({
             <button
               className='text-dark-red transition-colors hover:text-gold relative'
               aria-label='Cart'
-              onClick={() => { setIsOpen(false); openCart(); }}
+              onClick={() => {
+                setIsOpen(false);
+                openCart();
+              }}
             >
               <img src={cartIcon} alt='Cart' />
               {totalItems > 0 && (
