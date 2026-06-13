@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
 import { MapPin } from 'lucide-react';
-import crownPng from '../assets/crown.png';
 import Seperator from './ui/Seperator';
 
 const TikTokIcon = ({ className }: { className?: string }) => (
