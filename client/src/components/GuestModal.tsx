@@ -15,7 +15,7 @@ export function GuestModal({
   blocking = false,
 }: GuestModalProps) {
   const { isLoading, user } = useAuth();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
@@ -115,7 +115,7 @@ export function GuestModal({
 
               {/* Body text */}
               <pre
-                className={`text-white/90 text-center text-3xl leading-relaxed px-2 my-2 ${isRTL ? 'text-right' : 'text-center'}`}
+                className={`text-white/90 text-center text-xl leading-relaxed px-2 my-2 ${isRTL ? 'text-right' : 'text-center'}`}
                 style={{ fontFamily: 'Abhaya Libre, serif' }}
               >
                 {t('guest_modal.body')}
