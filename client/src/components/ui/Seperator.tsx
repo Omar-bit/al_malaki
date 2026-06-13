@@ -30,7 +30,7 @@ export default function Seperator({
       whileInView={{ scale: 1, opacity: 1 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
-      className='relative flex items-center justify-center'
+      className='relative flex items-center justify-center '
     >
       <div
         className={`absolute left-0 ${seperatorSize} w-[45%] ${seperatorColor}`}

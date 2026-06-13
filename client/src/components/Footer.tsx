@@ -220,14 +220,13 @@ export function Footer() {
             </a>
           </div>
         </div>
-
-        <Seperator lineColor='white' lineSize='thin' crownSize='medium' />
-
-        {/* Copyright */}
-        <p className='text-center text-white text-md font-abee font-light '>
-          © 2026 Influence Template . All Rights Reserved
-        </p>
       </div>
+      <Seperator lineColor='white' lineSize='thin' crownSize='medium' />
+
+      {/* Copyright */}
+      <p className='text-center text-white text-md font-abee font-light pb-4 '>
+        © 2026 Influence Template . All Rights Reserved
+      </p>
     </footer>
   );
 }

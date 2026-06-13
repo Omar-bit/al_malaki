@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts';
-import { X } from 'lucide-react';
-import logo from '../assets/logo.svg';
-import Button from './ui/Button';
+import { useTranslation } from 'react-i18next';
+import crownPng from '../assets/crown.png';
 
 interface GuestModalProps {
   forceOpen?: boolean;
@@ -16,8 +15,12 @@ export function GuestModal({
   blocking = false,
 }: GuestModalProps) {
   const { isLoading, user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const isRTL = i18n.language === 'ar';
+  const langLabel = t('guest_modal.lang_label');
 
   useEffect(() => {
     if (forceOpen) {
@@ -30,11 +33,9 @@ export function GuestModal({
       return;
     }
 
-    // Show modal if the user is not authenticated and hasn't seen it recently
     if (!isLoading && !user) {
       const hasSeenModal = sessionStorage.getItem('hasSeenGuestModal');
       if (!hasSeenModal) {
-        // slight delay for better UX
         const timer = setTimeout(() => {
           setIsOpen(true);
         }, 1500);
@@ -58,10 +59,7 @@ export function GuestModal({
   }, [isOpen]);
 
   const handleClose = () => {
-    if (blocking) {
-      return;
-    }
-
+    if (blocking) return;
     setIsOpen(false);
     sessionStorage.setItem('hasSeenGuestModal', 'true');
   };
@@ -69,53 +67,90 @@ export function GuestModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md'>
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm'>
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.92, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className='bg-dark-red! relative w-full max-w-4xl p-4  rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row font-["Abhaya_Libre"]'
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            // dir={isRTL ? 'rtl' : 'ltr'}
+            className='relative w-full max-w-[60%] rounded-3xl overflow-hidden shadow-2xl'
+            style={{ backgroundColor: '#3F060F' }}
           >
+            {/* Lang label — top left (or top right in RTL) */}
+            <span
+              className={`absolute top-4  left-5 text-[#EFE0C9] text-lg font-abee select-none cursor-pointer`}
+              onClick={() => {
+                const newLang = isRTL ? 'en' : 'ar';
+                i18n.changeLanguage(newLang);
+              }}
+            >
+              {langLabel}
+            </span>
+
+            {/* Close button — top right (or top left in RTL) */}
             {!blocking && (
               <button
                 onClick={handleClose}
-                className='absolute top-4 right-4 z-10 p-2 bg-white/50 backdrop-blur-sm rounded-full text-black hover:bg-white transition-colors'
+                className={`absolute top-4 right-5 text-[#EFE0C9] hover:text-white transition-colors text-2xl font-light leading-none`}
+                aria-label='Close'
               >
-                <X className='w-5 h-5' />
+                ✕
               </button>
             )}
-            <div className='w-full flex flex-col items-center gap-1 '>
-              <img src={logo} alt='AL MALAKI' className='size-46 -mt-7' />
 
-              <p className='-mt-5 text-white text-center px-10 text-2xl text-[#211E1E] leading-normal tracking-normal'>
-                Sign in to receive your personal matricule, <br /> use it to
-                answer our weekly questions and <br /> win exclusive promotions!
-              </p>
+            {/* Content */}
+            <div className='flex flex-col items-center px-12 pt-8 pb-7 gap-5'>
+              {/* Crown icon */}
+              <img
+                src={crownPng}
+                alt='AL MALAKI crown'
+                className='size-25 object-contain'
+              />
 
-              <div className='w-[35%] flex flex-col gap-3 items-center mt-5'>
-                <Button
-                  backgroundVariant='honeyPattern'
-                  classNames='w-full text-black! py-4 rounded-xl tracking-wider text-xl font-semibold'
+              {/* Brand name */}
+              <h2 className='font-italic text-gold text-3xl tracking-widest -mt-8'>
+                AL MALAKI
+              </h2>
+
+              {/* Body text */}
+              <pre
+                className={`text-white/90 text-center text-3xl leading-relaxed px-2 my-2 ${isRTL ? 'text-right' : 'text-center'}`}
+                style={{ fontFamily: 'Abhaya Libre, serif' }}
+              >
+                {t('guest_modal.body')}
+              </pre>
+
+              {/* Buttons */}
+              <div className='w-full flex flex-col gap-3 mt-1 items-center'>
+                {/* Join us */}
+                <button
                   onClick={() => navigate('/register')}
+                  className='w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
                 >
-                  Join Us
-                </Button>
-                <Button
-                  backgroundVariant='honeyPattern'
-                  classNames='w-full text-black! py-4 rounded-xl tracking-wider text-xl font-semibold'
+                  {t('guest_modal.join')}
+                </button>
+
+                {/* Already have an account */}
+                <button
                   onClick={() => navigate('/login')}
+                  className='w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
                 >
-                  I already have an account
-                </Button>
-                {!blocking && (
-                  <span
-                    className='text-[#8F8B8B] text-center text-lg font-medium'
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Access to the site →
-                  </span>
-                )}
+                  {t('guest_modal.already_account')}
+                </button>
               </div>
+
+              {/* Discover link */}
+              {!blocking && (
+                <button
+                  onClick={handleClose}
+                  className='text-[#ADAAA4] text-xs font-abee hover:text-white/80 transition-colors tracking-wide mt-1'
+                >
+                  {isRTL
+                    ? `← ${t('guest_modal.discover')}`
+                    : `${t('guest_modal.discover')} →`}
+                </button>
+              )}
             </div>
           </motion.div>
         </div>
