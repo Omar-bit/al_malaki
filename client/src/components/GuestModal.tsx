@@ -74,7 +74,7 @@ export function GuestModal({
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             // dir={isRTL ? 'rtl' : 'ltr'}
-            className='relative w-full max-w-[50%] rounded-4xl overflow-hidden shadow-2xl'
+            className='relative w-full max-w-[95%] md:max-w-[50%] rounded-4xl overflow-hidden shadow-2xl'
             style={{ backgroundColor: '#3F060F' }}
           >
             {/* Lang label — top left (or top right in RTL) */}
@@ -115,7 +115,7 @@ export function GuestModal({
 
               {/* Body text */}
               <pre
-                className={`text-white/90 text-center text-xl leading-relaxed px-2 my-2 ${isRTL ? 'text-right' : 'text-center'}`}
+                className={`text-white/90 text-center text-sm md:text-xl leading-relaxed px-2 my-2 ${isRTL ? 'text-right' : 'text-center'}`}
                 style={{ fontFamily: 'Abhaya Libre, serif' }}
               >
                 {t('guest_modal.body')}
@@ -126,7 +126,7 @@ export function GuestModal({
                 {/* Join us */}
                 <button
                   onClick={() => navigate('/register')}
-                  className='w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
+                  className='w-[80%] md:w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
                 >
                   {t('guest_modal.join')}
                 </button>
@@ -134,7 +134,7 @@ export function GuestModal({
                 {/* Already have an account */}
                 <button
                   onClick={() => navigate('/login')}
-                  className='w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
+                  className='w-[80%] md:w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
                 >
                   {t('guest_modal.already_account')}
                 </button>

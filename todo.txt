@@ -1,7 +1,3 @@
-add french support
-footer
-
-
 *CUSTOMER: order
 *ADMIN: orders
 *CUSTOMER: track orders 
