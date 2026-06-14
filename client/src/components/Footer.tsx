@@ -80,8 +80,144 @@ const PhoneIcon = ({ className }: { className?: string }) => (
 export function Footer() {
   return (
     <footer className='w-full bg-dark-red mt-10 md:mt-16'>
-      {/* Main content area */}
-      <div className='max-w-6xl mx-auto px-6 md:px-12 pt-10 pb-6'>
+      {/* 
+        -----------------------------------------------------
+        MOBILE VIEW 
+        -----------------------------------------------------
+      */}
+      <div className='md:hidden px-6 pt-10 pb-6 flex flex-col'>
+        {/* Logo & Tagline */}
+        <div className='flex flex-col items-center mb-10'>
+          <Logo className='w-36 mb-2' />
+          <p className='text-white font-abhaya text-lg'>
+            Pure honey, crafted by nature
+          </p>
+        </div>
+
+        <div className='flex flex-col space-y-8 pl-2'>
+          {/* QUICK LINKS */}
+          <div className='flex flex-col items-start'>
+            <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
+              Quick Links
+            </h3>
+            <ul className='flex flex-col space-y-3'>
+              <li>
+                <Link to='/' className='text-white font-abhaya text-lg'>
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to='/products' className='text-white font-abhaya text-lg'>
+                  Shop
+                </Link>
+              </li>
+              <li>
+                <Link to='/about' className='text-white font-abhaya text-lg'>
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to='/contact' className='text-white font-abhaya text-lg'>
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* CUSTOMER AREA */}
+          <div className='flex flex-col items-start'>
+            <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
+              Customer Area
+            </h3>
+            <ul className='flex flex-col space-y-3'>
+              <li>
+                <Link to='/profile' className='text-white font-abhaya text-lg'>
+                  My account
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to='/track-order'
+                  className='text-white font-abhaya text-lg'
+                >
+                  Track Order
+                </Link>
+              </li>
+              <li>
+                <Link to='/rewards' className='text-white font-abhaya text-lg'>
+                  Rewards
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* CONTACT */}
+          <div className='flex flex-col items-start'>
+            <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
+              Contact
+            </h3>
+            <div className='flex flex-col space-y-3'>
+              <a
+                href='tel:+21697530057'
+                className='flex items-center gap-3 text-white font-abhaya text-lg'
+              >
+                <PhoneIcon className='size-4' />
+                <span>97 530 057</span>
+              </a>
+              <a
+                href='mailto:almalaki97530@gmail.com'
+                className='flex items-center gap-3 text-white font-abhaya text-lg'
+              >
+                <MailIcon className='size-4' />
+                <span>almalaki97530@gmail.com</span>
+              </a>
+            </div>
+          </div>
+
+          {/* FOLLOW */}
+          <div className='flex flex-col items-start'>
+            <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
+              Follow
+            </h3>
+            <div className='flex flex-col space-y-3'>
+              <a
+                href='https://instagram.com/al.malaki_'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='flex items-center gap-3 text-white font-abhaya text-lg'
+              >
+                <InstagramIcon className='size-4' />
+                <span>al.malaki_</span>
+              </a>
+              <a
+                href='https://tiktok.com/@al.malaki_'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='flex items-center gap-3 text-white font-abhaya text-lg'
+              >
+                <TikTokIcon className='size-4' />
+                <span>al.malaki_</span>
+              </a>
+              <a
+                href='https://facebook.com/al.malaki_'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='flex items-center gap-3 text-white font-abhaya text-lg'
+              >
+                <FacebookIcon className='size-4' />
+                <span>al.malaki_</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 
+        -----------------------------------------------------
+        DESKTOP VIEW 
+        -----------------------------------------------------
+      */}
+      <div className='hidden md:block max-w-6xl mx-auto px-6 md:px-12 pt-10 pb-6'>
         {/* Top 3-column grid */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-10 pb-8'>
           {/* Column 1: Logo */}
