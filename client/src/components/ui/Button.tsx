@@ -15,7 +15,7 @@ export default function Button({
   classNames?: string;
   backgroundVariant?: TBackgroundVariant;
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: (e?: any) => void;
 }) {
   return (
     <button

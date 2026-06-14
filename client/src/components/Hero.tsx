@@ -5,43 +5,48 @@ import { useTranslation } from 'react-i18next';
 export function Hero() {
   const width = useWindowWidth();
   const { t, i18n } = useTranslation();
+
   return (
     <section
       id='home'
-      className='relative h-screen w-full overflow-hidden bg-cover bg-center bg-no-repeat'
+      className='relative min-h-screen w-full overflow-hidden bg-cover bg-no-repeat'
       style={{
-        backgroundImage: 'url(/hero-bg.jpg)',
-        backgroundPosition: width < 768 ? '90% 100%' : '',
+        backgroundImage:
+          width < 768 ? 'url(/hero-bg-mobile.jpg)' : 'url(/hero-bg.jpg)',
+        backgroundSize: width < 768 ? '200% 100%' : '100% auto',
+        backgroundPosition: width < 768 ? '100% 50%' : 'center center',
       }}
     >
-      <div className='relative mx-auto h-full w-full '>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
-          className={`absolute left-4 md:left-10 sm:left-[80px] lg:left-[150px] top-[150px] md:top-[280px] lg:top-[250px]`}
-        >
-          {/* ${i18n.language === 'en' ? 'font-italic' : 'font-bold'}  */}
-          <p
-            className={`text-[#efe0c9] font-normal font-italic text-[40px] md:text-[62px] leading-[1.178] sm:text-[78px] lg:text-[72px]`}
-          >
-            {t('hero.welcome')}
-          </p>
-        </motion.div>
+      <div className='absolute inset-0 bg-[linear-gradient(180deg,rgba(231,220,204,0.92)_0%,rgba(202,173,163,0.16)_42%,rgba(87,0,10,0.88)_100%)]' />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
-          className={`absolute font-italic! font-normal! left-4 md:left-6 sm:left-[80px] lg:left-[114px] top-[220px] md:top-[392px] lg:top-[375px] `}
-        >
-          <h1
-            className={`text-[#efe0c9] ${i18n.language === 'en' ? 'font-italic' : 'font-bold'} text-[48px] md:text-[76px] leading-[1.178] tracking-[0.03em] sm:text-[100px] lg:text-[105px]`}
-            style={{ WebkitTextStroke: '0.7px #f8e5c6' }}
+      <div className='relative mx-auto flex min-h-screen w-full items-start px-5 pb-12 pt-[162px] sm:px-8 sm:pt-[190px] md:px-10 md:pt-[280px] lg:px-[114px] lg:pt-[250px]'>
+        <div className='max-w-[240px] sm:max-w-[320px] md:max-w-none'>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
           >
-            {t('hero.al_malaki')}
-          </h1>
-        </motion.div>
+            <p
+              className={`text-[#efe0c9] font-normal font-italic text-[31px] leading-[1.08] sm:text-[46px] md:text-[62px] lg:text-[72px]`}
+            >
+              {t('hero.welcome')}
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
+            className='mt-5 sm:mt-6'
+          >
+            <h1
+              className={`text-[#efe0c9] ${i18n.language === 'en' ? 'font-italic' : 'font-bold'} text-[48px] leading-[0.98] tracking-[0.055em] sm:text-[68px] md:text-[76px] md:leading-[1.05] lg:text-[105px]`}
+              style={{ WebkitTextStroke: '0.7px #f8e5c6' }}
+            >
+              {t('hero.al_malaki')}
+            </h1>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

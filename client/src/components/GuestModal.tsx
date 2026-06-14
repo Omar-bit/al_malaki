@@ -15,7 +15,7 @@ export function GuestModal({
   blocking = false,
 }: GuestModalProps) {
   const { isLoading, user } = useAuth();
-  const [isOpen, setIsOpen] = useState(!false);
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
