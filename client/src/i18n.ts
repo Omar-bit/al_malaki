@@ -10,7 +10,7 @@ const resources = {
         about: 'About us',
         products: 'Products',
         customize: 'Customize pack',
-        lang: 'Ar',
+        lang: 'Fr',
       },
       hero: {
         welcome: 'Welcome to',
@@ -20,6 +20,7 @@ const resources = {
         title: 'Products',
         name: 'Name of product',
         button: 'Show details',
+        seeMore: 'See more',
       },
       about: {
         title: 'About us',
@@ -28,6 +29,21 @@ const resources = {
       },
       follow: {
         title: 'Follow us',
+      },
+      footer: {
+        tagline: 'Pure honey, crafted by nature',
+        quickLinks: 'Quick Links',
+        home: 'Home',
+        shop: 'Shop',
+        about: 'About',
+        contact: 'Contact',
+        customerArea: 'Customer Area',
+        myAccount: 'My account',
+        trackOrder: 'Track Order',
+        rewards: 'Rewards',
+        follow: 'Follow',
+        soon: 'Soon',
+        rights: '© 2026 Influence Template . All Rights Reserved'
       },
       login: {
         title: 'Log in',
@@ -183,8 +199,9 @@ const resources = {
       },
       products: {
         title: 'منتجاتنا',
-        name: 'Name of product',
-        button: 'Show details',
+        name: 'اسم المنتج',
+        button: 'عرض التفاصيل',
+        seeMore: 'عرض المزيد',
       },
       about: {
         title: 'تعرف علينا',
@@ -193,6 +210,21 @@ const resources = {
       },
       follow: {
         title: 'Follow us',
+      },
+      footer: {
+        tagline: 'عسل صافي، من الطبيعة',
+        quickLinks: 'روابط سريعة',
+        home: 'الرئيسية',
+        shop: 'تسوق',
+        about: 'تعرف علينا',
+        contact: 'اتصل بنا',
+        customerArea: 'منطقة العملاء',
+        myAccount: 'حسابي',
+        trackOrder: 'تتبع الطلب',
+        rewards: 'المكافآت',
+        follow: 'تابعنا',
+        soon: 'قريباً',
+        rights: '© 2026 Influence Template . جميع الحقوق محفوظة'
       },
       login: {
         title: 'تسجيل الدخول',
@@ -348,6 +380,7 @@ const resources = {
         title: 'Produits',
         name: 'Nom du produit',
         button: 'Voir les détails',
+        seeMore: 'Voir plus',
       },
       about: {
         title: 'À propos',
@@ -356,6 +389,21 @@ const resources = {
       },
       follow: {
         title: 'Suivez-nous',
+      },
+      footer: {
+        tagline: 'Miel pur, façonné par la nature',
+        quickLinks: 'Liens Rapides',
+        home: 'Accueil',
+        shop: 'Boutique',
+        about: 'À propos',
+        contact: 'Contact',
+        customerArea: 'Espace Client',
+        myAccount: 'Mon compte',
+        trackOrder: 'Suivre ma commande',
+        rewards: 'Récompenses',
+        follow: 'Suivez-nous',
+        soon: 'Bientôt',
+        rights: '© 2026 Influence Template . Tous droits réservés'
       },
       guest_modal: {
         lang_label: 'Fr',

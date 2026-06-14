@@ -81,8 +81,8 @@ export function GuestModal({
             <span
               className={`absolute top-4  left-5 text-[#EFE0C9] text-lg font-abee select-none cursor-pointer`}
               onClick={() => {
-                const newLang = isRTL ? 'en' : 'ar';
-                i18n.changeLanguage(newLang);
+                const nextLang = { en: 'fr', fr: 'ar', ar: 'en' }[i18n.language] || 'en';
+                i18n.changeLanguage(nextLang);
               }}
             >
               {langLabel}

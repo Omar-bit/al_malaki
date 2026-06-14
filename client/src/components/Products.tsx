@@ -209,7 +209,7 @@ export function Products() {
                 classNames='mx-auto flex mt-5 px-16 !rounded-[30px]'
               >
                 <span className='text-dark-red font-abhaya  font-bold text-[18px]'>
-                  Show Details
+                  {t('products.button')}
                 </span>
               </Button>
             </motion.article>

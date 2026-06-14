@@ -1,3 +1,5 @@
+add french support
+
 *CUSTOMER: order
 *ADMIN: orders
 *CUSTOMER: track orders 

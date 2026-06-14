@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { MapPin } from 'lucide-react';
 import Seperator from './ui/Seperator';
@@ -78,6 +79,7 @@ const PhoneIcon = ({ className }: { className?: string }) => (
 );
 
 export function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className='w-full bg-dark-red mt-10 md:mt-16'>
       {/* 
@@ -90,7 +92,7 @@ export function Footer() {
         <div className='flex flex-col items-center mb-10'>
           <Logo className='w-36 mb-2' />
           <p className='text-white font-abhaya text-lg'>
-            Pure honey, crafted by nature
+            {t('footer.tagline')}
           </p>
         </div>
 
@@ -309,7 +311,7 @@ export function Footer() {
           {/* Location */}
           <div className='flex items-center gap-2 text-white text-sm font-abhaya '>
             <MapPin className='size-6 text-white' />
-            <span className='font-abee tracking-widest '>Soon</span>
+            <span className='font-abee tracking-widest '>{t('footer.soon')}</span>
           </div>
 
           {/* Phone */}
@@ -360,7 +362,7 @@ export function Footer() {
 
       {/* Copyright */}
       <p className='text-center text-white text-md font-abee font-light pb-4 '>
-        © 2026 Influence Template . All Rights Reserved
+        {t('footer.rights')}
       </p>
     </footer>
   );

@@ -73,7 +73,8 @@ export function Header({
   }, [isOpen]);
 
   const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === 'en' ? 'ar' : 'en');
+    const nextLang = { en: 'fr', fr: 'ar', ar: 'en' }[i18n.language] || 'en';
+    i18n.changeLanguage(nextLang);
   };
 
   const handleMobileSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
