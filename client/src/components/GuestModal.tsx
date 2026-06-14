@@ -15,7 +15,7 @@ export function GuestModal({
   blocking = false,
 }: GuestModalProps) {
   const { isLoading, user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!false);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
@@ -74,7 +74,7 @@ export function GuestModal({
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             // dir={isRTL ? 'rtl' : 'ltr'}
-            className='relative w-full max-w-[60%] rounded-3xl overflow-hidden shadow-2xl'
+            className='relative w-full max-w-[50%] rounded-4xl overflow-hidden shadow-2xl'
             style={{ backgroundColor: '#3F060F' }}
           >
             {/* Lang label — top left (or top right in RTL) */}

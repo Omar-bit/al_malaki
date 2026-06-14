@@ -21,7 +21,7 @@ export default function Button({
     <button
       onClick={onClick ? onClick : () => {}}
       className={
-        ` px-4 py-2 rounded-md text-white font-semibold hover:cursor-pointer px-5 py-2 ` +
+        ` rounded-md text-white font-semibold hover:cursor-pointer px-5 py-2 ` +
         classNames
       }
       style={{

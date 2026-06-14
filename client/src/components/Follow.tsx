@@ -28,12 +28,12 @@ export function Follow() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            href='https://instagram.com/almalaki'
+            href='https://instagram.com/al.malaki_'
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center justify-center gap-2 font-[var(--font-abhaya)] text-[32px] md:text-[50px] leading-[1.05] text-dark-red transition-color !font-light hover:text-[#7d2b35] lg:text-[24px]'
           >
-            @almalaki
+            @al.malaki_
             <span aria-hidden='true'>→</span>
           </motion.a>
 

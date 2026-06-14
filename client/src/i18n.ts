@@ -153,8 +153,9 @@ const resources = {
       },
       guest_modal: {
         lang_label: 'En',
-        body: `By joining  ALMALAKI  you will get a personal matricule. 
-        Take part in our weekly challenges and enjoy exclusive rewards reserved for our community.`,
+        body: `By joining  ALMALAKI  you will get a personal
+         matricule. Take part in our weekly challenges and
+         enjoy exclusive rewards reserved for our community.`,
         join: 'Join us',
         already_account: 'Already have an account',
         discover: 'Discover ALMALAKI',
