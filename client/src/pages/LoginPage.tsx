@@ -121,7 +121,7 @@ export function LoginPage() {
               <h2 className='text-3xl text-dark-red font-(--font-abhaya) mb-1'>
                 {t('hero.welcome')}
               </h2>
-              <h1 className='text-5xl text-dark-red font-(--font-abhaya) font-bold uppercase tracking-wider'>
+              <h1 className='text-5xl text-dark-red font-italic font-bold uppercase tracking-wider'>
                 {t('hero.al_malaki')}
               </h1>
             </motion.div>

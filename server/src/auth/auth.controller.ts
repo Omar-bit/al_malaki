@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,8 +7,13 @@ import {
   HttpStatus,
   Post,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import type { Response } from 'express';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
@@ -20,6 +26,31 @@ import { VerifyRegisterOtpDto } from './dto/verify-register-otp.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './types/auth-user.type';
+
+const profilePictureStorage = diskStorage({
+  destination: './uploads/profiles',
+  filename: (req, file, cb) => {
+    const randomName = Array(32)
+      .fill(null)
+      .map(() => Math.round(Math.random() * 16).toString(16))
+      .join('');
+    cb(null, `${randomName}${extname(file.originalname)}`);
+  },
+});
+
+const profilePictureFileFilter = (req, file, cb) => {
+  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);
+    return;
+  }
+
+  cb(
+    new BadRequestException('Only image files are allowed (jpeg, png, webp, gif)'),
+    false,
+  );
+};
 
 @Controller('auth')
 export class AuthController {
@@ -63,6 +94,25 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
+  }
+
+  @Post('register/upload-profile-picture')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: profilePictureStorage,
+      fileFilter: profilePictureFileFilter,
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  @HttpCode(HttpStatus.CREATED)
+  async uploadProfilePicture(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    return { url: `/uploads/profiles/${file.filename}` };
   }
 
   @Post('register/verify-otp')

@@ -43,7 +43,7 @@ const resources = {
         rewards: 'Rewards',
         follow: 'Follow',
         soon: 'Soon',
-        rights: '© 2026 Influence Template . All Rights Reserved'
+        rights: '© 2026 Influence Template . All Rights Reserved',
       },
       login: {
         title: 'Log in',
@@ -53,6 +53,17 @@ const resources = {
         email_placeholder: 'Enter your email',
         email_required: 'Please enter your email first',
         email_invalid: 'Please enter a valid email address',
+        birth_date: 'Date of birth',
+        birth_date_placeholder: '25/09/2000',
+        birth_date_required: 'Please enter your date of birth',
+        birth_date_invalid: 'Please enter a valid date of birth',
+        birth_date_future: 'Date of birth cannot be in the future',
+        profile_picture: 'Upload profile picture',
+        profile_picture_optional: '(Optional)',
+        profile_picture_placeholder: 'Add Profile Picture',
+        profile_picture_uploading: 'Uploading picture...',
+        profile_picture_uploaded: 'Profile picture uploaded',
+        profile_picture_invalid: 'Please upload a valid image file',
         password: 'Password',
         password_placeholder: 'Enter your password',
         password_required: 'Please enter your password',
@@ -109,6 +120,10 @@ const resources = {
         loading: 'Creating account...',
         success: 'Signup completed. Please verify your email.',
         generic_error: 'Unable to create account. Please try again.',
+        birth_date: 'Date of birth',
+        profile_picture: 'Upload profile picture',
+        profile_picture_uploading: 'Uploading picture...',
+        profile_picture_placeholder: 'Add Profile Picture',
       },
       verify_email: {
         title: 'Verify your email',
@@ -182,6 +197,9 @@ const resources = {
         coming_soon:
           'This is a placeholder page. Your account features will appear here soon.',
       },
+      others: {
+        optional: 'Optional',
+      },
     },
   },
   ar: {
@@ -224,7 +242,7 @@ const resources = {
         rewards: 'المكافآت',
         follow: 'تابعنا',
         soon: 'قريباً',
-        rights: '© 2026 Influence Template . جميع الحقوق محفوظة'
+        rights: '© 2026 Influence Template . جميع الحقوق محفوظة',
       },
       login: {
         title: 'تسجيل الدخول',
@@ -234,6 +252,17 @@ const resources = {
         email_placeholder: 'أدخل بريدك الإلكتروني',
         email_required: 'يرجى إدخال بريدك الإلكتروني أولاً',
         email_invalid: 'يرجى إدخال بريد إلكتروني صالح',
+        birth_date: 'تاريخ الميلاد',
+        birth_date_placeholder: '25/09/2000',
+        birth_date_required: 'يرجى إدخال تاريخ الميلاد',
+        birth_date_invalid: 'يرجى إدخال تاريخ ميلاد صالح',
+        birth_date_future: 'لا يمكن أن يكون تاريخ الميلاد في المستقبل',
+        profile_picture: 'رفع صورة الملف الشخصي',
+        profile_picture_optional: '(اختياري)',
+        profile_picture_placeholder: 'إضافة صورة الملف الشخصي',
+        profile_picture_uploading: 'جارٍ رفع الصورة...',
+        profile_picture_uploaded: 'تم رفع صورة الملف الشخصي',
+        profile_picture_invalid: 'يرجى رفع ملف صورة صالح',
         password: 'كلمة المرور',
         password_placeholder: 'أدخل كلمة المرور',
         password_required: 'يرجى إدخال كلمة المرور',
@@ -290,6 +319,10 @@ const resources = {
         loading: 'جارٍ إنشاء الحساب...',
         success: 'تم إنشاء الحساب. يرجى تأكيد البريد الإلكتروني.',
         generic_error: 'تعذر إنشاء الحساب. يرجى المحاولة مرة أخرى.',
+        birth_date: 'تاريخ الميلاد',
+        profile_picture: 'تحميل صورة',
+        profile_picture_uploading: 'جارٍ تحميل الصورة...',
+        profile_picture_placeholder: ' تحميل صورة',
       },
       verify_email: {
         title: 'تأكيد البريد الإلكتروني',
@@ -361,6 +394,9 @@ const resources = {
         subtitle: 'مرحباً بك في لوحة التحكم الخاصة بك.',
         coming_soon: 'هذه صفحة تجريبية مؤقتة. ستظهر ميزات الحساب هنا قريباً.',
       },
+      others: {
+        optional: 'إختياري',
+      },
     },
   },
   fr: {
@@ -403,7 +439,7 @@ const resources = {
         rewards: 'Récompenses',
         follow: 'Suivez-nous',
         soon: 'Bientôt',
-        rights: '© 2026 Influence Template . Tous droits réservés'
+        rights: '© 2026 Influence Template . Tous droits réservés',
       },
       guest_modal: {
         lang_label: 'Fr',
@@ -482,12 +518,19 @@ const resources = {
         loading: 'Création du compte...',
         success: 'Inscription terminée. Veuillez vérifier votre email.',
         generic_error: 'Impossible de créer le compte. Veuillez réessayer.',
+        birth_date: 'Date de naissance',
+        profile_picture: 'Télécharger une photo de profil',
+        profile_picture_uploading: '',
+        profile_picture_placeholder: '',
       },
       dashboard: {
         title: 'Tableau de bord',
         subtitle: 'Bienvenue sur votre tableau de bord.',
         coming_soon:
           'Cette page est provisoire. Vos fonctionnalités apparaîtront bientôt.',
+      },
+      others: {
+        optional: 'Optionnel',
       },
     },
   },

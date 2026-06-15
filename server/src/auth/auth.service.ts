@@ -57,6 +57,8 @@ export interface AuthenticatedUserResponse {
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;
+  birthDate: Date | null;
+  profilePicture: string | null;
   role: string;
 
   verifiedEmail: boolean;
@@ -187,6 +189,10 @@ export class AuthService {
     const normalizedPhoneNumber = this.normalizePhoneNumber(
       registerDto.phoneNumber,
     );
+    const normalizedBirthDate = this.normalizeBirthDate(registerDto.birthDate);
+    const normalizedProfilePicture = this.normalizeOptionalText(
+      registerDto.profilePicture,
+    );
 
     const existingUser = await this.prismaService.user.findUnique({
       where: { email: normalizedEmail },
@@ -210,6 +216,8 @@ export class AuthService {
           firstName: normalizedFirstName,
           lastName: normalizedLastName,
           phoneNumber: normalizedPhoneNumber,
+          birthDate: normalizedBirthDate,
+          profilePicture: normalizedProfilePicture,
           passwordHash,
           role: 'CUSTOMER',
           verifiedEmail: false,
@@ -225,6 +233,8 @@ export class AuthService {
           firstName: normalizedFirstName,
           lastName: normalizedLastName,
           phoneNumber: normalizedPhoneNumber,
+          birthDate: normalizedBirthDate,
+          profilePicture: normalizedProfilePicture,
           role: 'CUSTOMER',
           verifiedEmail: false,
         },
@@ -393,6 +403,35 @@ export class AuthService {
 
   private normalizePhoneNumber(phoneNumber: string): string {
     return phoneNumber.trim();
+  }
+
+  private normalizeBirthDate(birthDate: string): Date {
+    const parsedDate = new Date(birthDate);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      throw new HttpException('Invalid birth date', HttpStatus.BAD_REQUEST);
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (parsedDate > today) {
+      throw new HttpException(
+        'Birth date cannot be in the future',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return parsedDate;
+  }
+
+  private normalizeOptionalText(value?: string): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const trimmedValue = value.trim();
+    return trimmedValue.length > 0 ? trimmedValue : null;
   }
 
   private async verifyRegisterOtpCode(
@@ -689,6 +728,8 @@ export class AuthService {
       firstName: user.firstName,
       lastName: user.lastName,
       phoneNumber: user.phoneNumber,
+      birthDate: user.birthDate,
+      profilePicture: user.profilePicture,
       verifiedEmail: user.verifiedEmail,
       role: user.role,
       createdAt: user.createdAt,

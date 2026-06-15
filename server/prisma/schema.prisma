@@ -24,6 +24,8 @@ model User {
   firstName      String
   lastName       String
   phoneNumber    String?
+  birthDate      DateTime?
+  profilePicture String?
   role  Role
   passwordHash  String
   verifiedEmail Boolean @default(false)

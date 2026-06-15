@@ -127,6 +127,24 @@ export async function register(
   return (await response.json()) as RegisterResponse;
 }
 
+export async function uploadProfilePicture(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch(`${API_BASE_URL}/auth/register/upload-profile-picture`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as { url: string };
+}
+
 export async function verifyRegisterOtp(
   payload: VerifyRegisterOtpPayload,
 ): Promise<AuthUser> {

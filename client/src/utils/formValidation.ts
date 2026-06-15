@@ -130,3 +130,33 @@ export function validateOtpValue(
 
   return getSuccess(trimmedOtp);
 }
+
+export function validateBirthDateValue(
+  birthDate: string,
+  messages: {
+    required: string;
+    invalid: string;
+    future: string;
+  },
+): ValidationResult {
+  const trimmedBirthDate = birthDate.trim();
+
+  if (!trimmedBirthDate) {
+    return getFailure(messages.required);
+  }
+
+  const parsedDate = new Date(trimmedBirthDate);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return getFailure(messages.invalid);
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (parsedDate > today) {
+    return getFailure(messages.future);
+  }
+
+  return getSuccess(trimmedBirthDate);
+}

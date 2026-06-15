@@ -25,6 +25,8 @@ export interface RegisterPayload {
   lastName: string;
   phoneNumber: string;
   email: string;
+  birthDate: string;
+  profilePicture?: string;
   password: string;
 }
 
@@ -61,6 +63,8 @@ export interface AuthUser {
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;
+  birthDate: string | null;
+  profilePicture: string | null;
   role: 'CUSTOMER' | 'ADMIN' | 'VENDOR';
   verifiedEmail: boolean;
   createdAt: string;

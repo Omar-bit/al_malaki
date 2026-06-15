@@ -1,6 +1,8 @@
 import { Transform } from 'class-transformer';
 import {
+  IsDateString,
   IsEmail,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -46,4 +48,18 @@ export class RegisterDto {
   @Matches(/^(?=(?:\D*\d){8,15}\D*$)\+?[\d\s()-]+$/)
   @MaxLength(20)
   phoneNumber!: string;
+
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsDateString()
+  birthDate!: string;
+
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsOptional()
+  @IsString()
+  @MaxLength(191)
+  profilePicture?: string;
 }
