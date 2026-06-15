@@ -103,15 +103,24 @@ export function LoginPage() {
         <Header withBackground={false} />
       </div>
 
-      <main className='flex-1 flex items-center justify-center p-4 md:p-8 mt-10'>
+      <main className=' mt-6 flex flex-1 items-start justify-center overflow-hidden px-4 pb-8 pt-24 md:mt-10 md:items-center md:p-8'>
+        <div className='fixed inset-0 md:hidden'>
+          <img
+            src={authModel}
+            alt='Al Malaki'
+            className='h-full w-full object-cover blur-md opacity-80'
+            style={{ objectPosition: 'center top' }}
+          />
+          {/* <div className='absolute inset-0 bg-[#ead8d0]/72 backdrop-blur-[2px]' /> */}
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className={`bg-white rounded-[32px] shadow-2xl flex flex-col md:flex-row w-full max-w-[95%] sm:max-w-[70%] md:max-w-[55%] overflow-hidden `}
+          className='relative flex w-full max-w-[360px] flex-col overflow-hidden rounded-none bg-transparent shadow-none sm:max-w-[70%] md:max-w-[55%] md:flex-row md:rounded-[32px] md:bg-white md:shadow-2xl'
         >
           {/* Left / Right Image Section */}
-          <div className='w-full md:w-[45%] relative bg-gradient-to-b from-[#FCECD8] to-[#986E58] flex flex-col items-center justify-start p-8 min-h-[350px] md:min-h-[unset] relative'>
+          <div className='relative hidden w-full items-center justify-start bg-gradient-to-b from-[#FCECD8] to-[#986E58] p-8 md:flex md:min-h-[unset] md:w-[45%] md:flex-col'>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -146,12 +155,12 @@ export function LoginPage() {
           </div>
 
           {/* Form Section */}
-          <div className='w-full md:w-[55%] p-6  flex flex-col justify-center bg-white relative'>
+          <div className='relative z-10 flex w-full flex-col justify-center px-3 py-4 md:w-[55%] md:bg-white md:p-6'>
             <motion.h2
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className='text-3xl md:text-4xl text-dark-red font-(--font-abhaya) !font-extrabold text-center mb-4 md:mb-6'
+              className='mb-3 text-center text-[2.15rem] text-dark-red font-(--font-abhaya) !font-extrabold md:mb-6 md:text-4xl'
             >
               {t('login.title')}
             </motion.h2>
@@ -160,15 +169,15 @@ export function LoginPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className='text-center mb-6 md:mb-8 flex flex-wrap justify-center items-center gap-1 md:gap-2 text-sm md:text-md'
+              className='mb-8 flex flex-wrap items-center justify-center gap-1 text-center text-base md:mb-8 md:gap-2 md:text-sm'
               dir={isRtl ? 'rtl' : 'ltr'}
             >
-              <span className='text-dark-red text-xl text-center'>
+              <span className='text-center text-[1.05rem] text-dark-red md:text-xl'>
                 {t('login.no_account')}
               </span>
               <Link
                 to='/register'
-                className='font-semibold text-lg md:text-xl text-dark-red font-(--font-abhaya) underline decoration-dark-red underline-offset-8 tracking-wide'
+                className='font-(--font-abhaya) text-[1.05rem] font-semibold tracking-wide text-dark-red underline decoration-dark-red underline-offset-4 md:text-xl md:underline-offset-8'
               >
                 {t('login.sign_up')}
               </Link>
@@ -178,12 +187,12 @@ export function LoginPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className='max-w-md mx-auto w-full space-y-6'
+              className='mx-auto w-full max-w-[290px] space-y-6 md:max-w-md'
               dir={isRtl ? 'rtl' : 'ltr'}
               onSubmit={handleSubmit}
             >
               <div>
-                <label className='block text-xl !font-bold text-dark-red font-(--font-abhaya) mb-2 font-italic'>
+                <label className='mb-2 block text-[1.85rem] !font-bold text-dark-red font-(--font-abhaya) md:text-xl'>
                   {t('login.email')}
                 </label>
                 <input
@@ -194,12 +203,12 @@ export function LoginPage() {
                   autoComplete='email'
                   maxLength={254}
                   required
-                  className='w-full px-6 py-3 font-(--font-abhaya) font-italic rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-(--font-abhaya) text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
                 />
               </div>
 
               <div>
-                <label className='block text-xl !font-bold text-dark-red font-(--font-abhaya) mb-2 font-italic'>
+                <label className='mb-2 block text-[1.85rem] !font-bold text-dark-red font-(--font-abhaya) md:text-xl'>
                   {t('login.password')}
                 </label>
                 <div className='relative'>
@@ -212,7 +221,7 @@ export function LoginPage() {
                     required
                     minLength={8}
                     maxLength={64}
-                    className={`w-full py-3 font-(--font-abhaya) font-italic rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
+                    className={`w-full rounded-full border border-dark-red bg-transparent py-[0.92rem] font-(--font-abhaya) text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red ${isRtl ? 'pl-12 pr-4 md:pl-14 md:pr-6' : 'pr-12 pl-4 md:pr-14 md:pl-6'}`}
                   />
 
                   <button
@@ -270,11 +279,11 @@ export function LoginPage() {
                 </div>
               </div>
 
-              <div className='pt-3 flex justify-center'>
+              <div className='flex justify-center pt-3'>
                 <button
                   type='submit'
                   disabled={isSubmitting}
-                  className='px-12 py-3 rounded-full font-serif font-bold text-dark-red bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] hover:scale-105 transition-transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100'
+                  className='rounded-full bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] px-14 py-3 font-serif text-base font-bold text-dark-red shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 md:px-12 md:text-base'
                   style={{
                     backgroundImage: 'url(/honey_pattern.png)',
                     backgroundSize: 'cover',
@@ -284,10 +293,10 @@ export function LoginPage() {
                 </button>
               </div>
 
-              <div className='text-center mt-2'>
+              <div className='mt-2 text-center'>
                 <Link
                   to={`/forgot-password?email=${encodeURIComponent(email.trim())}`}
-                  className='text-sm text-dark-red hover:underline'
+                  className='text-[1.05rem] text-dark-red hover:underline md:text-sm'
                 >
                   {t('login.forgot_password')}
                 </Link>

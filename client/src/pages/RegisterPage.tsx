@@ -244,14 +244,23 @@ export function RegisterPage() {
         <Header withBackground={false} />
       </div>
 
-      <main className='flex-1 flex items-center justify-center px-4  pt-6 md:px-8  md:pt-20'>
+      <main className=' flex-1 items-center mx-auto md:mx-[unset]  justify-center overflow-hidden px-4 pb-8 pt-24 md:flex  md:px-8 md:pt-20'>
+        <div className='fixed inset-0 md:hidden'>
+          <img
+            src={authModel}
+            alt='Al Malaki'
+            className='h-full w-full object-cover blur-md opacity-80'
+            style={{ objectPosition: 'center top' }}
+          />
+          {/* <div className='absolute inset-0 bg-[#ead8d0]/72 backdrop-blur-[2px]' /> */}
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className='flex w-full max-w-[50%] flex-col overflow-hidden rounded-[32px] bg-white shadow-2xl max-h-[85vh] lg:flex-row'
+          className='sticky flex w-full max-w-[360px] flex-col overflow-hidden  rounded-none bg-transparent shadow-none sm:max-w-[70%] md:max-h-[85vh] md:max-w-[50%] md:flex-row md:rounded-[32px] md:bg-white md:shadow-2xl'
         >
-          <div className='relative flex min-h-[440px] w-full flex-col items-center justify-start bg-gradient-to-b from-[#F4E6D4] via-[#CCB19C] to-[#7A302D] p-4 md:min-h-[560px] lg:w-[46%] lg:p-6'>
+          <div className='relative hidden min-h-[440px] w-full flex-col items-center justify-start bg-gradient-to-b from-[#F4E6D4] via-[#CCB19C] to-[#7A302D] p-4 md:flex md:min-h-[560px] lg:w-[46%] lg:p-6'>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -281,12 +290,12 @@ export function RegisterPage() {
             </div>
           </div>
 
-          <div className='relative flex w-full flex-col justify-center bg-white pb-2 px-6 pt-7 sm:px-8 lg:w-[54%] lg:px-10 lg:pt-12'>
+          <div className='relative z-10 flex w-full flex-col justify-center px-3 pb-2 pt-4 md:bg-white md:px-6 md:pt-7 lg:w-[54%] lg:px-10 lg:pt-12 '>
             <motion.h2
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className='mb-2 text-center text-3xl font-abhaya font-extrabold text-dark-red md:text-4xl'
+              className='mb-3 text-center text-[2.15rem] font-abhaya font-extrabold text-dark-red md:text-4xl'
             >
               {t('register.title')}
             </motion.h2>
@@ -295,15 +304,15 @@ export function RegisterPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className='mb-6 flex flex-wrap items-center justify-center gap-1 text-center text-sm md:mb-8 md:gap-2 md:text-base'
+              className='mb-8 flex flex-wrap items-center justify-center gap-1 text-center text-base md:mb-8 md:gap-2 md:text-sm'
               dir={isRtl ? 'rtl' : 'ltr'}
             >
-              <span className='text-center text-lg text-dark-red md:text-xl'>
+              <span className='text-center text-[1.05rem] text-dark-red md:text-xl'>
                 {t('register.has_account')}
               </span>
               <Link
                 to='/login'
-                className='font-abhaya text-lg font-semibold tracking-wide text-dark-red underline decoration-dark-red underline-offset-8 md:text-xl'
+                className='font-abhaya text-[1.05rem] font-semibold tracking-wide text-dark-red underline decoration-dark-red underline-offset-4 md:text-xl md:underline-offset-8'
               >
                 {t('register.login_link')}
               </Link>
@@ -313,12 +322,12 @@ export function RegisterPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className='mx-auto flex w-full flex-col gap-4 overflow-y-auto pr-1 lg:max-h-[90vh] '
+              className='mx-auto flex  w-full max-w-[290px] flex-col gap-4 overflow-y-auto md:max-w-none md:pr-1 lg:max-h-[90vh]'
               dir={isRtl ? 'rtl' : 'ltr'}
               onSubmit={handleSubmit}
             >
               <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.first_name')}
                 </label>
                 <input
@@ -329,11 +338,11 @@ export function RegisterPage() {
                   autoComplete='name'
                   maxLength={100}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-6 py-3 font-abhaya text-dark-red transition-all placeholder:text-dark-red/45 focus:outline-none focus:ring-2 focus:ring-dark-red'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
                 />
               </div>
               <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.last_name')}
                 </label>
                 <input
@@ -344,12 +353,12 @@ export function RegisterPage() {
                   autoComplete='name'
                   maxLength={100}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-6 py-3 font-abhaya text-dark-red transition-all placeholder:text-dark-red/45 focus:outline-none focus:ring-2 focus:ring-dark-red'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
                 />
               </div>
 
               <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.phone')}
                 </label>
                 <input
@@ -364,12 +373,12 @@ export function RegisterPage() {
                   maxLength={8}
                   pattern='[0-9]{8}'
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-6 py-3 font-abhaya text-dark-red transition-all placeholder:text-dark-red/45 focus:outline-none focus:ring-2 focus:ring-dark-red'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
                 />
               </div>
 
               <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.email')}
                 </label>
                 <input
@@ -380,12 +389,12 @@ export function RegisterPage() {
                   autoComplete='email'
                   maxLength={254}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-6 py-3 font-abhaya text-dark-red transition-all placeholder:text-dark-red/45 focus:outline-none focus:ring-2 focus:ring-dark-red'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
                 />
               </div>
 
               <div>
-                <label className='mb-2 block text-xl font-bold text-dark-red font-abhaya'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.birth_date')}
                 </label>
                 <input
@@ -395,12 +404,12 @@ export function RegisterPage() {
                   onChange={(event) => setBirthDate(event.target.value)}
                   max={new Date().toISOString().split('T')[0]}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-6 py-3 font-abhaya text-dark-red transition-all placeholder:text-dark-red/45 focus:outline-none focus:ring-2 focus:ring-dark-red'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
                 />
               </div>
 
               <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.password')}
                 </label>
                 <div className='relative'>
@@ -413,7 +422,7 @@ export function RegisterPage() {
                     required
                     minLength={8}
                     maxLength={64}
-                    className={`w-full rounded-full border border-dark-red bg-transparent py-3 font-abhaya text-dark-red transition-all placeholder:text-dark-red/45 focus:outline-none focus:ring-2 focus:ring-dark-red ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
+                    className={`w-full rounded-full border border-dark-red bg-transparent py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red ${isRtl ? 'pl-12 pr-4 md:pl-14 md:pr-6' : 'pr-12 pl-4 md:pr-14 md:pl-6'}`}
                   />
                   <button
                     type='button'
@@ -471,7 +480,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.confirm_password')}
                 </label>
                 <div className='relative'>
@@ -484,7 +493,7 @@ export function RegisterPage() {
                     required
                     minLength={8}
                     maxLength={64}
-                    className={`w-full rounded-full border bg-transparent py-3 font-abhaya text-dark-red transition-all placeholder:text-dark-red/45 focus:outline-none focus:ring-2 ${hasPasswordMismatch ? 'border-red-500 focus:ring-red-500' : 'border-dark-red focus:ring-dark-red'} ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
+                    className={`w-full rounded-full border bg-transparent py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 ${hasPasswordMismatch ? 'border-red-500 focus:ring-red-500' : 'border-dark-red focus:ring-dark-red'} ${isRtl ? 'pl-12 pr-4 md:pl-14 md:pr-6' : 'pr-12 pl-4 md:pr-14 md:pl-6'}`}
                   />
                   <button
                     type='button'
@@ -549,13 +558,13 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className='mb-2 block text-xl font-bold text-dark-red font-abhaya'>
+                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.profile_picture')}{' '}
                   <span className='text-sm font-normal text-dark-red/60'>
                     ({t('others.optional')})
                   </span>
                 </label>
-                <label className='flex cursor-pointer items-center justify-between rounded-full border border-dark-red bg-transparent px-6 py-3 font-abhaya text-dark-red transition-all hover:bg-[#f8efe4]'>
+                <label className='flex cursor-pointer items-center justify-between rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all hover:bg-[#f8efe4] md:px-6 md:py-3'>
                   <span className='truncate pr-4 text-dark-red/45'>
                     {isUploadingProfilePicture
                       ? t('register.profile_picture_uploading')
@@ -586,20 +595,20 @@ export function RegisterPage() {
                   />
                 </label>
               </div>
+              <div className='flex justify-center pt-2'>
+                <button
+                  type='submit'
+                  disabled={isSubmitting || isUploadingProfilePicture}
+                  className='rounded-full bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] px-14 py-3 font-serif text-base font-bold text-dark-red shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 md:px-12 md:text-base'
+                  style={{
+                    backgroundImage: 'url(/honey_pattern.png)',
+                    backgroundSize: 'cover',
+                  }}
+                >
+                  {isSubmitting ? t('register.loading') : t('register.submit')}
+                </button>
+              </div>
             </motion.form>
-            <div className='pt-2 flex justify-center'>
-              <button
-                type='submit'
-                disabled={isSubmitting || isUploadingProfilePicture}
-                className='rounded-full bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] px-12 py-3 font-serif font-bold text-dark-red shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100'
-                style={{
-                  backgroundImage: 'url(/honey_pattern.png)',
-                  backgroundSize: 'cover',
-                }}
-              >
-                {isSubmitting ? t('register.loading') : t('register.submit')}
-              </button>
-            </div>
           </div>
         </motion.div>
       </main>
