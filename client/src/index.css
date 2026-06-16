@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-
-
 @theme {
   --color-dark-red: #3f060f;
   --color-cream: #fdf8f0;
@@ -12,6 +10,8 @@
   --font-abril: 'Abril Fatface', serif;
   --font-abhaya: 'Abhaya Libre', serif;
   --font-bona: 'Bona Nova', serif;
+  /* --font-bona: 'Bona Nova', serif; */
+  --font-amiri: 'Amiri Quran', serif;
 }
 
 @layer base {

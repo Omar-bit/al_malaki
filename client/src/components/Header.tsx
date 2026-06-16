@@ -166,7 +166,7 @@ export function Header({
         </div>
 
         <Logo
-          className='hidden md:block'
+          className='hidden md:block w-30!'
           onClick={() => {
             navigate('/');
           }}

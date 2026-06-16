@@ -16,6 +16,7 @@ export default {
         abhaya: ['"Abhaya Libre"', 'serif'],
         bona: ['"Bona Nova"', 'serif'],
         nova: ['Nova', 'serif'],
+        amiri: ['Amiri Quran', 'serif'],
       },
       fontSize: {
         xs: '0.75rem',

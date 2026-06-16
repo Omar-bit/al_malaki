@@ -267,10 +267,10 @@ export function RegisterPage() {
               transition={{ delay: 0.3, duration: 0.5 }}
               className='absolute left-0 top-6 z-10 w-full text-center'
             >
-              <h2 className='mb-1 text-3xl text-dark-red font-abhaya md:text-4xl'>
+              <h2 className='mb-1 text-3xl text-dark-red font-abhaya md:text-2xl'>
                 {t('hero.welcome')}
               </h2>
-              <h1 className='text-5xl font-bold uppercase tracking-[0.08em] text-dark-red md:text-6xl'>
+              <h1 className='text-5xl font-bold uppercase tracking-[0.08em] text-dark-red md:text-4xl'>
                 {t('hero.al_malaki')}
               </h1>
             </motion.div>
@@ -290,12 +290,12 @@ export function RegisterPage() {
             </div>
           </div>
 
-          <div className='relative z-10 flex w-full flex-col justify-center px-3 pb-2 pt-4 md:bg-white md:px-6 md:pt-7 lg:w-[54%] lg:px-10 lg:pt-12 '>
+          <div className='relative z-10 flex w-full flex-col justify-center px-3 pb-2 pt-4 md:bg-white md:px-6 md:pt-7 lg:w-[54%] lg:px-10 lg:pt-5 '>
             <motion.h2
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className='mb-3 text-center text-[2.15rem] font-abhaya font-extrabold text-dark-red md:text-4xl'
+              className='mb-3 text-center text-[2.15rem] font-abhaya font-extrabold text-dark-red md:text-2xl'
             >
               {t('register.title')}
             </motion.h2>
@@ -338,7 +338,7 @@ export function RegisterPage() {
                   autoComplete='name'
                   maxLength={100}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-2'
                 />
               </div>
               <div>
@@ -353,7 +353,7 @@ export function RegisterPage() {
                   autoComplete='name'
                   maxLength={100}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-2'
                 />
               </div>
 
@@ -373,7 +373,7 @@ export function RegisterPage() {
                   maxLength={8}
                   pattern='[0-9]{8}'
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-2'
                 />
               </div>
 
@@ -389,7 +389,7 @@ export function RegisterPage() {
                   autoComplete='email'
                   maxLength={254}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-2'
                 />
               </div>
 
@@ -404,7 +404,7 @@ export function RegisterPage() {
                   onChange={(event) => setBirthDate(event.target.value)}
                   max={new Date().toISOString().split('T')[0]}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-3'
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-2'
                 />
               </div>
 
@@ -564,7 +564,7 @@ export function RegisterPage() {
                     ({t('others.optional')})
                   </span>
                 </label>
-                <label className='flex cursor-pointer items-center justify-between rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all hover:bg-[#f8efe4] md:px-6 md:py-3'>
+                <label className='flex cursor-pointer items-center justify-between rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all hover:bg-[#f8efe4] md:px-6 md:py-2'>
                   <span className='truncate pr-4 text-dark-red/45'>
                     {isUploadingProfilePicture
                       ? t('register.profile_picture_uploading')

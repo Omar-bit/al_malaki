@@ -216,7 +216,7 @@ export function Products() {
           ))}
         </motion.div>
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
@@ -229,7 +229,7 @@ export function Products() {
           >
             {t('products.seeMore', 'See more')}
           </a>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

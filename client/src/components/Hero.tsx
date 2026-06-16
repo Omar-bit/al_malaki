@@ -17,17 +17,16 @@ export function Hero() {
         backgroundPosition: width < 768 ? '100% 50%' : 'center center',
       }}
     >
-      <div className='absolute inset-0 bg-[linear-gradient(180deg,rgba(231,220,204,0.92)_0%,rgba(202,173,163,0.16)_42%,rgba(87,0,10,0.88)_100%)]' />
-
-      <div className='relative mx-auto flex min-h-screen w-full items-start px-5 pb-12 pt-[162px] sm:px-8 sm:pt-[190px] md:px-10 md:pt-[280px] lg:px-[114px] lg:pt-[250px]'>
-        <div className='max-w-[240px] sm:max-w-[320px] md:max-w-none'>
+      <div className='relative mx-auto flex min-h-screen w-full items-start px-5 pb-12 pt-[162px] sm:px-8 sm:pt-[190px] md:px-10 md:pt-[280px] lg:mx-auto lg:pt-[250px]'>
+        <div className='max-w-[240px] sm:max-w-[320px] md:max-w-none mx-auto -translate-x-[45%]'>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+            className='pl-10'
           >
             <p
-              className={`text-[#efe0c9] font-normal font-italic text-[31px] leading-[1.08] sm:text-[46px] md:text-[62px] lg:text-[72px]`}
+              className={`text-[#efe0c9] font-normal font-italic text-[31px] leading-[1.08] sm:text-[46px] md:text-[62px] lg:text-[80px] ${i18n.language === 'ar' ? '!font-[(--font-amiri)]' : 'font-italic'}`}
             >
               {t('hero.welcome')}
             </p>
@@ -40,8 +39,8 @@ export function Hero() {
             className='mt-5 sm:mt-6'
           >
             <h1
-              className={`text-[#efe0c9] ${i18n.language === 'en' ? 'font-italic' : 'font-bold'} text-[48px] leading-[0.98] tracking-[0.055em] sm:text-[68px] md:text-[76px] md:leading-[1.05] lg:text-[105px]`}
-              style={{ WebkitTextStroke: '0.7px #f8e5c6' }}
+              className={`text-[#efe0c9] ${i18n.language === 'en' ? 'font-italic' : 'font-bold'} text-[48px] leading-[0.98] tracking-[0.055em] sm:text-[68px] md:text-[76px] md:leading-[1.05] lg:text-[120px] font-thin`}
+              style={{ WebkitTextStroke: '0.3px #f8e5c6' }}
             >
               {t('hero.al_malaki')}
             </h1>

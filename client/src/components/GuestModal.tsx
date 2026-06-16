@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts';
 import { useTranslation } from 'react-i18next';
 import crownPng from '../assets/crown.png';
+import { Logo } from './Logo';
 
 interface GuestModalProps {
   forceOpen?: boolean;
@@ -67,21 +68,22 @@ export function GuestModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm'>
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-xl'>
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             // dir={isRTL ? 'rtl' : 'ltr'}
-            className='relative w-full max-w-[95%] md:max-w-[50%] rounded-4xl overflow-hidden shadow-2xl'
+            className='relative w-full max-w-[95%] md:max-w-[40%]  rounded-4xl overflow-hidden shadow-2xl'
             style={{ backgroundColor: '#3F060F' }}
           >
             {/* Lang label — top left (or top right in RTL) */}
             <span
-              className={`absolute top-4  left-5 text-[#EFE0C9] text-lg font-abee select-none cursor-pointer`}
+              className={`absolute top-6 left-7 text-[#EFE0C9] text-lg font-abee select-none cursor-pointer`}
               onClick={() => {
-                const nextLang = { en: 'fr', fr: 'ar', ar: 'en' }[i18n.language] || 'en';
+                const nextLang =
+                  { en: 'fr', fr: 'ar', ar: 'en' }[i18n.language] || 'en';
                 i18n.changeLanguage(nextLang);
               }}
             >
@@ -92,7 +94,7 @@ export function GuestModal({
             {!blocking && (
               <button
                 onClick={handleClose}
-                className={`absolute top-4 right-5 text-[#EFE0C9] hover:text-white transition-colors text-2xl font-light leading-none`}
+                className={`absolute top-6 right-7 text-[#EFE0C9] hover:text-white transition-colors text-2xl font-light leading-none`}
                 aria-label='Close'
               >
                 ✕
@@ -100,18 +102,9 @@ export function GuestModal({
             )}
 
             {/* Content */}
-            <div className='flex flex-col items-center px-12 pt-8 pb-7 gap-5'>
+            <div className='flex flex-col items-center px-12 pt-2 pb-7 gap-5'>
               {/* Crown icon */}
-              <img
-                src={crownPng}
-                alt='AL MALAKI crown'
-                className='size-25 object-contain'
-              />
-
-              {/* Brand name */}
-              <h2 className='font-italic text-gold text-3xl tracking-widest -mt-8'>
-                AL MALAKI
-              </h2>
+              <Logo className='w-50' />
 
               {/* Body text */}
               <pre
@@ -126,7 +119,7 @@ export function GuestModal({
                 {/* Join us */}
                 <button
                   onClick={() => navigate('/register')}
-                  className='w-[80%] md:w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
+                  className='w-[80%] md:w-[50%] py-3 rounded-xl text-lg font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
                 >
                   {t('guest_modal.join')}
                 </button>
@@ -134,7 +127,7 @@ export function GuestModal({
                 {/* Already have an account */}
                 <button
                   onClick={() => navigate('/login')}
-                  className='w-[80%] md:w-[30%] py-3 rounded-xl text-sm font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
+                  className='w-[80%] md:w-[50%] py-3 rounded-xl text-lg font-semibold text-stone-800 bg-honeyPattern hover:opacity-90 transition-opacity tracking-wide'
                 >
                   {t('guest_modal.already_account')}
                 </button>

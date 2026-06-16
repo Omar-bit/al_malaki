@@ -90,7 +90,7 @@ export function Footer() {
       <div className='md:hidden px-6 pt-10 pb-6 flex flex-col'>
         {/* Logo & Tagline */}
         <div className='flex flex-col items-center mb-10'>
-          <Logo className='w-36 mb-2' />
+          <Logo className='!w-[200px] mb-2' />
           <p className='text-white font-abhaya text-lg'>
             {t('footer.tagline')}
           </p>
@@ -311,7 +311,9 @@ export function Footer() {
           {/* Location */}
           <div className='flex items-center gap-2 text-white text-sm font-abhaya '>
             <MapPin className='size-6 text-white' />
-            <span className='font-abee tracking-widest '>{t('footer.soon')}</span>
+            <span className='font-abee tracking-widest '>
+              {t('footer.soon')}
+            </span>
           </div>
 
           {/* Phone */}

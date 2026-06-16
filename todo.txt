@@ -1,4 +1,7 @@
--SEED ADMIN
+-font amiri section title ,arabic welcom , guest modal conten
+discover in guest mmodal 
+follow us (arabic)
+landing spacing
 -M3
 
 

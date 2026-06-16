@@ -34,7 +34,7 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className='mt-5 flex justify-center'
+          className='mt-10 flex justify-center'
         >
           <button
             type='button'
