@@ -85,7 +85,7 @@ export function AdminManagementPage() {
     });
 
     if (!emailValidation.isValid) {
-      toast.error("Email is not valid!");
+      toast.error('Email is not valid!');
       return;
     }
 
@@ -145,7 +145,7 @@ export function AdminManagementPage() {
         <div className='mx-auto max-w-6xl'>
           <header className='text-center mb-5'>
             <Logo className='block mx-auto w-30!' />
-            <h1 className='text-3xl md:text-4xl font-bona font-bold text-dark-red mt-2'>
+            <h1 className='text-xl md:text-4xl font-bona font-bold text-dark-red mt-2'>
               Admin management
             </h1>
             <p className='text-[#00000082] font-bold mt-2 font-bona'>
@@ -187,10 +187,11 @@ export function AdminManagementPage() {
                     key={member.id}
                     type='button'
                     onClick={() => setSelectedMemberId(member.id)}
-                    className={`text-left rounded-[28px] border p-6 shadow-[0_16px_40px_rgba(60,12,12,0.16)] backdrop-blur transition-all ${isSelected
-                      ? 'border-dark-red border-2! bg-[#D9D9D92E]/50 '
-                      : 'border-dark-red bg-[#D9D9D92E]/50 hover:-translate-y-1'
-                      }`}
+                    className={`text-left rounded-[28px] border p-6 shadow-[0_16px_40px_rgba(60,12,12,0.16)] backdrop-blur transition-all ${
+                      isSelected
+                        ? 'border-dark-red border-2! bg-[#D9D9D92E]/50 '
+                        : 'border-dark-red bg-[#D9D9D92E]/50 hover:-translate-y-1'
+                    }`}
                   >
                     <div className='flex items-center justify-center mb-4'>
                       <img
@@ -209,8 +210,9 @@ export function AdminManagementPage() {
                     </div>
                     <div className='mt-4 flex items-center justify-center gap-2 text-xs text-[#6d5a46]'>
                       <span
-                        className={`h-2 w-2 rounded-full ${isOnline ? 'bg-[#3bb24a]' : 'bg-[#8b6a5c]'
-                          }`}
+                        className={`h-2 w-2 rounded-full ${
+                          isOnline ? 'bg-[#3bb24a]' : 'bg-[#8b6a5c]'
+                        }`}
                       />
                       <span className='text-white'>
                         {isOnline ? 'Online' : 'Offline'}
@@ -261,10 +263,11 @@ export function AdminManagementPage() {
                 onClick={() =>
                   toast.success('Block admin flow will be available soon.')
                 }
-                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-white text-black ${isSelectionProtected
-                  ? 'cursor-not-allowed '
-                  : ' hover:bg-dark-red'
-                  }`}
+                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-white text-black ${
+                  isSelectionProtected
+                    ? 'cursor-not-allowed '
+                    : ' hover:bg-dark-red'
+                }`}
               >
                 Block Admin
               </button>
@@ -274,8 +277,9 @@ export function AdminManagementPage() {
                 onClick={() =>
                   toast.success('Delete admin flow will be available soon.')
                 }
-                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-dark-red text-white ${isSelectionProtected ? 'cursor-not-allowed ' : ' '
-                  }`}
+                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-dark-red text-white ${
+                  isSelectionProtected ? 'cursor-not-allowed ' : ' '
+                }`}
               >
                 Delete Admin
               </button>
@@ -386,8 +390,9 @@ export function AdminManagementPage() {
                     </div>
                     <div className='flex flex-wrap items-center gap-3'>
                       <span
-                        className={`rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles[invitation.status]
-                          }`}
+                        className={`rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                          statusStyles[invitation.status]
+                        }`}
                       >
                         {invitation.status}
                       </span>

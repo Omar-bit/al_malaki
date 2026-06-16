@@ -118,20 +118,20 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className='flex h-screen bg-[#EFE0C9] font-bona! overflow-hidden'>
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className='fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity'
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside 
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#EFE0C9] shadow-lg flex flex-col pt-5 transform transition-transform duration-300 ease-in-out ${
+      <aside
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#EFE0C9] bg-honeyPattern shadow-lg flex flex-col pt-5 transform transition-transform duration-300 ease-in-out  ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         {/* Mobile close button */}
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(false)}
           className='absolute top-4 right-4 p-2 text-black md:hidden'
         >
@@ -140,7 +140,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className='flex items-center gap-3 px-6 mb-5'>
           <Link
             to='/'
-            className='text-lg   tracking-widest  flex items-center gap-2 text-[#000000AD]!'
+            className='text-base   tracking-widest  flex items-center gap-2 text-[#000000AD]! '
           >
             <span>&larr;</span> Admin Management
           </Link>
@@ -153,12 +153,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className='w-14 h-14 rounded-full '
           />
           <div>
-            <h2 className='text-lg font-bold text-black tracking-wide capitalize font-bona! leading-tight'>
+            <h2 className='text-base font-bold text-black tracking-wide capitalize font-bona! leading-tight'>
               {user ? `${user.firstName} ${user.lastName}` : 'Super Admin'}
             </h2>
             <div className='bg-dark-red text-white text-xs px-4 py-1.25 rounded-md flex mt-1 items-center gap-1 shadow-sm'>
-              <img className='w-7 ' src={crown} alt='crown' />
-              <span className='text-md font-thin tracking-wide'>
+              <img className='w-5 ' src={crown} alt='crown' />
+              <span className='text-xs font-thin tracking-wide'>
                 {user?.role === 'ADMIN' ? 'Super Admin' : 'Admin'}
               </span>
             </div>
@@ -168,7 +168,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <nav className='flex-1 overflow-y-auto px-4 custom-scrollbar space-y-3'>
           {sidebarMenu.map((section, idx) => (
             <div key={idx}>
-              <h3 className='text-[11px] font-semibold font-bona! text-[#000000AD]  tracking-widest px-2 mb-2 uppercase'>
+              <h3 className='text-[12px] font-normal font-bona! text-[#000000AD]  tracking-widest px-2 mb-2 uppercase'>
                 {section.category}
               </h3>
               <ul className='space-y-1'>
@@ -208,13 +208,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         {/* Mobile Header */}
         <header className='md:hidden flex items-center justify-between p-4 bg-[#EFE0C9] shadow-sm z-30'>
           <div className='flex items-center gap-3'>
-            <button 
-              onClick={() => setIsSidebarOpen(true)} 
+            <button
+              onClick={() => setIsSidebarOpen(true)}
               className='p-1 text-black'
             >
               <Menu className='w-6 h-6' />
             </button>
-            <span className='font-bold text-black tracking-wide'>Al Malaki Admin</span>
+            <span className='font-bold text-black tracking-wide'>
+              Al Malaki Admin
+            </span>
           </div>
           <img
             src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
@@ -223,9 +225,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           />
         </header>
 
-        <main className='flex-1 overflow-y-auto p-4 md:p-0'>
-          {children}
-        </main>
+        <main className='flex-1 overflow-y-auto p-4 md:p-0'>{children}</main>
       </div>
     </div>
   );

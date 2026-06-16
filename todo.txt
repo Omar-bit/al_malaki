@@ -1,4 +1,7 @@
-add french support
+-SEED ADMIN
+-M3
+
+
 
 *CUSTOMER: order
 *ADMIN: orders

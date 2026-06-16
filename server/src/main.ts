@@ -1,11 +1,15 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { hash } from 'bcryptjs';
 import cookieParser from 'cookie-parser';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { PrismaService } from './prisma/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  await seedDefaultAdmin(app.get(PrismaService));
 
   app.use(cookieParser());
 
@@ -29,4 +33,42 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
+
+async function seedDefaultAdmin(prisma: PrismaService) {
+  const email = process.env.DEFAULT_ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.DEFAULT_ADMIN_PASSWORD?.trim();
+  const firstName = process.env.DEFAULT_ADMIN_FIRST_NAME?.trim() || 'Super';
+  const lastName = process.env.DEFAULT_ADMIN_LAST_NAME?.trim() || 'Admin';
+  const phoneNumber = process.env.DEFAULT_ADMIN_PHONE_NUMBER?.trim() || null;
+
+  if (!email || !password) {
+    console.log('DEFAULT_ADMIN_EMAIL/PASSWORD not set, skipping admin seed');
+    return;
+  }
+
+  const existing = await prisma.user.findFirst({
+    where: { role: 'ADMIN' },
+  });
+
+  if (existing) {
+    console.log('Admin account already exists, skipping seed');
+    return;
+  }
+
+  const hashedPassword = await hash(password, 12);
+  await prisma.user.create({
+    data: {
+      email,
+      passwordHash: hashedPassword,
+      firstName,
+      lastName,
+      phoneNumber,
+      role: 'ADMIN',
+      verifiedEmail: true,
+    },
+  });
+
+  console.log(`Default admin account created: ${email}`);
+}
+
 bootstrap();
