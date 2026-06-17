@@ -6,5 +6,4 @@
 *ADMIN: orders
 *CUSTOMER: track orders 
 *USER: Profile page
-*deploy app
 

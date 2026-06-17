@@ -1,10 +1,23 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
+import { useAuth } from '../contexts';
+import { authService } from '../services';
 
 export function DashboardPage() {
   const { t } = useTranslation();
-
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      navigate('/login', { replace: true });
+    } catch {
+      setUser(null);
+      navigate('/login', { replace: true });
+    }
+  };
   return (
     <div className='min-h-screen bg-cream'>
       <Header />
@@ -21,6 +34,7 @@ export function DashboardPage() {
             {t('dashboard.coming_soon')}
           </p>
 
+          <button onClick={handleLogout}>sign out</button>
           <Link
             to='/'
             className='inline-flex mt-8 rounded-full bg-[#EEDCC1] px-6 py-3 text-dark-red font-semibold hover:scale-105 transition-transform'

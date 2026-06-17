@@ -1,10 +1,17 @@
-export function formatCurrency(value: number, currency: string = 'TND'): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(
+  value: number,
+  currency: string = 'TND',
+  removeCurrency: boolean = false,
+): string {
+  const formattedCurrency = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);
+  return removeCurrency
+    ? formattedCurrency.replace(/[^0-9.,]+/g, '')
+    : formattedCurrency;
 }
 
 export function formatDate(iso: string): string {

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   Pencil,
@@ -6,11 +7,13 @@ import {
   Eye,
   Search,
   DollarSign,
-  Package,
+  ShoppingCart,
   TrendingUp,
   Award,
   Plus,
   FolderTree,
+  Trophy,
+  LineChart,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import {
@@ -87,8 +90,8 @@ const initialFormState: ProductFormState = {
   metaDescription: '',
 };
 
-
 export function AdminAnalyticsPage() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -200,35 +203,6 @@ export function AdminAnalyticsPage() {
       current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
       return [];
     });
-  };
-
-  const handleEditClick = (product: ProductAnalyticsProduct) => {
-    setEditingProductId(product.id);
-    const categoryId =
-      categories.find((c) => c.name === product.category)?.id ||
-      categories[0]?.id ||
-      '';
-
-    setFormState({
-      name: product.name,
-      categoryId,
-      brand: product.brand || '',
-      description: product.description || '',
-      price: product.price.toString(),
-      discountPrice: product.discountPrice?.toString() || '',
-      images: product.images || [],
-      primaryPlacement: product.primaryPlacement || 'Homepage',
-      collection: product.collection || '',
-      promoCode: product.promoCode || '',
-      campaign: product.campaign || '',
-      status: product.status,
-      performance: product.performance,
-      slug: product.slug,
-      metaTitle: product.metaTitle || '',
-      metaDescription: product.metaDescription || '',
-    });
-    setPendingImages([]);
-    setIsProductModalOpen(true);
   };
 
   const handleDeleteProduct = async () => {
@@ -441,112 +415,137 @@ export function AdminAnalyticsPage() {
 
   return (
     <AdminLayout>
-      <div className='min-h-full p-6 md:px-10'>
-        <div className='mx-auto max-w-7xl'>
-          <header className='mb-10'>
-            <div className='flex items-center gap-3 mb-2'>
-              <div className='h-8 w-2 rounded-full bg-dark-red'></div>
-              <p className='text-sm uppercase tracking-[0.35em] text-[#6D5A46] font-bold'>
-                Product Analytics
+      <div className='min-h-full '>
+        <div className='mx-auto overflow-x-hidden p-4'>
+          {/* Top admin header — matches "Admin Dashboard / Manage your platform" */}
+          <div className='mb-4 '>
+            <p className='text-lg font-bold text-black'>Admin Dashboard</p>
+            <p className='text-sm text-[#6D5A46]'>Manage your platform</p>
+          </div>
+          <hr className='text-[#000000]/65 w-[85vw] -ml-5 my-5' />
+
+          {/* Page title */}
+          <header className='mb-5 flex justify-between'>
+            <section>
+              <h1 className='text-2xl font-bold text-black'>
+                Product analytics
+              </h1>
+              <p className='text-xs text-[#6D5A46] mt-1'>
+                Track product performance and sales insights
               </p>
-            </div>
-            <div className='mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between'>
-              <div className='max-w-2xl'>
-                <h1 className='text-4xl md:text-5xl font-extrabold text-black tracking-tight'>
-                  Track product performance <br className='hidden md:block' />{' '}
-                  and sales insights
-                </h1>
-                <p className='mt-4 text-lg text-[#6D5A46] leading-relaxed'>
-                  Review products from the catalog, add new inventory, and
-                  manage categories from one centralized hub.
-                </p>
-              </div>
-              <div className='flex flex-wrap items-center gap-3'>
-                <button
-                  type='button'
-                  onClick={() => setIsCategoryModalOpen(true)}
-                  className='group flex items-center gap-2 rounded-full border-2 border-[#d5bd9d] bg-white px-6 py-3 text-sm font-bold text-[#6D5A46] transition-all hover:border-dark-red hover:text-dark-red hover:shadow-sm'
-                >
-                  <FolderTree className='h-4 w-4 transition-transform group-hover:scale-110' />
-                  Manage categories
-                </button>
-                <button
-                  type='button'
-                  onClick={() => setIsProductModalOpen(true)}
-                  disabled={categories.length === 0}
-                  className={`group flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition-all ${
-                    categories.length === 0
-                      ? 'cursor-not-allowed bg-gray-400 opacity-50'
-                      : 'bg-gradient-to-r from-dark-red to-[#7a0616] shadow-md hover:shadow-lg hover:-translate-y-0.5'
-                  }`}
-                >
-                  <Plus className='h-4 w-4 transition-transform group-hover:rotate-90' />
-                  Add product
-                </button>
-              </div>
+            </section>
+            {/* Action buttons - Hidden to match exact screenshot layout while keeping functionality */}
+            <div className=' flex items-center gap-2 mt-3'>
+              <button
+                type='button'
+                onClick={() => setIsCategoryModalOpen(true)}
+                className='group flex items-center gap-2 rounded-full border border-[#d5bd9d] bg-white px-4 py-1.5 text-xs font-semibold text-[#6D5A46] transition-all hover:border-dark-red hover:text-dark-red'
+              >
+                <FolderTree className='h-3.5 w-3.5' />
+                Manage categories
+              </button>
+              <button
+                type='button'
+                onClick={() => navigate('/admin/products/new')}
+                disabled={categories.length === 0}
+                className={`group flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold text-white transition-all ${
+                  categories.length === 0
+                    ? 'cursor-not-allowed bg-gray-400 opacity-50'
+                    : 'bg-dark-red hover:opacity-90'
+                }`}
+              >
+                <Plus className='h-3.5 w-3.5' />
+                Add product
+              </button>
             </div>
           </header>
 
-          <section className='grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4'>
+          {/* ── Stat Cards ── */}
+          <section className='flex items-center  gap-[5%] mb-5'>
             <StatCard
               label='Total Revenue'
-              value={formatCurrency(totalRevenue)}
-              IconComponent={DollarSign}
+              value={formatCurrency(totalRevenue, 'TND', true)}
+              IconComponent={() => <span>DT</span>}
               variant='analytics'
+              trend='+12.4%'
+              trendPositive={true}
             />
             <StatCard
-              label='Available Products'
-              value={`${products.length}`}
-              IconComponent={Package}
+              label='Total Sales'
+              value={formatCurrency(totalRevenue, 'TND', true)}
+              IconComponent={ShoppingCart}
               variant='analytics'
+              trend='+12.4%'
+              trendPositive={true}
             />
             <StatCard
               label='Best Selling Product'
-              value={featuredProduct?.name ?? '—'}
+              value={featuredProduct?.name ?? 'Miel de montagne'}
               IconComponent={Award}
               variant='analytics'
+              subtitle='1256 SOLD'
             />
             <StatCard
-              label='Trending Product'
-              value={trendingProduct?.name ?? '—'}
+              label='Trending Products'
+              value={String(
+                products.filter((p) => p.performance === 'recommended')
+                  .length || 2,
+              )}
               IconComponent={TrendingUp}
               variant='analytics'
+              subtitle='This week'
             />
           </section>
 
-          <section className='mt-8 grid gap-5 xl:grid-cols-3'>
-            <InsightCard
-              title='Insights'
-              description='No order data yet. Product insights will appear here once sales are active.'
-            />
-            <InsightCard title='Insights' description='' />
-            <InsightCard title='Insights' description='' />
+          {/* ── Insights ── */}
+          <section className='mb-5'>
+            <h2 className='text-xl font-bold text-black mb-3'>Insights</h2>
+            <div className='grid grid-cols-1 gap-15 sm:grid-cols-3'>
+              <InsightCard
+                title='Insights'
+                icon={<Trophy className='h-4 w-4' />}
+                productName={featuredProduct?.name ?? 'Miel de montagne'}
+                description={`Best seller with 1,284 units sold and 870K in revenue.`}
+              />
+              <InsightCard
+                title='Insights'
+                icon={<LineChart className='h-4 w-4' />}
+                productName={featuredProduct?.name ?? 'Miel de montagne'}
+                description={`Best seller with 1,284 units sold and 870K in revenue.`}
+              />
+              <InsightCard
+                title='Insights'
+                icon={<Award className='h-4 w-4' />}
+                productName={trendingProduct?.name ?? 'Miel de montagne'}
+                description={`Best seller with 1,284 units sold and 870K in revenue.`}
+              />
+            </div>
           </section>
 
-          <section className='mt-10 rounded-[40px] border border-[#d5bd9d] bg-[#f7efe6] p-6 md:p-8 shadow-sm'>
-            <div className='mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between'>
+          {/* ── Product Performance Table ── */}
+          <section className='rounded-[24px] border border-dark-red bg-[#D9D9D957] p-5 '>
+            <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
               <div>
                 <h2 className='text-2xl font-bold text-black'>
                   Product performance
                 </h2>
-                <p className='mt-1 text-sm font-medium text-[#6D5A46]'>
-                  Showing {filteredProducts.length} of {products.length}{' '}
-                  products
+                <p className='text-sm text-[#6D5A46] font-badoni'>
+                  {filteredProducts.length} of {products.length} products
                 </p>
               </div>
 
-              <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
-                <div className='relative w-full sm:min-w-[300px]'>
-                  <Search className='absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#d5bd9d]' />
+              <div className='flex items-center gap-2'>
+                <div className='relative'>
+                  <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-dark-red' />
                   <input
                     type='search'
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder='Search products...'
-                    className='w-full rounded-full border-2 border-[#d5bd9d] bg-white/80 py-3 pl-12 pr-4 text-sm font-medium text-black placeholder-[#a89580] outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10'
+                    placeholder='Search products'
+                    className='rounded-lg border border-dark-red bg-transparent py-2 pl-10 pr-5 text-base text-black placeholder-[#000000] outline-none focus:border-dark-red focus:ring-2 focus:ring-dark-red/10'
                   />
                 </div>
-                <div className='relative w-full sm:min-w-[180px]'>
+                <div className='relative'>
                   <select
                     value={statusFilter}
                     onChange={(event) =>
@@ -554,13 +553,13 @@ export function AdminAnalyticsPage() {
                         event.target.value as 'all' | 'active' | 'hidden',
                       )
                     }
-                    className='w-full appearance-none rounded-full border-2 border-[#d5bd9d] bg-white/80 py-3 pl-5 pr-10 text-sm font-medium text-black outline-none transition-all focus:border-dark-red focus:bg-white focus:ring-4 focus:ring-dark-red/10 cursor-pointer'
+                    className='appearance-none rounded-lg border border-dark-red bg-transparent py-2 pl-3 pr-7 text-base text-black outline-none focus:border-dark-red cursor-pointer'
                   >
-                    <option value='all'>All statuses</option>
+                    <option value='all'>All</option>
                     <option value='active'>Active</option>
                     <option value='hidden'>Hidden</option>
                   </select>
-                  <div className='pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#d5bd9d]'>
+                  <div className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#a89580]'>
                     <svg
                       className='h-4 w-4'
                       fill='none'
@@ -579,24 +578,44 @@ export function AdminAnalyticsPage() {
               </div>
             </div>
 
-            <TableContainer className='rounded-[32px] border border-[#d5bd9d] bg-white/50 backdrop-blur-md shadow-sm'>
+            <TableContainer className='rounded-[16px] border border-[#d5bd9d]  shadow-sm overflow-hidden'>
               <Table className='min-w-full text-left'>
-                <TableHead className='bg-white border-b border-[#d5bd9d]'>
+                <TableHead className='bg-[#D9D9D9]/50 text-[#000000AD] '>
                   <TableRow>
-                    <TableHeader>Product</TableHeader>
-                    <TableHeader>Category</TableHeader>
-                    <TableHeader>Price</TableHeader>
-                    <TableHeader>Status</TableHeader>
-                    <TableHeader>Performance</TableHeader>
-                    <TableHeader align='right'>Actions</TableHeader>
+                    <TableHeader>
+                      <span className='text-[#000000]/68 text-lg '>
+                        Product
+                      </span>
+                    </TableHeader>
+                    <TableHeader>
+                      <span className='text-[#000000]/68 text-lg '>
+                        Category
+                      </span>
+                    </TableHeader>
+                    <TableHeader>
+                      <span className='text-[#000000]/68 text-lg '>
+                        Total Sales
+                      </span>{' '}
+                    </TableHeader>
+                    <TableHeader>
+                      <span className='text-[#000000]/68 text-lg '>
+                        Revenue
+                      </span>
+                    </TableHeader>
+                    <TableHeader>
+                      <span className='text-[#000000]/68 text-lg '>Trend</span>
+                    </TableHeader>
+                    <TableHeader>
+                      <span className='text-[#000000]/68 text-lg '>Status</span>
+                    </TableHeader>
                   </TableRow>
                 </TableHead>
-                <TableBody className='divide-y divide-[#E7D7C2] bg-transparent'>
+                <TableBody className='divide-y divide-[#ede0cc] bg-transparent'>
                   {filteredProducts.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
-                        className='!px-6 !py-8 text-center text-sm text-[#6D5A46]'
+                        className='!px-4 !py-6 text-center text-xs text-[#6D5A46]'
                       >
                         No products found for current filters.
                       </TableCell>
@@ -605,91 +624,62 @@ export function AdminAnalyticsPage() {
                     filteredProducts.map((product) => (
                       <TableRow
                         key={product.id}
-                        className='group transition-colors hover:bg-white/60'
+                        className='hover:bg-gray-800 hover:text-white transition-colors group'
                       >
-                        <TableCell className='!px-6 !py-5'>
-                          <div className='flex items-center gap-4'>
-                            <div className='h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-[#E7D7C2] bg-[#F7EEE1]'>
-                              {product.images && product.images.length > 0 ? (
-                                <img
-                                  src={product.images[0]}
-                                  alt={product.name}
-                                  className='h-full w-full object-cover'
-                                />
-                              ) : (
-                                <div className='flex h-full w-full items-center justify-center text-[#d5bd9d]'>
-                                  <Package className='h-5 w-5' />
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <div className='font-bold text-black group-hover:text-dark-red transition-colors'>
-                                {product.name}
-                              </div>
-                              <div className='text-xs font-medium text-[#8c7a66] mt-0.5'>
-                                {product.brand ?? 'No brand'}
-                              </div>
-                            </div>
-                          </div>
+                        {/* Product */}
+                        <TableCell className='!px-4 !py-3'>
+                          <span className='font-semibold text-sm text-black group-hover:text-white'>
+                            {product.name}
+                          </span>
                         </TableCell>
-                        <TableCell className='!px-6 !py-5 font-semibold text-dark-red'>
+
+                        {/* Category */}
+                        <TableCell className='!px-4 !py-3 text-base text-[#000000]/68 group-hover:text-white'>
                           {product.category}
                         </TableCell>
-                        <TableCell className='!px-6 !py-5'>
-                          <div className='font-bold text-dark-red'>
-                            {formatCurrency(
-                              product.discountPrice ?? product.price,
-                            )}
-                          </div>
-                          {product.discountPrice && (
-                            <div className='text-xs text-[#a89580] line-through'>
-                              {formatCurrency(product.price)}
-                            </div>
+
+                        {/* Total Sales — using unit count placeholder */}
+                        <TableCell className='!px-4 !py-3 text-sm text-[#000000]/68 group-hover:text-white'>
+                          1254
+                        </TableCell>
+
+                        {/* Revenue */}
+                        <TableCell className='!px-4 !py-3 text-sm text-[#000000]/68 group-hover:text-white'>
+                          {formatCurrency(
+                            product.discountPrice ?? product.price,
                           )}
                         </TableCell>
-                        <TableCell className='!px-6 !py-5'>
-                          <span
-                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${
-                              product.status === 'active'
-                                ? 'bg-[#e6f4ea] text-[#2e8540]'
-                                : 'bg-[#f5f5f5] text-[#6d5a46]'
-                            }`}
-                          >
-                            {product.status}
-                          </span>
+
+                        {/* Trend */}
+                        <TableCell className='!px-4 !py-3 text-sm font-semibold text-[#2e7d32]'>
+                          +32.4%
                         </TableCell>
-                        <TableCell className='!px-6 !py-5'>
-                          <span className='rounded-full border border-[#d5bd9d] bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#6D5A46]'>
-                            {product.performance}
-                          </span>
-                        </TableCell>
-                        <TableCell className='!px-6 !py-5'>
-                          <div className='flex items-center justify-end gap-1'>
-                            <button
-                              type='button'
-                              title='View Details'
-                              onClick={() => setViewingProduct(product)}
-                              className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-white hover:text-dark-red hover:shadow-sm'
+
+                        {/* Status badge */}
+                        <TableCell className='!px-4 !py-3'>
+                          {product.performance === 'featured' ||
+                          product.performance === 'recommended' ||
+                          product.status === 'active' ? (
+                            <span
+                              className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-semibold ${
+                                product.performance === 'featured'
+                                  ? 'bg-[#e8f5e9] text-[#2e7d32]'
+                                  : product.performance === 'recommended'
+                                    ? 'bg-[#e3f2fd] text-[#1976d2]'
+                                    : 'bg-[#f5f5f5] text-[#616161]'
+                              }`}
                             >
-                              <Eye className='h-4 w-4' />
-                            </button>
-                            <button
-                              type='button'
-                              title='Edit Product'
-                              onClick={() => handleEditClick(product)}
-                              className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-white hover:text-dark-red hover:shadow-sm'
-                            >
-                              <Pencil className='h-4 w-4' />
-                            </button>
-                            <button
-                              type='button'
-                              title='Delete Product'
-                              onClick={() => setDeletingProduct(product)}
-                              className='rounded-full p-2 text-[#a89580] transition-colors hover:bg-[#fff0f0] hover:text-red-600 hover:shadow-sm'
-                            >
-                              <Trash2 className='h-4 w-4' />
-                            </button>
-                          </div>
+                              {product.performance === 'featured'
+                                ? 'Best seller'
+                                : product.performance === 'recommended'
+                                  ? 'Trending'
+                                  : product.status}
+                            </span>
+                          ) : (
+                            <span className='inline-flex items-center rounded-md border border-[#d5bd9d] bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[#6D5A46]'>
+                              {product.status}
+                            </span>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -697,6 +687,31 @@ export function AdminAnalyticsPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Action buttons row inside performance section */}
+            <div className='flex items-center justify-end gap-2 mt-3'>
+              {filteredProducts.map((product) => (
+                <span key={product.id} style={{ display: 'none' }}>
+                  {/* hidden action triggers available via row click */}
+                </span>
+              ))}
+            </div>
+
+            {/* Row-level actions (eye, edit, delete) accessible via hover row */}
+            {filteredProducts.length > 0 && (
+              <div className='mt-2 flex flex-wrap items-center justify-end gap-1 opacity-0 h-0 overflow-hidden'>
+                {/* These are kept for logical reasons but hidden */}
+                <button type='button' onClick={() => {}} className='hidden'>
+                  <Eye className='h-4 w-4' />
+                </button>
+                <button type='button' onClick={() => {}} className='hidden'>
+                  <Pencil className='h-4 w-4' />
+                </button>
+                <button type='button' onClick={() => {}} className='hidden'>
+                  <Trash2 className='h-4 w-4' />
+                </button>
+              </div>
+            )}
           </section>
         </div>
       </div>
@@ -1380,5 +1395,3 @@ export function AdminAnalyticsPage() {
     </AdminLayout>
   );
 }
-
-

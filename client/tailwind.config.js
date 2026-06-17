@@ -18,6 +18,8 @@ export default {
         nova: ['Nova', 'serif'],
         amiri: ['Amiri Quran', 'serif'],
         augent: ['Augent', 'serif'],
+        aboreto: ['Aboreto', 'serif'],
+        badoni: ['Bodoni Moda', 'serif'],
       },
       fontSize: {
         xs: '0.75rem',

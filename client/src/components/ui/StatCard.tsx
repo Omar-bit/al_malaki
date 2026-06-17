@@ -6,23 +6,53 @@ export interface StatCardProps {
   icon?: React.ReactNode;
   IconComponent?: React.ElementType;
   variant?: 'analytics' | 'default';
+  trend?: string;
+  trendPositive?: boolean;
+  subtitle?: string;
 }
 
-export function StatCard({ label, value, icon, IconComponent, variant = 'default' }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  icon,
+  IconComponent,
+  variant = 'default',
+  trend,
+  trendPositive = true,
+  subtitle,
+}: StatCardProps) {
   if (variant === 'analytics') {
     return (
-      <div className='group relative overflow-hidden rounded-[28px] border border-[#d5bd9d] bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md'>
-        <div className='flex items-center justify-between'>
-          <p className='text-xs uppercase tracking-[0.2em] text-[#6D5A46] font-bold'>
-            {label}
-          </p>
+      <div className='relative overflow-hidden rounded-[18px] border border-[#3F060F] bg-[#D9D9D957] p-4 shadow-sm flex-1'>
+        <div className='flex items-center justify-between mb-3'>
+          <p className='text-[18px]  text-[#1c1c1c] font-bona'>{label}</p>
           {IconComponent && (
-            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-[#F4E0D4]/50 text-dark-red transition-colors group-hover:bg-dark-red group-hover:text-white'>
-              <IconComponent className='h-5 w-5' />
+            <div className='flex h-6 w-6 items-center justify-center rounded-md bg-[#D9D9D9] text-[#000000]'>
+              <IconComponent className='h-4 w-4 text-sm' strokeWidth={2.5} />
             </div>
           )}
         </div>
-        <div className='mt-4 text-3xl font-extrabold text-black'>{value}</div>
+
+        <div>
+          <div className='text-base font-semibold text-black mb-1   font-aboreto'>
+            {value}
+          </div>
+
+          {trend && (
+            <div
+              className={`text-xs  font-abee ${
+                trendPositive ? 'text-[#38a169]' : 'text-[#e53e3e]'
+              }`}
+            >
+              {trend}
+            </div>
+          )}
+          {subtitle && !trend && (
+            <div className='text-[11px] font-aboreto text-[#00000082] uppercase tracking-wider'>
+              {subtitle}
+            </div>
+          )}
+        </div>
       </div>
     );
   }

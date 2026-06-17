@@ -17,6 +17,8 @@
   /* --font-bona: 'Bona Nova', serif; */
   --font-amiri: 'Amiri Quran', serif;
   --font-augent: 'Augent', serif;
+  --font-aboreto: 'Aboreto', system-ui;
+  --font-badoni: 'Bodoni Moda', serif;
 }
 
 @layer base {

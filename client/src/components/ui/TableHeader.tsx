@@ -9,7 +9,7 @@ export function TableHeader({
 }) {
   return (
     <th
-      className={`px-6 py-5 text-${align} text-[11px] font-bold uppercase tracking-[0.25em] text-[#8c7a66]`}
+      className={`px-4 py-3 text-${align} text-[11px] font-semibold text-[#6D5A46]`}
     >
       {children}
     </th>
