@@ -100,27 +100,27 @@ export function Footer() {
           {/* QUICK LINKS */}
           <div className='flex flex-col items-start'>
             <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
-              Quick Links
+              {t('footer.quickLinks')}
             </h3>
             <ul className='flex flex-col space-y-3'>
               <li>
                 <Link to='/' className='text-white font-abhaya text-lg'>
-                  Home
+                  {t('footer.home')}
                 </Link>
               </li>
               <li>
                 <Link to='/products' className='text-white font-abhaya text-lg'>
-                  Shop
+                  {t('footer.shop')}
                 </Link>
               </li>
               <li>
                 <Link to='/about' className='text-white font-abhaya text-lg'>
-                  About
+                  {t('footer.about')}
                 </Link>
               </li>
               <li>
                 <Link to='/contact' className='text-white font-abhaya text-lg'>
-                  Contact
+                  {t('footer.contact')}
                 </Link>
               </li>
             </ul>
@@ -129,12 +129,12 @@ export function Footer() {
           {/* CUSTOMER AREA */}
           <div className='flex flex-col items-start'>
             <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
-              Customer Area
+              {t('footer.customerArea')}
             </h3>
             <ul className='flex flex-col space-y-3'>
               <li>
                 <Link to='/profile' className='text-white font-abhaya text-lg'>
-                  My account
+                  {t('footer.myAccount')}
                 </Link>
               </li>
               <li>
@@ -142,12 +142,12 @@ export function Footer() {
                   to='/track-order'
                   className='text-white font-abhaya text-lg'
                 >
-                  Track Order
+                  {t('footer.trackOrder')}
                 </Link>
               </li>
               <li>
                 <Link to='/rewards' className='text-white font-abhaya text-lg'>
-                  Rewards
+                  {t('footer.rewards')}
                 </Link>
               </li>
             </ul>
@@ -156,7 +156,7 @@ export function Footer() {
           {/* CONTACT */}
           <div className='flex flex-col items-start'>
             <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
-              Contact
+              {t('footer.contact')}
             </h3>
             <div className='flex flex-col space-y-3'>
               <a
@@ -179,7 +179,7 @@ export function Footer() {
           {/* FOLLOW */}
           <div className='flex flex-col items-start'>
             <h3 className='text-gold uppercase tracking-wider text-sm mb-4 font-semibold'>
-              Follow
+              {t('footer.follow')}
             </h3>
             <div className='flex flex-col space-y-3'>
               <a
@@ -231,7 +231,7 @@ export function Footer() {
           <div className='flex flex-col w-auto  items-start md:items-center '>
             <div>
               <h3 className='text-gold font-bold font-italic text-2xl mb-5 tracking-wide'>
-                Quick Links
+                {t('footer.quickLinks')}
               </h3>
               <ul className='flex flex-col  space-y-2 '>
                 <li>
@@ -239,7 +239,7 @@ export function Footer() {
                     to='/'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
-                    Home
+                    {t('footer.home')}
                   </Link>
                 </li>
                 <li>
@@ -247,7 +247,7 @@ export function Footer() {
                     to='/products'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
-                    Shop
+                    {t('footer.shop')}
                   </Link>
                 </li>
                 <li>
@@ -255,7 +255,7 @@ export function Footer() {
                     to='/about'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
-                    About
+                    {t('footer.about')}
                   </Link>
                 </li>
                 <li>
@@ -263,7 +263,7 @@ export function Footer() {
                     to='/contact'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
-                    Contact
+                    {t('footer.contact')}
                   </Link>
                 </li>
               </ul>
@@ -274,7 +274,7 @@ export function Footer() {
           <div className='flex flex-col items-start md:items-center'>
             <div>
               <h3 className='text-gold font-bold font-italic text-2xl mb-5 tracking-wide'>
-                Customer Area
+                {t('footer.customerArea')}
               </h3>
               <ul className='flex flex-col space-y-2'>
                 <li>
@@ -282,7 +282,7 @@ export function Footer() {
                     to='/profile'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
-                    My account
+                    {t('footer.myAccount')}
                   </Link>
                 </li>
                 <li>
@@ -290,7 +290,7 @@ export function Footer() {
                     to='/track-order'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
-                    Track Order
+                    {t('footer.trackOrder')}
                   </Link>
                 </li>
                 <li>
@@ -298,7 +298,7 @@ export function Footer() {
                     to='/rewards'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
-                    Rewards
+                    {t('footer.rewards')}
                   </Link>
                 </li>
               </ul>

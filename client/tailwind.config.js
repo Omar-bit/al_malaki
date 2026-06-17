@@ -17,6 +17,7 @@ export default {
         bona: ['"Bona Nova"', 'serif'],
         nova: ['Nova', 'serif'],
         amiri: ['Amiri Quran', 'serif'],
+        augent: ['Augent', 'serif'],
       },
       fontSize: {
         xs: '0.75rem',

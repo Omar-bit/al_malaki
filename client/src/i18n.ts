@@ -383,11 +383,11 @@ const resources = {
       },
       guest_modal: {
         lang_label: 'Ar',
-        body: `.أنشئ حسابك الآن على المعرِّف الشخصي الخاص بك، استخدمه
-        للمشاركة في التحديات الأسبوعية والاستفادة من مكافآت خاصة`,
+        body: `أنشئ حسابك الآن على المعرِّف الشخصي الخاص بك، استخدمه
+       . للمشاركة في التحديات الأسبوعية والاستفادة من مكافآت خاصة`,
         join: 'انظم إلينا',
         already_account: 'لدي حساب بالفعل',
-        discover: 'اكتشف ALMALAKI',
+        discover: ' ALMALAKI  اكتشف ',
       },
       dashboard: {
         title: 'لوحة التحكم',
@@ -444,7 +444,7 @@ const resources = {
       guest_modal: {
         lang_label: 'Fr',
         body: `Créez votre compte pour recevoir votre matricule personnel.
-         Utilisez-le pour participer à nos défis hebdomadaires et débloquer des récompenses exclusives`,
+         Utilisez-le pour participer à nos défis hebdomadaires et \n débloquer des récompenses exclusives`,
         join: 'Rejoignez-nous',
         already_account: "J'ai déjà un compte",
         discover: 'Découvrir ALMALAKI',

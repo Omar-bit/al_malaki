@@ -14,7 +14,7 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className={`text-center ${i18n.language === 'ar' ? 'font-amiri' : 'font-abhaya'}  text-[36px] md:text-[50px] font-bold  tracking-wide text-dark-red  uppercase`}
+          className={`text-center ${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'}  text-[36px] md:text-[50px] font-bold  tracking-wide text-dark-red  uppercase`}
         >
           {t('about.title')}
         </motion.h2>

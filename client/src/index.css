@@ -1,4 +1,8 @@
 @import 'tailwindcss';
+@font-face {
+  font-family: 'Augent';
+  src: url('./assets/fonts/augent/Augent.ttf') format('truetype');
+}
 
 @theme {
   --color-dark-red: #3f060f;
@@ -12,6 +16,7 @@
   --font-bona: 'Bona Nova', serif;
   /* --font-bona: 'Bona Nova', serif; */
   --font-amiri: 'Amiri Quran', serif;
+  --font-augent: 'Augent', serif;
 }
 
 @layer base {
@@ -106,7 +111,4 @@
   background: url('/src/assets/honey-pattern.png') no-repeat center fixed;
   background-size: cover;
   /* background-position: center; */
-}
-.amiri {
-  font-family: 'Amiri Quran', serif;
 }

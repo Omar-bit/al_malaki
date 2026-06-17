@@ -108,9 +108,21 @@ export function GuestModal({
               {/* Body text */}
               <pre
                 className={`text-white/90 text-center text-sm md:text-xl leading-relaxed px-2 my-2 ${isRTL ? 'text-right' : 'text-center'}`}
-                style={{ fontFamily: 'Abhaya Libre, serif' }}
+                style={{
+                  fontFamily:
+                    i18n.language !== 'ar'
+                      ? 'Abhaya Libre, serif'
+                      : 'Amiri Quran',
+                }}
               >
-                {t('guest_modal.body')}
+                {t('guest_modal.body')
+                  .split('\n')
+                  .map((line, idx) => (
+                    <span key={idx}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
               </pre>
 
               {/* Buttons */}
@@ -136,10 +148,10 @@ export function GuestModal({
               {!blocking && (
                 <button
                   onClick={handleClose}
-                  className='text-[#ADAAA4] text-xs font-abee hover:text-white/80 transition-colors tracking-wide mt-1'
+                  className='text-[#ADAAA4] text-sm font-abhaya hover:text-white/80 transition-colors tracking-wide mt-1'
                 >
                   {isRTL
-                    ? `← ${t('guest_modal.discover')}`
+                    ? ` ${t('guest_modal.discover')} →`
                     : `${t('guest_modal.discover')} →`}
                 </button>
               )}
