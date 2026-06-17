@@ -6,7 +6,6 @@ import {
   Trash2,
   Eye,
   Search,
-  DollarSign,
   ShoppingCart,
   TrendingUp,
   Award,
