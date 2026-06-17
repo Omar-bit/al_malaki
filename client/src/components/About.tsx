@@ -14,7 +14,7 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className={`text-center font-abhaya  text-[36px] md:text-[55px] font-bold  tracking-wide text-dark-red  uppercase`}
+          className={`text-center ${i18n.language === 'ar' ? 'font-amiri' : 'font-abhaya'}  text-[36px] md:text-[50px] font-bold  tracking-wide text-dark-red  uppercase`}
         >
           {t('about.title')}
         </motion.h2>
@@ -24,9 +24,16 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className={`mx-auto max-w-[1100px] text-center ${i18n.language === 'en' ? 'font-[var(--font-abhaya)]' : 'font-taviraj'} text-xl md:text-3xl leading-[1.5] text-black mt-10 tracking-wide`}
+          className={`mx-auto max-w-[1100px] text-center ${i18n.language === 'en' ? 'font-[var(--font-abhaya)]' : 'font-taviraj'} text-xl md:text-3xl leading-[1.5] text-black my-20 tracking-wide `}
         >
-          {t('about.text')}
+          {t('about.text')
+            .split('\n')
+            .map((line, index) => (
+              <span key={index}>
+                {line}
+                <br />
+              </span>
+            ))}
         </motion.p>
 
         <motion.div
@@ -34,7 +41,7 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className='mt-10 flex justify-center'
+          className=' flex justify-center'
         >
           <button
             type='button'

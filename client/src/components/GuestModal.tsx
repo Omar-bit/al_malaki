@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts';
 import { useTranslation } from 'react-i18next';
-import crownPng from '../assets/crown.png';
 import { Logo } from './Logo';
 
 interface GuestModalProps {

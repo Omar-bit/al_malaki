@@ -223,11 +223,11 @@ const resources = {
       },
       about: {
         title: 'تعرف علينا',
-        text: 'في ALMALAKI ،  نؤمن بجمال البساطة. أكثر من مجرد مجموعة من المنتجات، ALMALAKI هي دعوة لاكتشاف أرقى ما تقدمه الطبيعة من خلال تجربة مختارة بعناية، ترتكز على الجودة والأصالة ورفاهية المذاق. ',
+        text: ' نؤمن بجمال البساطة. أكثر من مجرد مجموعة من المنتجات  ALMALAKI في  \n  هي دعوة لاكتشاف أرقى ما تقدمه الطبيعة من خلال تجربة مختارة ALMALAKI\n بعناية، ترتكز على الجودة والأصالة ورفاهية المذاق. ',
         button: 'عرض المزيد',
       },
       follow: {
-        title: 'Follow us',
+        title: 'تابعنا',
       },
       footer: {
         tagline: 'عسل صافي، من الطبيعة',
@@ -541,6 +541,7 @@ const savedLanguage = localStorage.getItem('language') || 'en';
 i18n.use(initReactI18next).init({
   resources,
   lng: savedLanguage, // default language from localStorage or 'en'
+
   fallbackLng: 'en',
   interpolation: {
     escapeValue: false,

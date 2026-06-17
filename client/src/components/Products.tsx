@@ -62,7 +62,7 @@ export function Products() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
-          className={`text-center font-[var(--font-abril)] text-[34px] md:text-[50px] ${i18n.language === 'en' ? 'font-italic' : 'font-taviraj'} font-extrabold leading-[1.1] text-dark-red`}
+          className={`text-center font-[var(--font-abril)] text-[34px] md:text-[50px] ${i18n.language !== 'ar' ? 'font-italic' : 'font-amiri'} font-extrabold leading-[1.1] text-dark-red`}
         >
           {t('products.title')}
         </motion.h2>

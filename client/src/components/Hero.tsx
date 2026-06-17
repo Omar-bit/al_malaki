@@ -26,7 +26,7 @@ export function Hero() {
             className='pl-10'
           >
             <p
-              className={`text-[#efe0c9] font-normal font-italic text-[31px] leading-[1.08] sm:text-[46px] md:text-[62px] lg:text-[80px] ${i18n.language === 'ar' ? '!font-[(--font-amiri)]' : 'font-italic'}`}
+              className={`text-[#efe0c9] font-normal font-italic text-[31px] leading-[1.08] sm:text-[46px] md:text-[62px] lg:text-[80px] ${i18n.language === 'ar' ? 'font-amiri!' : 'font-italic'}`}
             >
               {t('hero.welcome')}
             </p>

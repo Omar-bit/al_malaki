@@ -19,7 +19,7 @@ export function Follow() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className={`text-dark-red ${i18n.language === 'en' ? 'font-italic font-extralight ' : 'font-taviraj font-bold'} tracking-wide text-[40px] md:text-[55px] leading-[1.07]`}
+            className={`text-dark-red ${i18n.language !== 'ar' ? 'font-italic font-extralight ' : 'font-amiri font-bold -mt-2'} tracking-wide text-[40px] md:text-[55px] leading-[1.07]`}
           >
             {t('follow.title')}
           </motion.p>
@@ -31,7 +31,7 @@ export function Follow() {
             href='https://instagram.com/al.malaki_'
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center justify-center gap-2 font-[var(--font-abhaya)] text-[32px] md:text-[50px] leading-[1.05] text-dark-red transition-color !font-light hover:text-[#7d2b35] lg:text-[24px]'
+            className={`flex items-center justify-center gap-2 font-[var(--font-abhaya)] text-[32px] md:text-[50px] leading-[1.05] text-dark-red transition-color !font-light hover:text-[#7d2b35] lg:text-[24px] ${i18n.language !== 'ar' ? '' : 'mt-7'}`}
           >
             @al.malaki_
             <span aria-hidden='true'>→</span>
