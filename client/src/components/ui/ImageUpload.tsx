@@ -47,26 +47,40 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <div className='space-y-2'>
-      <span className='block text-sm font-semibold text-black'>Product Images</span>
+      <span className='block text-sm font-semibold text-black'>
+        Product Images
+      </span>
       <div
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         onClick={() => !disabled && inputRef.current?.click()}
-        className={`flex flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed px-6 py-8 transition cursor-pointer select-none ${
+        className={`flex flex-col items-center justify-center gap-2 rounded-3xl border  px-6 py-8 transition cursor-pointer select-none ${
           isDragging
             ? 'border-dark-red bg-[#F4E0D4]/50'
-            : 'border-[#d5bd9d] bg-white/60 hover:border-dark-red hover:bg-[#F4E0D4]/30'
+            : 'bg-[#D9D9D9]/13 hover:border-dark-red hover:bg-[#F4E0D4]/30'
         } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
       >
-        <svg className='h-8 w-8 text-[#6D5A46]' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5}
-            d='M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5' />
+        <svg
+          className='h-8 w-8 text-black'
+          fill='none'
+          stroke='currentColor'
+          viewBox='0 0 24 24'
+        >
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            strokeWidth={1.5}
+            d='M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'
+          />
         </svg>
-        <p className='text-sm text-[#6D5A46]'>
-          <span className='font-semibold text-dark-red'>Click to upload</span> or drag &amp; drop
+        <p className='text-sm text-black'>Drag &amp; Drop images or browse</p>
+        <p className='text-xs text-[#000000]/68 font-aboreto font-normal'>
+          PNG, JPG, WEBP up to 10MB each ·
         </p>
-        <p className='text-xs text-[#6D5A46]'>PNG, JPG, WEBP up to 5 MB each · max {maxFiles} files</p>
         <input
           ref={inputRef}
           type='file'

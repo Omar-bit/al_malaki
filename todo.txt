@@ -1,4 +1,4 @@
--M3(add product page)
+-M3(add product page: styles fixes)
 
 
 
@@ -7,3 +7,4 @@
 *CUSTOMER: track orders 
 *USER: Profile page
 
+ 

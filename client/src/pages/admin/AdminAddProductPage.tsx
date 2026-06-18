@@ -202,29 +202,22 @@ export function AdminAddProductPage() {
 
   return (
     <AdminLayout>
-      <div className='min-h-screen bg-[#F7EEE1] p-4 md:p-8 font-bona!'>
-        <div className='mx-auto max-w-6xl'>
+      <div className='min-h-screen  p-4  font-bona!'>
+        <div className='mx-auto '>
           {/* Header */}
-          <div className='flex flex-wrap items-center justify-between gap-4 border-b border-[#00000020] pb-5 mb-8'>
+          <div className='flex flex-wrap items-center justify-between gap-4  pb-5 mb-8'>
             <div>
-              <h1 className='text-3xl font-bold text-[#3f060f]'>Add Product</h1>
-              <p className='text-sm text-[#6D5A46] mt-1'>
+              <h1 className='text-3xl font-bold  text-black'>Add Product</h1>
+              <p className='text-sm text-[#000000]/68 mt-1'>
                 Create a new product with pricing, media, visibility and SEO
               </p>
             </div>
             <div className='flex items-center gap-3'>
               <button
                 type='button'
-                onClick={() => navigate('/admin/analytics')}
-                className='rounded-full border border-[#6D5A46] bg-white px-5 py-2 text-sm font-semibold text-[#6D5A46] transition-all hover:bg-[#F7EEE1]'
-              >
-                Cancel
-              </button>
-              <button
-                type='button'
                 onClick={() => handleSubmit('hidden')}
                 disabled={isSubmitting}
-                className='rounded-full border border-[#3f060f] bg-transparent px-5 py-2 text-sm font-semibold text-[#3f060f] transition-all hover:bg-[#3f060f]/10'
+                className='rounded-lg border border-dark-red bg-transparent px-5 py-2 text-sm font-semibold text-black transition-all hover:bg-dark-red/10 shadow-lg'
               >
                 Save as draft
               </button>
@@ -232,421 +225,444 @@ export function AdminAddProductPage() {
                 type='button'
                 onClick={() => handleSubmit('active')}
                 disabled={isSubmitting}
-                className='rounded-full bg-[#3f060f] px-6 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 shadow-md'
+                className='rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 shadow-md'
               >
                 {isSubmitting ? 'Publishing...' : 'Publish product'}
               </button>
             </div>
           </div>
 
-          {/* Core Layout */}
-          <div className='grid grid-cols-1 lg:grid-cols-4 gap-8 items-start'>
-            {/* Sidebar Navigation */}
-            <div className='lg:col-span-1 lg:sticky lg:top-6'>
-              <div className='bg-white/70 backdrop-blur-md border border-[#d5bd9d]/30 rounded-3xl p-5 space-y-2 shadow-sm'>
-                <h3 className='text-xs font-bold text-[#6D5A46] uppercase tracking-wider mb-4 px-2'>
-                  Product Setup Steps
-                </h3>
-                <nav className='space-y-1.5'>
-                  {steps.map((step) => {
-                    const StepIcon = step.icon;
-                    return (
-                      <button
-                        key={step.id}
-                        type='button'
-                        onClick={() => scrollToSection(`step-${step.id}`)}
-                        className='w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left text-xs font-semibold text-[#6D5A46] hover:bg-[#FCECD8]/60 hover:text-[#3f060f] transition-all'
-                      >
-                        <div className='flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#F7EEE1] text-[10px] font-bold text-[#6D5A46]'>
-                          {step.id}
-                        </div>
-                        <StepIcon className='w-4 h-4 shrink-0' />
-                        <span className='truncate'>{step.name}</span>
-                      </button>
-                    );
-                  })}
-                </nav>
+          {/* Form Fields container */}
+          <div className='lg:col-span-3 space-y-6'>
+            {/* Step 1: Basic Information */}
+            <div
+              id='step-1'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 1
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <FileText className='h-5 w-5 text-black' />
+                  </div>
+                  <h2 className='text-xl font-bold text-black'>
+                    Basic Information
+                  </h2>
+                </div>
+
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Enter product name, category, brand, and description
+                </p>
+              </div>
+
+              <div className=''>
+                <FormField
+                  className='! !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label='Product name'
+                  value={formState.name}
+                  onChange={(value) => handleFieldChange('name', value)}
+                  placeholder='eg : Miel de montagne'
+                />
+              </div>
+
+              <div className='grid gap-5 md:grid-cols-2 items-center'>
+                <SelectField
+                  className='!bg-[#D9D9D9]/34 border-dark-red !border rounded-lg!'
+                  label='Category'
+                  value={formState.categoryId}
+                  onChange={(value) => handleFieldChange('categoryId', value)}
+                  options={categories.map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                  }))}
+                  placeholder='Select category'
+                />
+                <FormField
+                  className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label='Brand (Optional)'
+                  value={formState.brand}
+                  onChange={(value) => handleFieldChange('brand', value)}
+                />
+              </div>
+
+              <FormField
+                className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                label='Description'
+                value={formState.description}
+                onChange={(value) => handleFieldChange('description', value)}
+                textarea
+                placeholder='Describe what makes this product special...'
+              />
+            </div>
+
+            {/* Step 2: Pricing */}
+            <div
+              id='step-2'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 2
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <span className=' h-5 w-5 text-black font-semibold'>
+                      DT
+                    </span>
+                  </div>
+                  <h2 className='text-xl font-bold text-black'>Pricing</h2>
+                </div>
+
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Set base product pricing and discount if active
+                </p>
+              </div>
+
+              <div className='grid gap-5 md:grid-cols-2'>
+                <FormField
+                  className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label='Price'
+                  value={formState.price}
+                  onChange={(value) => handleFieldChange('price', value)}
+                  type='number'
+                  placeholder='0.00DT'
+                />
+                <FormField
+                  className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label='Discount price'
+                  value={formState.discountPrice}
+                  onChange={(value) =>
+                    handleFieldChange('discountPrice', value)
+                  }
+                  type='number'
+                  placeholder='0.00DT'
+                />
               </div>
             </div>
 
-            {/* Form Fields container */}
-            <div className='lg:col-span-3 space-y-6'>
-              {/* Step 1: Basic Information */}
-              <div
-                id='step-1'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <FileText className='h-5 w-5' />
+            {/* Step 3: Media */}
+            <div
+              id='step-3'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 3
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <Image className='h-5 w-5 text-black' />
                   </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 1: Basic Information
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Enter product name, category, brand, and description
-                    </p>
-                  </div>
+                  <h2 className='text-xl font-bold text-black'>Media</h2>
                 </div>
 
-                <div className='grid gap-5 md:grid-cols-2'>
-                  <FormField
-                    label='Product name'
-                    value={formState.name}
-                    onChange={(value) => handleFieldChange('name', value)}
-                  />
-                  <FormField
-                    label='Brand'
-                    value={formState.brand}
-                    onChange={(value) => handleFieldChange('brand', value)}
-                  />
-                </div>
-
-                <div className='grid gap-5 md:grid-cols-2'>
-                  <SelectField
-                    label='Category'
-                    value={formState.categoryId}
-                    onChange={(value) => handleFieldChange('categoryId', value)}
-                    options={categories.map((category) => ({
-                      value: category.id,
-                      label: category.name,
-                    }))}
-                  />
-                </div>
-
-                <FormField
-                  label='Description'
-                  value={formState.description}
-                  onChange={(value) => handleFieldChange('description', value)}
-                  textarea
-                />
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Upload product media assets and manage ordering
+                </p>
               </div>
 
-              {/* Step 2: Pricing */}
-              <div
-                id='step-2'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <DollarSign className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 2: Pricing
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Set base product pricing and discount if active
-                    </p>
-                  </div>
-                </div>
+              <ImageUpload
+                onFilesSelected={(newFiles) =>
+                  setPendingImages((current) => [
+                    ...current,
+                    ...newFiles.map((file) => ({
+                      file,
+                      previewUrl: URL.createObjectURL(file),
+                    })),
+                  ])
+                }
+                disabled={isSubmitting}
+              />
 
-                <div className='grid gap-5 md:grid-cols-2'>
-                  <FormField
-                    label='Price'
-                    value={formState.price}
-                    onChange={(value) => handleFieldChange('price', value)}
-                    type='number'
-                  />
-                  <FormField
-                    label='Discount price'
-                    value={formState.discountPrice}
-                    onChange={(value) =>
-                      handleFieldChange('discountPrice', value)
-                    }
-                    type='number'
-                  />
-                </div>
-              </div>
-
-              {/* Step 3: Media */}
-              <div
-                id='step-3'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <Image className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 3: Media
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Upload product media assets and manage ordering
-                    </p>
-                  </div>
-                </div>
-
-                <ImageUpload
-                  onFilesSelected={(newFiles) =>
-                    setPendingImages((current) => [
-                      ...current,
-                      ...newFiles.map((file) => ({
-                        file,
-                        previewUrl: URL.createObjectURL(file),
-                      })),
-                    ])
-                  }
-                  disabled={isSubmitting}
-                />
-
-                {formState.images.length > 0 && (
-                  <ImagePreview
-                    title='Existing Images'
-                    images={formState.images}
-                    onRemove={(index) =>
-                      setFormState((current) => ({
-                        ...current,
-                        images: current.images.filter((_, i) => i !== index),
-                      }))
-                    }
-                  />
-                )}
-
+              {formState.images.length > 0 && (
                 <ImagePreview
-                  title={
-                    formState.images.length > 0 ? 'New Images' : 'Image Preview'
-                  }
-                  images={previewUrls}
+                  title='Existing Images'
+                  images={formState.images}
                   onRemove={(index) =>
-                    setPendingImages((current) => {
-                      URL.revokeObjectURL(current[index].previewUrl);
-                      return current.filter((_, i) => i !== index);
-                    })
+                    setFormState((current) => ({
+                      ...current,
+                      images: current.images.filter((_, i) => i !== index),
+                    }))
                   }
                 />
+              )}
+
+              <ImagePreview
+                title={
+                  formState.images.length > 0 ? 'New Images' : 'Image Preview'
+                }
+                images={previewUrls}
+                onRemove={(index) =>
+                  setPendingImages((current) => {
+                    URL.revokeObjectURL(current[index].previewUrl);
+                    return current.filter((_, i) => i !== index);
+                  })
+                }
+              />
+            </div>
+
+            {/* Step 4: Category Placement */}
+            <div
+              id='step-4'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 4
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <FolderTree className='h-5 w-5 text-black' />
+                  </div>
+                  <h2 className='text-xl font-bold text-black'>
+                    Category Placement
+                  </h2>
+                </div>
+
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Decide where the product fits in primary navigations
+                </p>
+              </div>
+              <div className='grid gap-5 md:grid-cols-2'>
+                <SelectField
+                  className='!bg-[#D9D9D9]/34 border-dark-red !border rounded-lg!'
+                  label='Primary Placement'
+                  value={formState.primaryPlacement}
+                  onChange={(value) =>
+                    handleFieldChange('primaryPlacement', value)
+                  }
+                  options={['Homepage', 'Collection', 'Featured'].map(
+                    (item) => ({
+                      value: item,
+                      label: item,
+                    }),
+                  )}
+                  placeholder='Select placement'
+                />
+                <FormField
+                  className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label='Collection'
+                  value={formState.collection}
+                  onChange={(value) => handleFieldChange('collection', value)}
+                  placeholder='Add to collection'
+                />
+              </div>
+            </div>
+
+            {/* Step 5: Product Targeting */}
+            <div
+              id='step-5'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 5
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <Tag className='h-5 w-5 text-black' />
+                  </div>
+                  <h2 className='text-xl font-bold text-black'>
+                    Product Targeting
+                  </h2>
+                </div>
+
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Assign promotion codes or marketing campaign tags
+                </p>
               </div>
 
-              {/* Step 4: Category Placement */}
-              <div
-                id='step-4'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <FolderTree className='h-5 w-5' />
+              <div className='grid gap-5 md:grid-cols-2'>
+                <FormField
+                  className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label='Promo code'
+                  value={formState.promoCode}
+                  onChange={(value) => handleFieldChange('promoCode', value)}
+                  placeholder='Attach a promo code'
+                />
+                <FormField
+                  className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label='Campaign'
+                  value={formState.campaign}
+                  onChange={(value) => handleFieldChange('campaign', value)}
+                  placeholder='eg : ...'
+                />
+              </div>
+            </div>
+
+            {/* Step 6: Product Status */}
+            <div
+              id='step-6'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 6
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <Eye className='h-5 w-5 text-black' />
                   </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 4: Category Placement
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Decide where the product fits in primary navigations
-                    </p>
-                  </div>
+                  <h2 className='text-xl font-bold text-black'>
+                    Product Status
+                  </h2>
                 </div>
 
-                <div className='grid gap-5 md:grid-cols-2'>
-                  <SelectField
-                    label='Primary Placement'
-                    value={formState.primaryPlacement}
-                    onChange={(value) =>
-                      handleFieldChange('primaryPlacement', value)
-                    }
-                    options={['Homepage', 'Collection', 'Featured'].map(
-                      (item) => ({
-                        value: item,
-                        label: item,
-                      }),
-                    )}
-                  />
-                  <FormField
-                    label='Collection'
-                    value={formState.collection}
-                    onChange={(value) => handleFieldChange('collection', value)}
-                  />
-                </div>
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Select whether the product is active or hidden from store
+                </p>
               </div>
 
-              {/* Step 5: Product Targeting */}
-              <div
-                id='step-5'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <Tag className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 5: Product Targeting
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Assign promotion codes or marketing campaign tags
-                    </p>
-                  </div>
-                </div>
-
-                <div className='grid gap-5 md:grid-cols-2'>
-                  <FormField
-                    label='Promo code'
-                    value={formState.promoCode}
-                    onChange={(value) => handleFieldChange('promoCode', value)}
-                  />
-                  <FormField
-                    label='Campaign'
-                    value={formState.campaign}
-                    onChange={(value) => handleFieldChange('campaign', value)}
-                  />
-                </div>
+              <div className='grid gap-5 md:grid-cols-2'>
+                <SelectField
+                  className='  !bg-[#D9D9D9]/34 border-dark-red !border rounded-lg!'
+                  label='Status'
+                  value={formState.status}
+                  onChange={(value) => handleFieldChange('status', value)}
+                  options={[
+                    { value: 'active', label: 'Active (Visible on Store)' },
+                    { value: 'hidden', label: 'Hidden (Draft/Archived)' },
+                  ]}
+                />
               </div>
+            </div>
 
-              {/* Step 6: Product Status */}
-              <div
-                id='step-6'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <Eye className='h-5 w-5' />
+            {/* Step 7: Performance Boost */}
+            <div
+              id='step-7'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 7
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <Zap className='h-5 w-5 text-black' />
                   </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 6: Product Status
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Select whether the product is active or hidden from store
-                    </p>
-                  </div>
+                  <h2 className='text-xl font-bold text-black'>
+                    Performance Boost
+                  </h2>
                 </div>
 
-                <div className='grid gap-5 md:grid-cols-2'>
-                  <SelectField
-                    label='Status'
-                    value={formState.status}
-                    onChange={(value) => handleFieldChange('status', value)}
-                    options={[
-                      { value: 'active', label: 'Active (Visible on Store)' },
-                      { value: 'hidden', label: 'Hidden (Draft/Archived)' },
-                    ]}
-                  />
-                </div>
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Highlight this product with merchandising badges.
+                </p>
               </div>
-
-              {/* Step 7: Performance Boost */}
-              <div
-                id='step-7'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <Zap className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 7: Performance Boost
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Choose promotion boost category for items
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <span className='mb-2.5 block text-xs font-bold text-[#6D5A46] uppercase tracking-wide'>
-                    Performance Category
-                  </span>
-                  <div className='flex gap-2 p-1.5 bg-[#F7EEE1] rounded-2xl border border-[#d5bd9d]/30'>
-                    {['new arrival', 'recommended', 'featured'].map((perf) => (
-                      <button
-                        key={perf}
-                        type='button'
-                        onClick={() => handleFieldChange('performance', perf)}
-                        className={`flex-1 py-3 text-xs font-bold rounded-xl capitalize transition-all duration-200 ${
-                          formState.performance === perf
-                            ? 'bg-[#3f060f] text-white shadow-sm'
-                            : 'text-[#6D5A46] hover:bg-[#FCECD8]/40 hover:text-[#3f060f]'
-                        }`}
-                      >
-                        {perf}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 8: Search Engine Optimization (SEO) */}
-              <div
-                id='step-8'
-                className='bg-white rounded-3xl border border-[#d5bd9d]/30 p-6 md:p-8 shadow-sm space-y-6 scroll-mt-6'
-              >
-                <div className='flex items-center gap-3 border-b border-gray-100 pb-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FCECD8] text-[#3f060f] shadow-inner'>
-                    <Search className='h-5 w-5' />
-                  </div>
-                  <div>
-                    <h2 className='text-base font-bold text-[#3f060f]'>
-                      Step 8: Search Engine Optimization (SEO)
-                    </h2>
-                    <p className='text-[11px] text-[#6D5A46]'>
-                      Set search engine slug, meta title and description
-                    </p>
-                  </div>
-                </div>
-
-                <div className='grid gap-5 md:grid-cols-2'>
-                  <div className='relative'>
-                    <FormField
-                      label='Slug'
-                      value={formState.slug}
-                      onChange={(value) => handleFieldChange('slug', value)}
-                    />
+              <div>
+                <span className='mb-2.5 block text-xs font-bold text-[#6D5A46] uppercase tracking-wide'>
+                  Performance Category
+                </span>
+                <div className='flex gap-2 p-1.5 bg-[#F7EEE1] rounded-2xl border border-[#d5bd9d]/30'>
+                  {['new arrival', 'recommended', 'featured'].map((perf) => (
                     <button
+                      key={perf}
                       type='button'
-                      onClick={() =>
-                        handleFieldChange('slug', createSlug(formState.name))
-                      }
-                      className='absolute right-2.5 top-[34px] px-3 py-1.5 text-[10px] font-bold text-white bg-[#be9d61] hover:bg-[#be9d61]/90 rounded-full transition-colors shadow-sm'
+                      onClick={() => handleFieldChange('performance', perf)}
+                      className={`flex-1 py-3 text-xs font-bold rounded-xl capitalize transition-all duration-200 ${
+                        formState.performance === perf
+                          ? 'bg-[#3f060f] text-white shadow-sm'
+                          : 'text-[#6D5A46] hover:bg-[#FCECD8]/40 hover:text-[#3f060f]'
+                      }`}
                     >
-                      Generate
+                      {perf}
                     </button>
-                  </div>
-                  <FormField
-                    label='Meta title'
-                    value={formState.metaTitle}
-                    onChange={(value) => handleFieldChange('metaTitle', value)}
-                  />
+                  ))}
                 </div>
+              </div>
+              <div className='bg-[#D9D9D9]/34 border border-dark-red text-black py-2 px-4 pb-4 rounded-lg'>
+                <h3 className='text-sm'>Boost in search results</h3>
+                <span className='font-semibold text-[#000000]/68 text-xs'>
+                  Prioritize this product in internal search ranking.
+                </span>
+              </div>
+            </div>
+
+            {/* Step 8: Search Engine Optimization (SEO) */}
+            <div
+              id='step-8'
+              className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
+            >
+              <div className=''>
+                <h4 className='text-[#000000]/68 font-bona text-sbase'>
+                  Step 8
+                </h4>
+                <div className='flex  items-center gap-3   '>
+                  <div className='bg-[#D9D9D9] px-[7px] py-[5px] rounded-lg '>
+                    <Search className='h-5 w-5 text-black' />
+                  </div>
+                  <h2 className='text-xl font-bold text-black'>
+                    Search Engine Optimization (SEO)
+                  </h2>
+                </div>
+
+                <p className='text-xs text-[#6D5A46] mt-1'>
+                  Set search engine slug, meta title and description
+                </p>
+              </div>
+
+              <div className='!p-0 relative w-full   flex items-center   !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'>
+                <span className=' p-2 font-bona text-sm text-[#000000]/68 font-normal border-r border-[#000000]/68 pr-3 h-full !m-0'>
+                  store.com/products/
+                </span>
 
                 <FormField
-                  label='Meta description'
-                  value={formState.metaDescription}
-                  onChange={(value) =>
-                    handleFieldChange('metaDescription', value)
-                  }
-                  textarea
+                  className=' bg-transparent! !border-0 flex-1 !w-[100%] focus:!ring-0 focus:!border-0 focus:!bg-transparent !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                  label=''
+                  value={formState.slug}
+                  onChange={(value) => handleFieldChange('slug', value)}
                 />
-              </div>
-
-              {/* Bottom Actions Bar */}
-              <div className='flex items-center justify-between border-t border-[#00000020] pt-6'>
                 <button
                   type='button'
-                  onClick={() => navigate('/admin/analytics')}
-                  className='rounded-full border border-[#6D5A46] bg-white px-5 py-2 text-sm font-semibold text-[#6D5A46] transition-all hover:bg-[#F7EEE1]'
+                  onClick={() =>
+                    handleFieldChange('slug', createSlug(formState.name))
+                  }
+                  className='absolute -right-3 top-[50%] -translate-[50%] px-3 py-1.5 text-[10px] font-bold text-white bg-[#be9d61] hover:bg-[#be9d61]/90 rounded-full transition-colors shadow-sm'
                 >
-                  Cancel
+                  Generate
                 </button>
-                <div className='flex items-center gap-3'>
-                  <button
-                    type='button'
-                    onClick={() => handleSubmit('hidden')}
-                    disabled={isSubmitting}
-                    className='rounded-full border border-[#3f060f] bg-transparent px-5 py-2 text-sm font-semibold text-[#3f060f] transition-all hover:bg-[#3f060f]/10'
-                  >
-                    Save as draft
-                  </button>
-                  <button
-                    type='button'
-                    onClick={() => handleSubmit('active')}
-                    disabled={isSubmitting}
-                    className='rounded-full bg-[#3f060f] px-6 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 shadow-md'
-                  >
-                    {isSubmitting ? 'Publishing...' : 'Publish product'}
-                  </button>
-                </div>
+              </div>
+              <FormField
+                className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                label='Meta title'
+                placeholder='Meta title'
+                value={formState.metaTitle}
+                onChange={(value) => handleFieldChange('metaTitle', value)}
+              />
+
+              <FormField
+                className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                label='Meta description'
+                value={formState.metaDescription}
+                onChange={(value) =>
+                  handleFieldChange('metaDescription', value)
+                }
+                placeholder='A short compelling summary that appears in search results'
+                textarea
+              />
+            </div>
+
+            {/* Bottom Actions Bar */}
+            <div className='flex items-center justify-end border-t border-[#00000020] pt-6'>
+              <div className='flex items-center gap-3'>
+                <button
+                  type='button'
+                  onClick={() => handleSubmit('hidden')}
+                  disabled={isSubmitting}
+                  className='rounded-lg border border-dark-red bg-transparent px-5 py-2 text-sm font-semibold text-black transition-all hover:bg-dark-red/10 shadow-lg'
+                >
+                  Save as draft
+                </button>
+                <button
+                  type='button'
+                  onClick={() => handleSubmit('active')}
+                  disabled={isSubmitting}
+                  className='rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 shadow-md'
+                >
+                  {isSubmitting ? 'Publishing...' : 'Publish product'}
+                </button>
               </div>
             </div>
           </div>
