@@ -530,6 +530,7 @@ export function AdminAddProductPage() {
             </div>
 
             {/* Step 7: Performance Boost */}
+
             <div
               id='step-7'
               className='bg-[#ede7de] rounded-4xl border-[1px] border-dark-red p-6 md:p-5 shadow-sm space-y-6 scroll-mt-6'
@@ -551,32 +552,33 @@ export function AdminAddProductPage() {
                   Highlight this product with merchandising badges.
                 </p>
               </div>
-              <div>
-                <span className='mb-2.5 block text-xs font-bold text-[#6D5A46] uppercase tracking-wide'>
-                  Performance Category
-                </span>
-                <div className='flex gap-2 p-1.5 bg-[#F7EEE1] rounded-2xl border border-[#d5bd9d]/30'>
-                  {['new arrival', 'recommended', 'featured'].map((perf) => (
-                    <button
-                      key={perf}
-                      type='button'
-                      onClick={() => handleFieldChange('performance', perf)}
-                      className={`flex-1 py-3 text-xs font-bold rounded-xl capitalize transition-all duration-200 ${
-                        formState.performance === perf
-                          ? 'bg-[#3f060f] text-white shadow-sm'
-                          : 'text-[#6D5A46] hover:bg-[#FCECD8]/40 hover:text-[#3f060f]'
-                      }`}
-                    >
-                      {perf}
-                    </button>
-                  ))}
-                </div>
+              <div className='flex flex-wrap gap-5'>
+                {[
+                  { value: 'new arrival', label: 'New Arrival' },
+                  { value: 'recommended', label: 'Recommended' },
+                  { value: 'featured', label: 'Featured' },
+                ].map(({ value, label }) => (
+                  <button
+                    key={value}
+                    type='button'
+                    onClick={() => handleFieldChange('performance', value)}
+                    className={`min-w-[112px] rounded-full border px-6 py-3 text-[14px] font-semibold leading-none transition-colors ${
+                      formState.performance === value
+                        ? 'border-[#c79f55] bg-[#c79f55] text-white'
+                        : 'border-[#9b7a68] bg-transparent text-black hover:bg-[#efe6dc]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
-              <div className='bg-[#D9D9D9]/34 border border-dark-red text-black py-2 px-4 pb-4 rounded-lg'>
-                <h3 className='text-sm'>Boost in search results</h3>
-                <span className='font-semibold text-[#000000]/68 text-xs'>
+              <div className='rounded-2xl border border-[#b49385] bg-transparent px-4 py-3'>
+                <h3 className='text-[15px] font-medium leading-none text-[#241d19]'>
+                  Boost in search results
+                </h3>
+                <p className='mt-2 text-[14px] leading-5 text-[#6f5a4c]'>
                   Prioritize this product in internal search ranking.
-                </span>
+                </p>
               </div>
             </div>
 
