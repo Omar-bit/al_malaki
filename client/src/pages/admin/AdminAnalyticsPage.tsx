@@ -443,7 +443,7 @@ export function AdminAnalyticsPage() {
                 <FolderTree className='h-3.5 w-3.5' />
                 Manage categories
               </button>
-              <button
+              {/* <button
                 type='button'
                 onClick={() => navigate('/admin/products/new')}
                 disabled={categories.length === 0}
@@ -455,7 +455,7 @@ export function AdminAnalyticsPage() {
               >
                 <Plus className='h-3.5 w-3.5' />
                 Add product
-              </button>
+              </button> */}
             </div>
           </header>
 

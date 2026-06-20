@@ -141,10 +141,10 @@ export function AdminManagementPage() {
 
   return (
     <AdminLayout>
-      <div className='min-h-full admin-management-container p-6 md:px-10'>
-        <div className='mx-auto max-w-6xl'>
+      <div className='min-h-full admin-management-container p-6 '>
+        <div className='mx-auto '>
           <header className='text-center mb-5'>
-            <Logo className='block mx-auto w-30!' />
+            <Logo className='block mx-auto w-40!' />
             <h1 className='text-xl md:text-4xl font-bona font-bold text-dark-red mt-2'>
               Admin management
             </h1>
@@ -253,7 +253,7 @@ export function AdminManagementPage() {
               <button
                 type='button'
                 onClick={() => setIsInviteOpen((current) => !current)}
-                className='rounded-lg bg-gold px-5 py-2 text-md font-bold text-white shadow-sm transition hover:bg-[#b99370]'
+                className='rounded-lg bg-dark-red px-5 py-2 text-md font-bold text-white shadow-sm transition hover:opacity-80'
               >
                 Create New Admin
               </button>
@@ -263,7 +263,7 @@ export function AdminManagementPage() {
                 onClick={() =>
                   toast.success('Block admin flow will be available soon.')
                 }
-                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-white text-black ${
+                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-[#EFE0C9] text-dark-red ${
                   isSelectionProtected
                     ? 'cursor-not-allowed '
                     : ' hover:bg-dark-red'
@@ -277,7 +277,7 @@ export function AdminManagementPage() {
                 onClick={() =>
                   toast.success('Delete admin flow will be available soon.')
                 }
-                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-dark-red text-white ${
+                className={`rounded-lg px-5 py-2 text-md font-bold shadow-sm transition bg-[#EFE0C9] text-dark-red ${
                   isSelectionProtected ? 'cursor-not-allowed ' : ' '
                 }`}
               >

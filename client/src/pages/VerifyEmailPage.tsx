@@ -169,7 +169,7 @@ export function VerifyEmailPage() {
                 <input
                   {...props}
                   dir='ltr'
-                  className='h-12 w-10 rounded-xl border border-[#6d232f]/30 bg-transparent text-center text-xl font-bold text-dark-red outline-none transition focus:border-[#6d232f] focus:ring-2 focus:ring-[#6d232f]/20 md:h-13 md:w-11 md:text-2xl'
+                  className='h-12 w-20 p-2 rounded-xl border border-[#6d232f]/30 bg-transparent text-center text-xl font-bold text-dark-red outline-none transition focus:border-[#6d232f] focus:ring-2 focus:ring-[#6d232f]/20 md:h-13 md:w-11 md:text-2xl'
                 />
               )}
             />

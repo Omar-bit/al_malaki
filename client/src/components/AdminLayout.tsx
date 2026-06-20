@@ -10,10 +10,11 @@ import {
   Ticket,
   MessageSquare,
   BarChart,
-  UserCog,
+  Plus,
   LogOut,
   Menu,
   X,
+  StepBack,
 } from 'lucide-react';
 import { authService } from '../services';
 import { useNavigate } from 'react-router-dom';
@@ -79,14 +80,14 @@ const sidebarMenu = [
         path: '/admin/messages',
       },
       {
-        icon: UserCog,
-        label: 'Admin Management',
-        path: '/admin/management',
-      },
-      {
         icon: BarChart,
         label: 'Product Analytics',
         path: '/admin/analytics',
+      },
+      {
+        icon: Plus,
+        label: 'Add products',
+        path: '/admin/products/new',
       },
     ],
   },
@@ -97,10 +98,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, setUser } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [shouldShowAside, setShouldShowAside] = useState(true);
 
   // Close sidebar on route change on mobile
   React.useEffect(() => {
     setIsSidebarOpen(false);
+
+    setShouldShowAside(location.pathname !== '/admin/management');
   }, [location.pathname]);
 
   const handleLogout = async () => {
@@ -125,83 +129,87 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Sidebar */}
-      <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#EFE0C9] bg-honeyPattern shadow-lg flex flex-col pt-5 transform transition-transform duration-300 ease-in-out  ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        }`}
-      >
-        {/* Mobile close button */}
-        <button
-          onClick={() => setIsSidebarOpen(false)}
-          className='absolute top-4 right-4 p-2 text-black md:hidden'
+      {shouldShowAside && (
+        <aside
+          className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#EFE0C9] bg-honeyPattern shadow-lg flex flex-col pt-5 transform transition-transform duration-300 ease-in-out  ${
+            isSidebarOpen
+              ? 'translate-x-0'
+              : '-translate-x-full md:translate-x-0'
+          }`}
         >
-          <X className='w-5 h-5' />
-        </button>
-        <div className='flex items-center gap-3 px-6 mb-5'>
-          <Link
-            to='/'
-            className='text-base   tracking-widest  flex items-center gap-2 text-[#000000AD]! '
+          {/* Mobile close button */}
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className='absolute top-4 right-4 p-2 text-black md:hidden'
           >
-            <span>&larr;</span> Admin Management
-          </Link>
-        </div>
+            <X className='w-5 h-5' />
+          </button>
+          <div className='flex items-center gap-3 px-6 mb-5'>
+            <Link
+              to='/admin/management'
+              className='text-base   tracking-widest  flex items-center gap-2 text-[#000000AD]! '
+            >
+              <span>&larr;</span> Admin Management
+            </Link>
+          </div>
 
-        <div className='px-6 mb-5 flex items-center gap-4 gap-y-2 border-b pb-4 border-[#00000082] '>
-          <img
-            src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
-            alt={user?.firstName || 'Admin'}
-            className='w-14 h-14 rounded-full '
-          />
-          <div>
-            <h2 className='text-base font-bold text-black tracking-wide capitalize font-bona! leading-tight'>
-              {user ? `${user.firstName} ${user.lastName}` : 'Super Admin'}
-            </h2>
-            <div className='bg-dark-red text-white text-xs px-4 py-1.25 rounded-md flex mt-1 items-center gap-1 shadow-sm'>
-              <img className='w-5 ' src={crown} alt='crown' />
-              <span className='text-xs font-thin tracking-wide'>
-                {user?.role === 'ADMIN' ? 'Super Admin' : 'Admin'}
-              </span>
+          <div className='px-6 mb-5 flex items-center gap-4 gap-y-2 border-b pb-4 border-[#00000082] '>
+            <img
+              src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
+              alt={user?.firstName || 'Admin'}
+              className='w-14 h-14 rounded-full '
+            />
+            <div>
+              <h2 className='text-base font-bold text-black tracking-wide capitalize font-bona! leading-tight'>
+                {user ? `${user.firstName} ${user.lastName}` : 'Super Admin'}
+              </h2>
+              <div className='bg-dark-red text-white text-xs px-4 py-1.25 rounded-md flex mt-1 items-center gap-1 shadow-sm'>
+                <img className='w-5 ' src={crown} alt='crown' />
+                <span className='text-xs font-thin tracking-wide'>
+                  {user?.role === 'ADMIN' ? 'Super Admin' : 'Admin'}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <nav className='flex-1 overflow-y-auto px-4 custom-scrollbar space-y-3'>
-          {sidebarMenu.map((section, idx) => (
-            <div key={idx}>
-              <h3 className='text-[12px] font-normal font-bona! text-[#000000AD]  tracking-widest px-2 mb-2 uppercase'>
-                {section.category}
-              </h3>
-              <ul className='space-y-1'>
-                {section.items.map((item, itemIdx) => (
-                  <li key={itemIdx}>
-                    <Link
-                      to={item.path}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 ${
-                        location.pathname === item.path
-                          ? 'bg-[#FCECD8] text-dark-red shadow-sm font-bold'
-                          : 'text-black hover:bg-[#D5BD9D] hover:text-dark-red'
-                      }`}
-                    >
-                      <item.icon className='w-5 h-5' />
-                      <span className='text-md'>{item.label}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </nav>
+          <nav className='flex-1 overflow-y-auto px-4 custom-scrollbar space-y-3'>
+            {sidebarMenu.map((section, idx) => (
+              <div key={idx}>
+                <h3 className='text-[12px] font-normal font-bona! text-[#000000AD]  tracking-widest px-2 mb-2 uppercase'>
+                  {section.category}
+                </h3>
+                <ul className='space-y-1'>
+                  {section.items.map((item, itemIdx) => (
+                    <li key={itemIdx}>
+                      <Link
+                        to={item.path}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 ${
+                          location.pathname === item.path
+                            ? 'bg-[#FCECD8] text-dark-red shadow-sm font-bold'
+                            : 'text-black hover:bg-[#D5BD9D] hover:text-dark-red'
+                        }`}
+                      >
+                        <item.icon className='w-5 h-5' />
+                        <span className='text-md'>{item.label}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
 
-        <div className='p-2 mt-auto'>
-          <button
-            onClick={handleLogout}
-            className='flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
-          >
-            <LogOut className='w-5 h-5' />
-            <span className='text-md'>Logout</span>
-          </button>
-        </div>
-      </aside>
+          <div className='p-2 mt-auto'>
+            <button
+              onClick={handleLogout}
+              className='flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
+            >
+              <LogOut className='w-5 h-5' />
+              <span className='text-md'>Logout</span>
+            </button>
+          </div>
+        </aside>
+      )}
 
       {/* Main Content */}
       <div className='flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f7eee1]'>
@@ -225,7 +233,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           />
         </header>
 
-        <main className='flex-1 overflow-y-auto p-4 md:p-0'>{children}</main>
+        <main className='relative flex-1 overflow-y-auto p-4 md:p-0'>
+          {!shouldShowAside && (
+            <StepBack
+              className='absolute cursor-pointer hover:opacity-70 top-3 left-3 text-white'
+              onClick={() => navigate('/admin/dashboard')}
+            />
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );
