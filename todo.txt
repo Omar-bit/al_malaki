@@ -1,5 +1,4 @@
--M3(add product page: styles fixes)
-
+-M5
 
 
 *CUSTOMER: order

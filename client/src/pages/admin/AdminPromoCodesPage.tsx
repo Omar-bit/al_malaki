@@ -2,14 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
 import { promoService, productService } from '../../services';
-import type { PromoCode, PromoCodeStats, CreatePromoCodePayload } from '../../types';
+import type {
+  PromoCode,
+  PromoCodeStats,
+  CreatePromoCodePayload,
+} from '../../types';
 import type { ProductAnalyticsProduct } from '../../types/product';
 import { formatCurrency } from '../../utils/format';
 import toast from 'react-hot-toast';
 import {
   TrendingUp,
-  TicketCheck,
-  BadgeCheck,
+  Tag,
+  UsersRound,
   Trash2,
   Loader2,
   X,
@@ -29,9 +33,6 @@ import {
 } from '../../components/ui';
 
 /* ───────────────────────────── helpers ───────────────────────────── */
-
-
-
 
 /* ────────────────────────── empty state ───────────────────────────── */
 
@@ -149,9 +150,7 @@ export function AdminPromoCodesPage() {
     setTogglingId(id);
     try {
       const updated = await promoService.togglePromoStatus(id);
-      setPromoCodes((prev) =>
-        prev.map((p) => (p.id === id ? updated : p)),
-      );
+      setPromoCodes((prev) => prev.map((p) => (p.id === id ? updated : p)));
       const statsRefresh = await promoService.getPromoStats();
       setStats(statsRefresh);
     } catch (err: any) {
@@ -175,8 +174,10 @@ export function AdminPromoCodesPage() {
         {/* ── Header ── */}
         <header className='mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
           <div>
-            <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>Promo Codes</h1>
-            <p className='text-sm md:text-base text-[#6D5A46]'>
+            <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>
+              Promo Codes
+            </h1>
+            <p className='text-sm md:text-base text-[#000000]/68'>
               Create, track and optimize your marketing promo codes.
             </p>
           </div>
@@ -198,75 +199,123 @@ export function AdminPromoCodesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className='space-y-6'
+            className='space-y-6 p-0'
           >
             {/* ── Stats Row ── */}
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-15'>
               <StatCard
                 label='Total revenue'
                 value={formatCurrency(stats.totalRevenue, 'USD')}
-                icon={<TrendingUp className='w-5 h-5' />}
+                icon={
+                  <span className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
+                    DT
+                  </span>
+                }
               />
               <StatCard
                 label='Redemptions'
                 value={stats.totalRedemptions.toLocaleString()}
-                icon={<TicketCheck className='w-5 h-5' />}
+                icon={
+                  <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
+                    <UsersRound className='size-4' />
+                  </div>
+                }
               />
               <StatCard
                 label='Active codes'
                 value={stats.activeCodes}
-                icon={<BadgeCheck className='w-5 h-5' />}
+                icon={
+                  <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
+                    <Tag className='size-4' />
+                  </div>
+                }
               />
             </div>
 
-
-
             {/* ── Performance Table Card ── */}
-            <div className='bg-[#D9D9D957] rounded-2xl p-6 shadow-sm border border-[#3F060F]/40'>
-              <div className='flex items-center gap-2 mb-1'>
-                <TrendingUp className='w-5 h-5 text-black' />
-                <h2 className='text-xl font-bold text-black'>Performance</h2>
+            <div className='min-h-[50vh] bg-[#D9D9D957] rounded-2xl shadow-sm border border-[#3F060F]/40'>
+              <div className='pt-5 pl-4'>
+                <div className='flex items-center gap-2 mb-1'>
+                  <TrendingUp className='w-5  text-dark-red' />
+                  <h2 className='text-xl font-bold text-black'>Performance</h2>
+                </div>
+                <p className='text-sm text-[#000000]/68 mb-5'>
+                  All promo codes with attribution and revenue impact.
+                </p>
               </div>
-              <p className='text-sm text-[#6D5A46] mb-5'>
-                All promo codes with attribution and revenue impact.
-              </p>
 
               <TableContainer>
                 <Table>
-                  <TableHead className='border-b border-[#3F060F]/20'>
+                  <TableHead className=' bg-[#D9D9D980]/50'>
                     <TableRow>
-                      <TableHeaderCell>Code</TableHeaderCell>
-                      <TableHeaderCell>Discount</TableHeaderCell>
-                      <TableHeaderCell>Usage</TableHeaderCell>
-                      <TableHeaderCell>Revenue</TableHeaderCell>
-                      <TableHeaderCell>Source</TableHeaderCell>
-                      <TableHeaderCell>Status</TableHeaderCell>
-                      <TableHeaderCell>Actions</TableHeaderCell>
+                      <TableHeaderCell>
+                        <span className='text-[#000000]/68 font-bold font-bona'>
+                          Code
+                        </span>
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        <span className='text-[#000000]/68 font-bold font-bona'>
+                          Discount
+                        </span>
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        <span className='text-[#000000]/68 font-bold font-bona'>
+                          Usage
+                        </span>
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        <span className='text-[#000000]/68 font-bold font-bona'>
+                          Revenue
+                        </span>
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        <span className='text-[#000000]/68 font-bold font-bona'>
+                          Source
+                        </span>
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        <span className='text-[#000000]/68 font-bold font-bona'>
+                          Status
+                        </span>
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        <span className='text-[#000000]/68 font-bold font-bona'>
+                          Actions
+                        </span>
+                      </TableHeaderCell>
                     </TableRow>
                   </TableHead>
-                  <TableBody>
+                  <TableBody className=''>
                     {promoCodes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className='text-center py-12 text-[#a68f74]'>
+                        <TableCell
+                          colSpan={7}
+                          className='text-center py-12 text-[#a68f74]'
+                        >
                           No promo codes yet. Create your first one above.
                         </TableCell>
                       </TableRow>
                     ) : (
                       promoCodes.map((promo) => (
-                        <TableRow key={promo.id} className='border-b border-[#3F060F]/10 hover:bg-[#D5BD9D]/20'>
-                          <TableCell className='font-semibold text-black'>{promo.code}</TableCell>
-                          <TableCell className='text-[#6D5A46]'>
+                        <TableRow
+                          key={promo.id}
+                          className='border-b border-[#000000]/51 hover:bg-[#D5BD9D]/20'
+                        >
+                          <TableCell className='font-normal text-black font-bona!'>
+                            {promo.code}
+                          </TableCell>
+                          <TableCell className='text-black font-aboreto'>
                             {promo.discountType === 'percentage'
                               ? `${promo.value}%`
                               : formatCurrency(promo.value, 'USD')}
                           </TableCell>
-                          <TableCell className='text-[#6D5A46]'>
+                          <TableCell className='text-black font-aboreto'>
                             {promo.totalUsage.toLocaleString()}
                           </TableCell>
-                          <TableCell className='text-[#6D5A46]'>
+                          <TableCell className='text-black font-aboreto'>
                             {formatCurrency(promo.totalRevenue, 'USD')}
                           </TableCell>
-                          <TableCell className='text-[#6D5A46]'>
+                          <TableCell className='text-black font-bona'>
                             {promo.source ?? '—'}
                           </TableCell>
                           <TableCell>
@@ -278,16 +327,26 @@ export function AdminPromoCodesPage() {
                                 onClick={() => handleToggle(promo.id)}
                                 disabled={togglingId === promo.id}
                                 className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${
-                                  promo.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
+                                  promo.status === 'active'
+                                    ? 'bg-green-500'
+                                    : 'bg-gray-300'
                                 }`}
-                                title={promo.status === 'active' ? 'Disable' : 'Enable'}
+                                title={
+                                  promo.status === 'active'
+                                    ? 'Disable'
+                                    : 'Enable'
+                                }
                               >
                                 {togglingId === promo.id ? (
-                                  <Loader2 className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`} />
+                                  <Loader2
+                                    className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`}
+                                  />
                                 ) : (
                                   <span
                                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                      promo.status === 'active' ? 'translate-x-5' : 'translate-x-0'
+                                      promo.status === 'active'
+                                        ? 'translate-x-5'
+                                        : 'translate-x-0'
                                     }`}
                                   />
                                 )}
@@ -316,19 +375,19 @@ export function AdminPromoCodesPage() {
       <AnimatePresence>
         {/* ── Add Promo Code Modal ── */}
         {isAddModalOpen && (
-          <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm font-bona!'>
+          <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm font-bona! '>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className='bg-white rounded-2xl p-6 shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar'
+              className='bg-[#ede7de] rounded-2xl p-6 shadow- w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar border border-dark-red'
             >
               <div className='flex items-center justify-between mb-5'>
                 <div>
-                  <h2 className='text-xl font-bold text-black mb-1'>
+                  <h2 className='text-2xl font-bold text-black mb-1'>
                     Create promo code
                   </h2>
-                  <p className='text-sm text-[#6D5A46]'>
+                  <p className='text-sm text-[#000000]/68'>
                     Set up a new code for a campaign, influencer or channel.
                   </p>
                 </div>
@@ -347,7 +406,7 @@ export function AdminPromoCodesPage() {
                   <div>
                     <label
                       htmlFor='promo-code-name'
-                      className='block text-sm font-semibold text-black mb-1.5'
+                      className='block text-sm  text-black mb-0.5'
                     >
                       Code name
                     </label>
@@ -357,14 +416,14 @@ export function AdminPromoCodesPage() {
                       placeholder='e.g. SUMMER25'
                       value={form.code}
                       onChange={(e) => updateField('code', e.target.value)}
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#fdf8f0] px-4 py-2.5 text-sm text-black placeholder:text-[#a68f74] focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor='promo-discount-type'
-                      className='block text-sm font-semibold text-black mb-1.5'
+                      className='block text-sm  text-black mb-0.5'
                     >
                       Discount type
                     </label>
@@ -377,19 +436,20 @@ export function AdminPromoCodesPage() {
                           e.target.value as 'percentage' | 'fixed',
                         )
                       }
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#fdf8f0] px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition appearance-none'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
                     >
                       <option value='percentage'>Percentage (%)</option>
-                      <option value='fixed'>Fixed ($)</option>
+                      <option value='fixed'>Fixed (TND)</option>
                     </select>
                   </div>
 
                   <div>
                     <label
                       htmlFor='promo-value'
-                      className='block text-sm font-semibold text-black mb-1.5'
+                      className='block text-sm  text-black mb-0.5 '
                     >
-                      Value
+                      Value{' '}
+                      {form.discountType === 'percentage' ? '(%)' : '(TND)'}
                     </label>
                     <input
                       id='promo-value'
@@ -400,14 +460,14 @@ export function AdminPromoCodesPage() {
                       onChange={(e) =>
                         updateField('value', parseFloat(e.target.value) || 0)
                       }
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#fdf8f0] px-4 py-2.5 text-sm text-black placeholder:text-[#a68f74] focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition font-aboreto'
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor='promo-usage-limit'
-                      className='block text-sm font-semibold text-black mb-1.5'
+                      className='block text-sm  text-black mb-0.5 '
                     >
                       Usage limit per user
                     </label>
@@ -423,7 +483,7 @@ export function AdminPromoCodesPage() {
                           e.target.value ? parseInt(e.target.value) : undefined,
                         )
                       }
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#fdf8f0] px-4 py-2.5 text-sm text-black placeholder:text-[#a68f74] focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition font-aboreto'
                     />
                   </div>
                 </div>
@@ -433,7 +493,7 @@ export function AdminPromoCodesPage() {
                   <div>
                     <label
                       htmlFor='promo-product'
-                      className='block text-xs font-semibold text-black mb-1.5'
+                      className='block text-xs  text-black mb-1.5'
                     >
                       Apply to specific product (optional)
                     </label>
@@ -441,12 +501,9 @@ export function AdminPromoCodesPage() {
                       id='promo-product'
                       value={form.productId ?? ''}
                       onChange={(e) =>
-                        updateField(
-                          'productId',
-                          e.target.value || undefined,
-                        )
+                        updateField('productId', e.target.value || undefined)
                       }
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#fdf8f0] px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition appearance-none'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
                     >
                       <option value=''>All products</option>
                       {products.map((p) => (
@@ -460,7 +517,7 @@ export function AdminPromoCodesPage() {
                   <div>
                     <label
                       htmlFor='promo-start-date'
-                      className='block text-sm font-semibold text-black mb-1.5'
+                      className='block text-sm  text-black mb-0.5'
                     >
                       Start date
                     </label>
@@ -469,14 +526,14 @@ export function AdminPromoCodesPage() {
                       type='date'
                       value={form.startDate.slice(0, 10)}
                       onChange={(e) => updateField('startDate', e.target.value)}
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#fdf8f0] px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor='promo-expiration'
-                      className='block text-sm font-semibold text-black mb-1.5'
+                      className='block text-sm  text-black mb-0.5'
                     >
                       Expiration
                     </label>
@@ -488,7 +545,7 @@ export function AdminPromoCodesPage() {
                       onChange={(e) =>
                         updateField('expiration', e.target.value || undefined)
                       }
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#fdf8f0] px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition disabled:opacity-50 disabled:cursor-not-allowed'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition disabled:opacity-50 disabled:cursor-not-allowed'
                     />
                   </div>
                 </div>
@@ -505,7 +562,8 @@ export function AdminPromoCodesPage() {
                       checked={form.isLifetime}
                       onChange={(e) => {
                         updateField('isLifetime', e.target.checked);
-                        if (e.target.checked) updateField('expiration', undefined);
+                        if (e.target.checked)
+                          updateField('expiration', undefined);
                       }}
                       className='w-4 h-4 rounded border-[#3F060F]/40 accent-dark-red'
                     />
@@ -557,7 +615,10 @@ export function AdminPromoCodesPage() {
                 <h2 className='text-xl font-bold'>Delete Promo Code</h2>
               </div>
               <p className='text-gray-600 mb-6'>
-                Are you sure you want to delete the promo code <strong className='text-black'>{promoToDelete.code}</strong>? This action cannot be undone and will permanently remove its tracking data.
+                Are you sure you want to delete the promo code{' '}
+                <strong className='text-black'>{promoToDelete.code}</strong>?
+                This action cannot be undone and will permanently remove its
+                tracking data.
               </p>
               <div className='flex items-center justify-end gap-3 mt-4 w-full sm:w-auto'>
                 <button

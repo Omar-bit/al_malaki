@@ -58,12 +58,14 @@ export function StatCard({
   }
 
   return (
-    <div className='bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 flex flex-col justify-between min-h-[128px] hover:shadow-md transition-shadow'>
+    <div className='bg-[#D9D9D957] rounded-3xl p-4 shadow-sm border border-[#3F060F]/40 flex flex-col justify-between gap-5 hover:shadow-md transition-shadow'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-black font-semibold text-lg'>{label}</h3>
+        <h3 className='text-black font-normal font-bona text-lg '>{label}</h3>
         {icon && <span className='text-[#6D5A46]'>{icon}</span>}
       </div>
-      <div className='mt-auto text-2xl font-bold text-black'>{value}</div>
+      <div className='  text-xl font-normal text-black mb-1   font-aboreto'>
+        {value}
+      </div>
     </div>
   );
 }
