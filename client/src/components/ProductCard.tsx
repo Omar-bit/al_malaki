@@ -33,7 +33,10 @@ export function ProductCard({ name, image, slug }: ProductCardProps) {
         {name || t('products.name')}
       </h3>
       <div className='mt-2 flex justify-center'>
-        <Button classNames='px-12 py-2 rounded-[81px]! bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300 '>
+        <Button
+          classNames='px-12 py-2 rounded-[81px]! bg-[#e6d7c2] font-[var(--font-abhaya)] text-lg cursor-pointer leading-[1.05] font-extrabold text-[#370d0f] hover:bg-[#e6d7c2]/90 transition duration-300 '
+          onClick={handleDetailsClick}
+        >
           <span className='text-dark-red font-semibold text-xl'>
             {t('products.button')}
           </span>

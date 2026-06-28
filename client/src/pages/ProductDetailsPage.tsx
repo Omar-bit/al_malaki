@@ -41,7 +41,7 @@ export function ProductDetailsPage() {
     <div className='relative bg-[#f7eee1] min-h-screen overflow-x-hidden flex flex-col'>
       <Header />
 
-      <main className='flex-grow pt-[100px] px-5 pb-20 max-w-7xl mx-auto w-full'>
+      <main className='flex-grow max-h-screen pt-[80px] px-5 pb-20 max-w-7xl mx-auto w-full'>
         {isLoading ? (
           <div className='flex justify-center items-center h-64'>
             <div className='text-dark-red text-xl'>Loading...</div>
@@ -51,7 +51,7 @@ export function ProductDetailsPage() {
             <div className='text-dark-red text-xl'>Product not found</div>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 items-center'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-10  items-center'>
             {/* Left side: Image */}
             <div className='w-full aspect-square bg-[#A89885] rounded-[40px] overflow-hidden flex items-center justify-center shadow-lg'>
               {product.images && product.images[0] ? (
@@ -67,33 +67,33 @@ export function ProductDetailsPage() {
 
             {/* Right side: Details */}
             <div className='flex flex-col text-dark-red'>
-              <h1 className='text-6xl md:text-7xl font-abril font-bold leading-tight mb-8'>
+              <h1 className='text-6xl md:text-5xl font-augent font-bold leading-tight mb-4'>
                 {product.name}
               </h1>
 
-              <p className='text-lg md:text-xl text-black! font-abee mb-10 leading-relaxed max-w-md'>
+              <p className='text-lg md:text-xl text-black! font-bona mb-10 leading-relaxed max-w-md'>
                 {product.description ||
                   'A refined and pure honey selection, carefully crafted by nature to bring you energy, balance, and a quiet moment of indulgence.'}
               </p>
 
               <div className='flex items-center gap-10 mb-10 text-black!'>
-                <span className='text-2xl font-bold font-abril'>
+                <span className='text-2xl text-black font-bold font-aboreto stroke-1'>
                   {product.price.toFixed(2)} DT
                 </span>
-                <span className='text-xl font-bold font-abril uppercase tracking-wider'>
+                <span className='text-xl font-bold font-aboreto uppercase tracking-wider'>
                   350G JAR
                 </span>
               </div>
 
               <div className='flex items-center gap-6 mb-12'>
-                <div className='flex items-center border border-dark-red rounded-sm'>
+                <div className='flex items-center border border-dark-red '>
                   <button
                     onClick={handleDecrement}
                     className='px-4 py-2 text-lg font-abee hover:bg-dark-red hover:text-cream transition-colors'
                   >
                     -
                   </button>
-                  <div className='px-4 py-2 border-l border-r border-dark-red text-lg font-bold font-abee'>
+                  <div className='px-4 py-2 border-l border-r border-dark-red text-lg font-bold font-aboreto'>
                     {quantity}
                   </div>
                   <button
@@ -122,13 +122,13 @@ export function ProductDetailsPage() {
                   setQuantity(1);
                   openCart();
                 }}
-                className='w-fit px-12 py-4 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold text-dark-red hover:opacity-90 transition-opacity shadow-md mb-16'
+                className='w-fit px-20 py-4 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold text-dark-red hover:opacity-90 transition-opacity shadow-md mb-16'
               >
                 Add to cart
               </button>
 
               {/* Specs Footer */}
-              <div className='grid grid-cols-3 gap-4 border-t border-dark-red/20 pt-6 text-sm font-abee text-center'>
+              <div className='grid grid-cols-3 gap-4 border-t border-[#000000]/25 text-[#000000]/68 pt-6 text-sm font-bona text-center'>
                 <div className='flex flex-col justify-center items-center px-2'>
                   <span>100%</span>
                   <span>Pure & Raw</span>

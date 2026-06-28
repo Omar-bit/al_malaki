@@ -1,4 +1,4 @@
--M6 (products grid)
+-M6 (espace client)
 -M7
 -M8
 Dashboards
