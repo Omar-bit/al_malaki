@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header, Footer, ProductCard } from '../components';
-import { CategoryTabs } from '../components/ui/CategoryTabs';
 import { FilterBar } from '../components/ui/FilterBar';
 import {
   getPublicProducts,
@@ -12,16 +11,21 @@ import type {
   ProductCategory,
 } from '../types/product';
 import toast from 'react-hot-toast';
+import bestSellerImage from '../assets/best_seller_placehoder.jpg';
+import featured1 from '../assets/products/featured1.jpg';
+import featured2 from '../assets/products/featured2.jpg';
+
+const INITIAL_DISPLAY_COUNT = 6;
 
 export function ProductsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -34,11 +38,7 @@ export function ProductsPage() {
 
         setProducts(fetchedProducts.filter((p) => p.status === 'active'));
         setCategories(fetchedCategories);
-
-        if (fetchedCategories.length > 0) {
-          setActiveCategory(fetchedCategories[0].name);
-        }
-      } catch (error) {
+      } catch {
         toast.error('Failed to load products');
       } finally {
         setIsLoading(false);
@@ -48,21 +48,23 @@ export function ProductsPage() {
     fetchData();
   }, []);
 
-  const categoryNames = categories.map((c) => c.name);
+  const categoryOptions = categories.map((c) => ({
+    value: c.name,
+    label: c.name,
+  }));
 
-  const sortOptions = [
-    { value: 'all', label: t('products.sortAll', 'Tous') },
-    { value: 'price_asc', label: t('products.sortPriceAsc', 'Prix croissant') },
-    {
-      value: 'price_desc',
-      label: t('products.sortPriceDesc', 'Prix décroissant'),
-    },
-    { value: 'date_desc', label: t('products.sortDateDesc', 'Plus récents') },
-    { value: 'date_asc', label: t('products.sortDateAsc', 'Plus anciens') },
-  ];
+  const bestSeller = useMemo(
+    () =>
+      products.find((p) => p.performance === 'featured') ??
+      products.find((p) => p.performance === 'recommended') ??
+      products[0],
+    [products],
+  );
+
+  const heroImages = useMemo(() => products.slice(0, 3), [products]);
 
   const filteredProducts = useMemo(() => {
-    let result = products.filter((product) => {
+    return products.filter((product) => {
       const matchesCategory = activeCategory
         ? product.category === activeCategory
         : true;
@@ -71,72 +73,103 @@ export function ProductsPage() {
         .includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
+  }, [products, activeCategory, searchQuery]);
 
-    // Sort the result
-    result = [...result].sort((a, b) => {
-      const priceA = a.discountPrice || a.price;
-      const priceB = b.discountPrice || b.price;
+  const displayedProducts = showAll
+    ? filteredProducts
+    : filteredProducts.slice(0, INITIAL_DISPLAY_COUNT);
 
-      switch (sortBy) {
-        case 'price_asc':
-          return priceA - priceB;
-        case 'price_desc':
-          return priceB - priceA;
-        case 'date_desc':
-          // @ts-ignore - Check if createdAt exists, otherwise fallback to id comparison
-          if (a.createdAt && b.createdAt) {
-            // @ts-ignore
-            return (
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-          }
-          return b.id.localeCompare(a.id);
-        case 'date_asc':
-          // @ts-ignore
-          if (a.createdAt && b.createdAt) {
-            // @ts-ignore
-            return (
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-            );
-          }
-          return a.id.localeCompare(b.id);
-        case 'all':
-        default:
-          return 0;
-      }
-    });
-
-    return result;
-  }, [products, activeCategory, searchQuery, sortBy]);
+  const hasMore = !showAll && filteredProducts.length > INITIAL_DISPLAY_COUNT;
 
   return (
-    <div className='relative bg-[#f7eee1] min-h-screen overflow-x-hidden flex flex-col'>
+    <div className='relative bg-[#e5dccb] min-h-screen overflow-x-hidden flex flex-col'>
       <Header />
 
-      <main className='flex-grow pt-[25px] px-10 w-auto w-full'>
+      {/* ── Hero Section ─────────────────────────────────────────── */}
+      <section className='products-hero min-h-screen px-10 md:px-16 py-14 md:py-20 relative'>
+        <div className='max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10'>
+          {/* Left: headline */}
+          <div className='flex-1 max-w-xl absolute top-35 left-15'>
+            <h1
+              className={`${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'} text-[42px] md:text-5xl leading-[1.1] text-dark-red text-center`}
+            >
+              {t(
+                'productsPage.heroTitle',
+                'Born from flowers,\nBottled with care',
+              )}
+            </h1>
+            <p className='mt-5 font-bona text-base md:text-lg text-black leading-relaxed text-center'>
+              {t(
+                'productsPage.heroSubtitle',
+                "Born from nature's finest flowers, our honey brings pure \n sweetness, authenticity, and golden richness to every drop.",
+              )
+                .split('\n')
+                .map((line, index) => (
+                  <span key={index}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Best Seller Section ───────────────────────────────────── */}
+      <section className='bg-white px-10 md:px-16 py-14 md:py-16 min-h-screen'>
+        <div className='max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12'>
+          {/* Left: title + bio */}
+          <div className='flex-1'>
+            <h2
+              className={`${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'} text-[38px] md:text-[58px] text-dark-red leading-tight text-center`}
+            >
+              {t('productsPage.bestSellerTitle', 'Our best seller')}
+            </h2>
+            <p className='mt-3 font-abhaya text-base md:text-lg text-dark-red/60 text-center'>
+              {t(
+                'productsPage.bestSellerBio',
+                '(Biography of the best seller)',
+              )}
+            </p>
+          </div>
+
+          {/* Right: featured product image */}
+          <div className='flex-1 flex justify-center'>
+            {bestSeller?.images[0] ? (
+              <img
+                src={bestSellerImage}
+                alt={bestSeller.name}
+                className=' object-cover rounded-tl-[50%] rounded-br-[50%] size-[400px]'
+              />
+            ) : (
+              <div className='w-full h-full animate-pulse bg-[#2a2a2a]' />
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Products Grid ─────────────────────────────────────────── */}
+      <main className='grow bg-[#f9f4ec] px-10 md:px-16 pt-14 pb-10'>
         {isLoading ? (
           <div className='flex justify-center items-center h-64'>
-            <div className='text-dark-red text-xl'>Loading...</div>
+            <div className='text-dark-red text-xl font-abhaya'>Loading...</div>
           </div>
         ) : (
           <>
-            <CategoryTabs
-              categories={categoryNames}
-              activeCategory={activeCategory}
-              onSelectCategory={setActiveCategory}
-            />
-
             <FilterBar
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
-              sortBy={sortBy}
-              onSortChange={setSortBy}
-              sortOptions={sortOptions}
+              selectedCategory={activeCategory}
+              onCategoryChange={(cat) => {
+                setActiveCategory(cat);
+                setShowAll(false);
+              }}
+              categoryOptions={categoryOptions}
             />
 
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-5 justify-items-center mt-5'>
-              {filteredProducts.map((product) => (
-                <div key={product.id} className='w-full max-w-[350px]'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8 justify-items-center'>
+              {displayedProducts.map((product) => (
+                <div key={product.id} className='w-full max-w-95'>
                   <ProductCard
                     name={product.name}
                     image={product.images[0]}
@@ -146,7 +179,7 @@ export function ProductsPage() {
               ))}
 
               {filteredProducts.length === 0 && (
-                <div className='col-span-1 md:col-span-2 lg:col-span-3 text-center text-dark-red py-10'>
+                <div className='col-span-1 md:col-span-2 lg:col-span-3 text-center text-dark-red py-10 font-abhaya text-lg'>
                   {t(
                     'products.noResults',
                     'No products found matching your criteria.',
@@ -154,10 +187,69 @@ export function ProductsPage() {
                 </div>
               )}
             </div>
+
+            {hasMore && (
+              <div className='flex justify-center mt-10'>
+                <button
+                  type='button'
+                  onClick={() => setShowAll(true)}
+                  className='font-abhaya text-dark-red text-lg font-semibold hover:underline underline-offset-4 transition-all'
+                >
+                  {t('products.seeAll', 'See All')} &rarr;
+                </button>
+              </div>
+            )}
           </>
         )}
       </main>
 
+      {/* ── Featured Section ──────────────────────────────────────── */}
+
+      <section className='bg-white px-10 md:px-16 py-14 md:py-16 min-h-screen'>
+        <div className=' mx-auto flex flex-col md:flex-row items-end gap-10 px-30 '>
+          {/* Left: title + bio */}
+          <div className='flex-1'>
+            {/* <h2
+              className={`${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'} text-[38px] md:text-[58px] text-dark-red leading-tight text-center`}
+            >
+              {t('productsPage.bestSellerTitle', 'Our best seller')}
+            </h2>
+          */}
+
+            <img
+              src={featured1}
+              alt=''
+              className=' h-[75vh] max-w-[400px]  rounded-2xl ml-auto'
+            />
+          </div>
+
+          {/* Right: featured product image */}
+          <div className='w-[60%] flex  flex-col items-center gap-15 h-full justify-between'>
+            <p className='mt-3 font-abhaya text-base md:text-3xl text-black text-center'>
+              {t(
+                'productsPage.bestSellerBio',
+                'A nourishing blend of pure honey and premium\n dried fruits, crafted to deliver natural energy, rich\n flavor, and wholesome goodness in every spoon.',
+              )
+                .split('\n')
+                .map((line, index) => (
+                  <span key={index}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+            </p>
+            {bestSeller?.images[0] ? (
+              <img
+                src={featured2}
+                alt='featured2'
+                className=' rounded-2xl max-h-[45vh] w-[75%] object-center '
+              />
+            ) : (
+              <div className='w-full h-full animate-pulse bg-[#2a2a2a]' />
+            )}
+          </div>
+        </div>
+      </section>
       <Footer />
     </div>
   );

@@ -114,3 +114,11 @@
   background-size: cover;
   /* background-position: center; */
 }
+
+.products-hero {
+  background-color: #f7eee1;
+  background: url('/public/images/products_hero.jpg') no-repeat center fixed;
+  background-size: 100% 155%;
+  background-position: 50% 30%;
+  background-attachment: fixed;
+}

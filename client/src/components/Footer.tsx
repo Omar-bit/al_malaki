@@ -81,7 +81,7 @@ const PhoneIcon = ({ className }: { className?: string }) => (
 export function Footer() {
   const { t } = useTranslation();
   return (
-    <footer className='w-full bg-dark-red mt-10 md:mt-16'>
+    <footer className='w-full bg-dark-red pt-10 md:pt-16'>
       {/* 
         -----------------------------------------------------
         MOBILE VIEW 

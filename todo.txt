@@ -1,4 +1,4 @@
--M6
+-M6 (products grid)
 -M7
 -M8
 Dashboards

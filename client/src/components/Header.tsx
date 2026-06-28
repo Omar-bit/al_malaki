@@ -19,7 +19,7 @@ const navLinks: NavLink[] = [
 ];
 
 export function Header({
-  withBackground = true,
+  withBackground = false,
 }: {
   withBackground?: boolean;
 }) {
