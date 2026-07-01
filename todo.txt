@@ -1,4 +1,4 @@
--M6 (espace client)
+-M6 (espace client [modal])
 -M7
 -M8
 Dashboards

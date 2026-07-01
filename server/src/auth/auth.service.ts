@@ -357,6 +357,41 @@ export class AuthService {
     return this.mapUser(user);
   }
 
+  async updateProfile(
+    userId: string,
+    data: { firstName?: string; lastName?: string; phoneNumber?: string; birthDate?: string },
+  ): Promise<AuthenticatedUserResponse> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const updateData: Record<string, unknown> = {};
+
+    if (data.firstName !== undefined) {
+      updateData.firstName = data.firstName.trim();
+    }
+    if (data.lastName !== undefined) {
+      updateData.lastName = data.lastName.trim();
+    }
+    if (data.phoneNumber !== undefined) {
+      updateData.phoneNumber = data.phoneNumber.trim();
+    }
+    if (data.birthDate !== undefined) {
+      updateData.birthDate = this.normalizeBirthDate(data.birthDate);
+    }
+
+    const updated = await this.prismaService.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    return this.mapUser(updated);
+  }
+
   getAuthCookieName(): string {
     return AUTH_COOKIE_NAME;
   }

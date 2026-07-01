@@ -10,11 +10,13 @@ export default function Button({
   classNames,
   backgroundVariant = 'honeyPattern',
   children,
+  disabled,
   onClick,
 }: {
   classNames?: string;
   backgroundVariant?: TBackgroundVariant;
   children: ReactNode;
+  disabled?: boolean;
   onClick?: (e?: any) => void;
 }) {
   return (
@@ -28,6 +30,7 @@ export default function Button({
         backgroundImage: bgStyles[backgroundVariant],
         backgroundSize: 'cover',
       }}
+      disabled={disabled}
     >
       {children}
     </button>

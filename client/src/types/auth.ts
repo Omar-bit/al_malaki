@@ -73,3 +73,14 @@ export interface AuthUser {
 export interface AuthResponse {
   user: AuthUser;
 }
+
+export interface UpdateProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  birthDate?: string;
+}
+
+export interface UpdateProfileResponse {
+  user: AuthUser;
+}

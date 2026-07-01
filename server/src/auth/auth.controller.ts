@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Res,
   UploadedFile,
@@ -23,6 +24,7 @@ import { RequestRegisterOtpDto } from './dto/request-register-otp.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ValidateResetPasswordTokenDto } from './dto/validate-reset-password-token.dto';
 import { VerifyRegisterOtpDto } from './dto/verify-register-otp.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './types/auth-user.type';
@@ -172,6 +174,18 @@ export class AuthController {
   async getMe(@CurrentUser() user: AuthenticatedUser) {
     return {
       user: await this.authService.getProfile(user.userId),
+    };
+  }
+
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateMe(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return {
+      user: await this.authService.updateProfile(user.userId, updateProfileDto),
     };
   }
 }

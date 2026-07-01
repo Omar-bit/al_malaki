@@ -245,6 +245,27 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   return payload.user;
 }
 
+export async function updateProfile(
+  payload: import('../types/auth').UpdateProfilePayload,
+): Promise<import('../types/auth').AuthUser> {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  const result = (await response.json()) as import('../types/auth').AuthResponse;
+  return result.user;
+}
+
 export async function logout(): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/auth/logout`, {
     method: 'POST',

@@ -18,7 +18,10 @@ export type {
   RequestRegisterOtpPayload,
   RequestRegisterOtpResponse,
   VerifyRegisterOtpPayload,
+  UpdateProfilePayload,
+  UpdateProfileResponse,
 } from './auth';
+
 
 export type {
   AcceptAdminInvitationPayload,

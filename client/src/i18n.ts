@@ -200,6 +200,10 @@ const resources = {
       others: {
         optional: 'Optional',
       },
+      clientSpace: {
+        title: 'Client Space',
+        welcome: 'Welcome to your dedicated space',
+      },
     },
   },
   ar: {
@@ -397,6 +401,10 @@ const resources = {
       others: {
         optional: 'إختياري',
       },
+      clientSpace: {
+        title: 'فضاء العميل',
+        welcome: 'مرحباً بكم في',
+      },
     },
   },
   fr: {
@@ -531,6 +539,10 @@ const resources = {
       },
       others: {
         optional: 'Optionnel',
+      },
+      clientSpace: {
+        title: 'Espace Client',
+        welcome: 'Bienvenue dans votre espace dédié',
       },
     },
   },
