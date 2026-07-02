@@ -205,10 +205,10 @@ export function ProductsPage() {
 
       {/* ── Featured Section ──────────────────────────────────────── */}
 
-      <section className='bg-white px-10 md:px-16 py-14 md:py-16 min-h-screen'>
-        <div className=' mx-auto flex flex-col md:flex-row items-end gap-10 px-30 '>
+      <section className='bg-white  w-full  px-5 md:px-16  md:py-16 min-h-screen'>
+        <div className=' mx-auto flex flex-col items-center md:flex-row md:items-end gap-10 md:px-30 '>
           {/* Left: title + bio */}
-          <div className='flex-1'>
+          <div className='flex-1 '>
             {/* <h2
               className={`${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'} text-[38px] md:text-[58px] text-dark-red leading-tight text-center`}
             >
@@ -219,7 +219,7 @@ export function ProductsPage() {
             <img
               src={featured1}
               alt=''
-              className=' h-[75vh] max-w-[400px]  rounded-2xl ml-auto'
+              className=' h-[50vh]  md:h-[75vh] w-full md:max-w-[400px]  rounded-2xl ml-auto'
             />
           </div>
 

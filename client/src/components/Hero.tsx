@@ -21,8 +21,8 @@ export function Hero({
         backgroundPosition: width < 768 ? '100% 50%' : 'center center',
       }}
     >
-      <div className='relative mx-auto flex min-h-screen w-full items-start px-5 pb-12 pt-[162px] sm:px-8 sm:pt-[190px] md:px-10 md:pt-[280px] lg:mx-auto lg:pt-[250px]'>
-        <div className='max-w-[240px] sm:max-w-[320px] md:max-w-none mx-auto -translate-x-[45%] flex flex-col  items-center justify-center '>
+      <div className='relative mx-auto flex min-h-screen w-full items-start px-5 pb-12 pt-[162px] sm:px-8 sm:pt-[190px] md:px-10 md:pt-[280px] lg:mx-auto lg:pt-[250px] '>
+        <div className='max-w-[240px] sm:max-w-[320px] md:max-w-none mx-auto -translate-x-[25%] md:-translate-x-[45%] flex flex-col  items-center justify-center '>
           {variant === 'landing' && (
             <>
               <motion.div

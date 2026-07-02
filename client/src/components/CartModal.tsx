@@ -39,7 +39,7 @@ export function CartModal() {
     <>
       {/* Backdrop */}
       <div
-        className='fixed inset-0 bg-black/40 backdrop-blur-sm z-40'
+        className='fixed inset-0  backdrop-blur-[10px] z-40'
         onClick={closeCart}
       />
 
@@ -132,46 +132,24 @@ export function CartModal() {
                   {/* Product Info */}
                   <div className='flex-1 min-w-0'>
                     {/* Name */}
-                    <h4
-                      className='font-italic text-xl leading-tight mb-2'
-                      style={{
-                        color: '#3a1a05',
-                        fontFamily: 'Italiana, serif',
-                      }}
-                    >
+                    <h4 className='font-abhaya font-semibold text-black text-xl leading-tight mb-2'>
                       {item.name}
                     </h4>
 
                     {/* Quantity controls — bordered, no fill */}
-                    <div
-                      className='flex items-center w-fit mb-2'
-                      style={{ border: '1px solid #7a5230', borderRadius: 2 }}
-                    >
+                    <div className='flex items-center w-fit mb-2 border-dark-red border bg-[#F8E5C6] '>
                       <button
                         onClick={() => {
                           if (item.quantity <= 1) removeFromCart(item.id);
                           else updateQuantity(item.id, item.quantity - 1);
                         }}
-                        className='flex items-center justify-center font-abee font-bold hover:bg-black/5 transition-colors'
-                        style={{
-                          width: 28,
-                          height: 26,
-                          color: '#3a1a05',
-                          fontSize: 14,
-                        }}
+                        className='size-7 flex items-center justify-center font-abhaya text-2xl font-semibold hover:bg-black/5 transition-colors text-black'
                       >
                         -
                       </button>
                       <div
-                        className='flex items-center justify-center font-abee font-bold'
-                        style={{
-                          width: 30,
-                          height: 26,
-                          borderLeft: '1px solid #7a5230',
-                          borderRight: '1px solid #7a5230',
-                          color: '#3a1a05',
-                          fontSize: 13,
-                        }}
+                        className='flex items-center justify-center font-abhaya text-black text-xl font-semibold border-r border-l border-dark-red px-3'
+                        style={{ minWidth: 32 }}
                       >
                         {item.quantity}
                       </div>
@@ -179,25 +157,19 @@ export function CartModal() {
                         onClick={() =>
                           updateQuantity(item.id, item.quantity + 1)
                         }
-                        className='flex items-center justify-center font-abee font-bold hover:bg-black/5 transition-colors'
-                        style={{
-                          width: 28,
-                          height: 26,
-                          color: '#3a1a05',
-                          fontSize: 14,
-                        }}
+                        className='size-7 flex items-center justify-center font-abhaya text-xl font-semibold hover:bg-black/5 transition-colors text-black'
                       >
                         +
                       </button>
                     </div>
 
                     {/* Price */}
-                    <p
-                      className='font-abee text-sm'
-                      style={{ color: '#3a1a05' }}
-                    >
+                    <p className='font-abhaya  text-lg font-semibold text-black'>
                       {t('cart.price', 'Price')} :{' '}
-                      {(item.price * item.quantity).toFixed(0)} dt
+                      <span className='font-normal'>
+                        {' '}
+                        {(item.price * item.quantity).toFixed(0)} dt
+                      </span>
                     </p>
                   </div>
 
@@ -237,23 +209,9 @@ export function CartModal() {
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
                   placeholder={t('cart.promoPlaceholder', 'Code promo')}
-                  className='flex-1 px-4 py-2.5 font-abee text-sm focus:outline-none'
-                  style={{
-                    border: '1px solid rgba(120,80,30,0.35)',
-                    borderRadius: 6,
-                    background: 'rgba(255,255,255,0.45)',
-                    color: '#3a1a05',
-                  }}
+                  className='flex-1 px-4 py-2.5 font-nova text-base focus:outline-none border border-dark-red rounded-lg text-[#000000]/68 bg-[#FCF8F2]/35'
                 />
-                <button
-                  className='px-5 py-2.5 font-abee text-sm font-bold transition-opacity hover:opacity-90'
-                  style={{
-                    background: '#8b6914',
-                    color: '#fff',
-                    borderRadius: 6,
-                    minWidth: 72,
-                  }}
-                >
+                <button className='px-7 py-2.5 font-nova text-sm font-semibold bg-[#BE9D61] text-white rounded-lg transition-opacity hover:opacity-90'>
                   {t('cart.apply', 'Apply')}
                 </button>
               </div>
@@ -265,88 +223,63 @@ export function CartModal() {
                   value={points}
                   onChange={(e) => setPoints(e.target.value)}
                   placeholder={t('cart.pointsPlaceholder', 'Points')}
-                  className='flex-1 px-4 py-2.5 font-abee text-sm focus:outline-none'
-                  style={{
-                    border: '1px solid rgba(120,80,30,0.35)',
-                    borderRadius: 6,
-                    background: 'rgba(255,255,255,0.45)',
-                    color: '#3a1a05',
-                  }}
+                  className='flex-1 px-4 py-2.5 font-nova text-base focus:outline-none border border-dark-red rounded-lg text-[#000000]/68 bg-[#FCF8F2]/35'
                 />
-                <button
-                  className='px-5 py-2.5 font-abee text-sm font-bold transition-opacity hover:opacity-90'
-                  style={{
-                    background: '#8b6914',
-                    color: '#fff',
-                    borderRadius: 6,
-                    minWidth: 72,
-                  }}
-                >
+                <button className='px-7 py-2.5 font-nova text-sm font-semibold bg-[#BE9D61] text-white rounded-lg transition-opacity hover:opacity-90'>
                   {t('cart.apply', 'Apply')}
                 </button>
               </div>
 
               {/* Total basket heading */}
-              <h3
-                className='text-center text-2xl pt-2'
-                style={{ fontFamily: 'Italiana, serif', color: '#2a1005' }}
-              >
+              <h3 className='text-center text-2xl pt-2 text-[#000000] font-abhaya font-semibold'>
                 {t('cart.totalBasket', 'Total basket')}
               </h3>
 
               {/* Rows */}
-              <div className='space-y-0'>
+              <div className='space-y-0 px-5'>
                 {/* Initial total */}
-                <div
-                  className='flex justify-between items-center py-3 font-abee text-sm'
-                  style={{
-                    borderBottom: '1px solid rgba(120,80,30,0.2)',
-                    color: '#3a1a05',
-                  }}
-                >
+                <div className='flex justify-between items-center py-3 text-black font-bona text-base'>
                   <span>{t('cart.initialTotal', 'Initial total')}</span>
-                  <span className='font-semibold'>
+                  <span className='text-lg font-aboreto text-black'>
                     {initialTotal.toFixed(3)} DT
                   </span>
                 </div>
 
+                <hr className='border-t border-black' />
+
                 {/* Total with promo */}
                 <div
-                  className='flex justify-between items-center py-3 font-abee text-sm'
+                  className='flex justify-between items-center py-3 text-black font-bona text-base'
                   style={{
-                    borderBottom: '1px solid rgba(120,80,30,0.2)',
                     color: '#3a1a05',
                   }}
                 >
                   <span>{t('cart.totalWithPromo', 'Total with promo')}</span>
-                  <span className='font-semibold'>
+                  <span className='text-lg font-aboreto text-black'>
                     {totalWithPromo.toFixed(3)} DT
                   </span>
                 </div>
 
                 {/* Points */}
                 <div
-                  className='flex justify-between items-center py-3 font-abee text-sm'
+                  className='flex justify-between items-center py-3 text-black font-bona text-base'
                   style={{
-                    borderBottom: '1px solid rgba(120,80,30,0.2)',
                     color: '#3a1a05',
                   }}
                 >
                   <span>{t('cart.points', 'Points')}</span>
-                  <span className='font-semibold'>
+                  <span className='text-lg font-aboreto text-black'>
                     {pointsDiscount.toFixed(3)} DT
                   </span>
                 </div>
+                <hr className='border-t border-black' />
 
                 {/* Total */}
-                <div
-                  className='flex justify-between items-center pt-3 font-abee'
-                  style={{ color: '#2a1005' }}
-                >
-                  <span className='font-bold text-base'>
+                <div className='flex justify-between items-center pt-3 font-abee'>
+                  <span className='font-bold text-lg font-nova text-black'>
                     {t('cart.total', 'Total')}
                   </span>
-                  <span className='font-bold text-base'>
+                  <span className='font-bold text-lg font-aboreto text-black'>
                     {finalTotal.toFixed(3)} DT
                   </span>
                 </div>
@@ -364,7 +297,7 @@ export function CartModal() {
                     closeCart();
                     navigate('/checkout');
                   }}
-                  className='px-14 py-3 font-abhaya text-base font-extrabold transition-opacity hover:opacity-90'
+                  className='px-16 py-2 font-abhaya text-base font-extrabold transition-opacity hover:opacity-90'
                   style={{
                     background: '#3f060f',
                     color: '#fdf8f0',

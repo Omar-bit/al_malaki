@@ -11,7 +11,7 @@ export function FormField({
 }: {
   label: string;
   value: string | number;
-  onChange: (value: string) => void;
+  onChange: (value: string | any) => void;
   textarea?: boolean;
   type?: React.HTMLInputTypeAttribute;
   className?: string;

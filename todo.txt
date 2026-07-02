@@ -1,4 +1,4 @@
--M7
+-M7 (checkout,confirmation)
 -M8
 Dashboards
 
