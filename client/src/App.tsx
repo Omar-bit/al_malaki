@@ -15,6 +15,7 @@ import {
   ProductsPage,
   ProductDetailsPage,
   OrderPage,
+  OrderConfirmationPage,
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -51,6 +52,7 @@ export default function App() {
         <Route path='/products/:slug' element={<ProductDetailsPage />} />
         <Route path='/checkout' element={<OrderPage />} />
         <Route path='/order' element={<OrderPage />} />
+        <Route path='/order-confirmation' element={<OrderConfirmationPage />} />
 
         {/* Guest Routes (Only accessible if NOT logged in) */}
         <Route element={<GuestRoute />}>

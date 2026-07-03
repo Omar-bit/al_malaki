@@ -10,3 +10,4 @@ export { AdminManagementPage } from './admin/AdminManagementPage';
 export { ProductsPage } from './ProductsPage';
 export { ProductDetailsPage } from './ProductDetailsPage';
 export { OrderPage } from './OrderPage';
+export { OrderConfirmationPage } from './OrderConfirmationPage';

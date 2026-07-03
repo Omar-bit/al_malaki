@@ -1,5 +1,7 @@
--M7 (checkout,confirmation)
 -M8
-Dashboards
+-Dashboards
+-points and promocodes verification
+-language and responsiveness
+-online payment 
 
  
