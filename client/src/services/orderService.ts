@@ -77,3 +77,33 @@ export async function getOrderById(orderId: string): Promise<Order> {
 
   return response.json() as Promise<Order>;
 }
+
+export async function getAllOrders(): Promise<Order[]> {
+  const response = await fetch(`${API_BASE_URL}/orders/admin/all`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return response.json() as Promise<Order[]>;
+}
+
+export async function updateOrderStatus(orderId: string, status: string): Promise<Order> {
+  const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return response.json() as Promise<Order>;
+}

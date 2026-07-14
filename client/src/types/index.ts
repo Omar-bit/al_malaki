@@ -43,3 +43,12 @@ export type {
   CreatePromoCodePayload,
   UpdatePromoCodePayload,
 } from './promo';
+
+export type {
+  Order,
+  OrderStatus,
+  OrderItem,
+  CreateOrderPayload,
+  CreateOrderItemPayload,
+  PaymentMethod
+} from './order';

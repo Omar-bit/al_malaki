@@ -1,5 +1,4 @@
--M8
--Dashboards
+**Dashboards (vendor access)**
 -points and promocodes verification
 -language and responsiveness
 -online payment 
