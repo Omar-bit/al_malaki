@@ -1,8 +1,9 @@
 
--loyalty control (vendor admin)
--top clients (vendor admin)
--contact messages (vendor admin)
+-contact messages (feature:customer+vendor+admin)
 
--language and responsiveness (test implementation)
+-loyalty control (styles:vendor+admin)
+-influencer tracking (feature: admin + vendor:view_only)
 -points and promocodes verification (test implementation)
--online payment (feature)
+-alerts (feature)
+-activity tracking "history" (feature:admin)
+-online payment (feature:customer)

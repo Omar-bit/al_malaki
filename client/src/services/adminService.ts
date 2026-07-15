@@ -7,6 +7,7 @@ import type {
   CreateAdminInvitationPayload,
   CreateAdminInvitationResponse,
   DeleteAdminInvitationResponse,
+  LoyaltyCustomer,
 } from '../types/admin';
 import { ApiError } from './authService';
 
@@ -153,10 +154,13 @@ export async function getAdminDashboardStats(
   if (date) params.append('date', date);
   const queryString = params.toString() ? `?${params.toString()}` : '';
 
-  const response = await fetch(`${API_BASE_URL}/admin/dashboard-stats${queryString}`, {
-    method: 'GET',
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/admin/dashboard-stats${queryString}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    },
+  );
 
   if (!response.ok) {
     const error = await parseError(response);
@@ -178,4 +182,52 @@ export async function getVendorDashboardStats(): Promise<VendorDashboardStats> {
   }
 
   return (await response.json()) as VendorDashboardStats;
+}
+
+export async function getLoyaltyCustomers(
+  search?: string,
+): Promise<LoyaltyCustomer[]> {
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  const queryString = params.toString() ? `?${params.toString()}` : '';
+
+  const response = await fetch(
+    `${API_BASE_URL}/admin/loyalty/customers${queryString}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    },
+  );
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as LoyaltyCustomer[];
+}
+
+export async function adjustCustomerPoints(
+  userId: string,
+  points: number,
+  description?: string,
+): Promise<LoyaltyCustomer> {
+  const response = await fetch(
+    `${API_BASE_URL}/admin/loyalty/customers/${userId}/adjust-points`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ points, description }),
+    },
+  );
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as LoyaltyCustomer;
 }

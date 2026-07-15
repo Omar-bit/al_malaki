@@ -87,3 +87,22 @@ export interface AdminDashboardStats {
   recentOrders: RecentOrder[];
   totalProducts: number;
 }
+
+export interface LoyaltyCustomer {
+  id: string;
+  userId: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string | null;
+  };
+  points: number;
+  totalPointsEarned: number;
+  totalPointsSpent: number;
+  totalPurchases: number;
+  totalSpent: number;
+  createdAt: string;
+  updatedAt: string;
+}

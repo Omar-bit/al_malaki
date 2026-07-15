@@ -52,7 +52,7 @@ const sidebarMenu = [
       {
         icon: Trophy,
         label: 'Top Clients',
-        path: '/admin/top-clients',
+        path: '/admin/loyalty',
       },
     ],
   },
@@ -166,7 +166,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <div className='bg-dark-red text-white text-xs px-4 py-1.25 rounded-md flex mt-1 items-center gap-1 shadow-sm'>
                 <img className='w-5 ' src={crown} alt='crown' />
                 <span className='text-xs font-thin tracking-wide'>
-                  {user?.role === 'ADMIN' ? 'Super Admin' : user?.role === 'VENDOR' ? 'Vendor' : 'Admin'}
+                  {user?.role === 'ADMIN'
+                    ? 'Super Admin'
+                    : user?.role === 'VENDOR'
+                      ? 'Vendor'
+                      : 'Admin'}
                 </span>
               </div>
             </div>
@@ -179,8 +183,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   return {
                     ...section,
                     items: section.items.filter(
-                      (item) =>
-                        item.path !== '/admin/influencers',
+                      (item) => item.path !== '/admin/influencers',
                     ),
                   };
                 }
@@ -205,7 +208,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                         >
                           <item.icon className='w-5 h-5' />
                           <span className='text-md'>
-                            {item.path === '/admin/dashboard' && user?.role === 'VENDOR'
+                            {item.path === '/admin/dashboard' &&
+                            user?.role === 'VENDOR'
                               ? 'My Dashboard'
                               : item.label}
                           </span>

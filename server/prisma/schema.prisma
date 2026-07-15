@@ -5,39 +5,73 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output= "../src/generated/prisma"
-  moduleFormat= "cjs"
-
+  provider     = "prisma-client-js"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "mysql"
-
-
 }
 
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  firstName      String
-  lastName       String
-  phoneNumber    String?
-  birthDate      DateTime?
-  profilePicture String?
-  role  Role
-  passwordHash  String
-  verifiedEmail Boolean @default(false)
-  registerOtp RegisterOtp?
+  id               String            @id @default(uuid())
+  email            String            @unique
+  firstName        String
+  lastName         String
+  phoneNumber      String?
+  birthDate        DateTime?
+  profilePicture   String?
+  role             Role
+  passwordHash     String
+  verifiedEmail    Boolean           @default(false)
+  registerOtp      RegisterOtp?
   resetPasswordOtp ResetPasswordOtp?
-  sentInvitations UserInvitation[] @relation("UserInvitations")
+  sentInvitations  UserInvitation[]  @relation("UserInvitations")
   orders           Order[]
+  loyalty          CustomerLoyalty?
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
   @@index([email])
+}
+
+model CustomerLoyalty {
+  id                String               @id @default(uuid())
+  userId            String               @unique
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points            Int                  @default(0)
+  totalPointsEarned Int                  @default(0)
+  totalPointsSpent  Int                  @default(0)
+  transactions      LoyaltyTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+enum LoyaltyTransactionType {
+  EARN
+  SPEND
+}
+
+model LoyaltyTransaction {
+  id          String                 @id @default(uuid())
+  loyaltyId   String
+  loyalty     CustomerLoyalty        @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  type        LoyaltyTransactionType
+  amount      Int
+  description String?
+  orderId     String?
+  order       Order?                 @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([loyaltyId])
+  @@index([orderId])
 }
 
 model RegisterOtp {
@@ -47,15 +81,12 @@ model RegisterOtp {
   user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   otpHash           String
   expiresAt         DateTime
-  attemptsRemaining Int @default(5)
+  attemptsRemaining Int      @default(5)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-
-  
   @@index([email, expiresAt])
   @@index([userId])
-  
 }
 
 model ResetPasswordOtp {
@@ -65,7 +96,7 @@ model ResetPasswordOtp {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   otpHash           String
   expiresAt         DateTime
-  attemptsRemaining Int @default(5)
+  attemptsRemaining Int      @default(5)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -80,16 +111,16 @@ enum Role {
 }
 
 model UserInvitation {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  role         Role
-  tokenHash    String   @unique
-  invitedById  String
-  invitedBy    User     @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  expiresAt    DateTime
-  acceptedAt   DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String    @id @default(uuid())
+  email       String    @unique
+  role        Role
+  tokenHash   String    @unique
+  invitedById String
+  invitedBy   User      @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([email, expiresAt])
   @@index([invitedById])
@@ -119,29 +150,29 @@ model ProductCategory {
 }
 
 model Product {
-  id               String              @id @default(uuid())
+  id               String             @id @default(uuid())
   name             String
-  category         ProductCategory     @relation(fields: [categoryId], references: [id])
+  category         ProductCategory    @relation(fields: [categoryId], references: [id])
   categoryId       String
   brand            String?
   description      String?
   price            Float
   discountPrice    Float?
-  images           Json                @default("[]")
+  images           Json               @default("[]")
   primaryPlacement String?
   collection       String?
   promoCode        String?
   campaign         String?
-  status           ProductStatus       @default(ACTIVE)
-  performance      ProductPerformance  @default(NEW_ARRIVAL)
-  slug             String              @unique
+  status           ProductStatus      @default(ACTIVE)
+  performance      ProductPerformance @default(NEW_ARRIVAL)
+  slug             String             @unique
   metaTitle        String?
   metaDescription  String?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 
-  promoCodes     PromoCode[]
-  orderItems     OrderItem[]
+  promoCodes PromoCode[]
+  orderItems OrderItem[]
 
   @@index([slug])
   @@index([categoryId])
@@ -162,24 +193,25 @@ enum PaymentMethod {
 }
 
 model Order {
-  id            String        @id @default(uuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  status        OrderStatus   @default(PENDING)
-  paymentMethod PaymentMethod
-  firstName     String
-  lastName      String
-  email         String
-  phoneNumber   String
-  secondPhone   String?
-  address       String
-  city          String
-  postalCode    String
-  subtotal      Float
-  total         Float
-  items         OrderItem[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                  String               @id @default(uuid())
+  userId              String
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  status              OrderStatus          @default(PENDING)
+  paymentMethod       PaymentMethod
+  firstName           String
+  lastName            String
+  email               String
+  phoneNumber         String
+  secondPhone         String?
+  address             String
+  city                String
+  postalCode          String
+  subtotal            Float
+  total               Float
+  items               OrderItem[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  loyaltyTransactions LoyaltyTransaction[]
 
   @@index([userId])
 }
@@ -213,22 +245,22 @@ enum PromoCodeStatus {
 }
 
 model PromoCode {
-  id             String          @id @default(uuid())
-  code           String          @unique
-  discountType   DiscountType
-  value          Float
-  usageLimit     Int?            // per-user limit; null = unlimited
-  productId      String?
-  product        Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
-  startDate      DateTime
-  expiration     DateTime?       // null = lifetime code
-  isLifetime     Boolean         @default(false)
-  source         String?
-  totalUsage     Int             @default(0)
-  totalRevenue   Float           @default(0)
-  status         PromoCodeStatus @default(ACTIVE)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id           String          @id @default(uuid())
+  code         String          @unique
+  discountType DiscountType
+  value        Float
+  usageLimit   Int? // per-user limit; null = unlimited
+  productId    String?
+  product      Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  startDate    DateTime
+  expiration   DateTime? // null = lifetime code
+  isLifetime   Boolean         @default(false)
+  source       String?
+  totalUsage   Int             @default(0)
+  totalRevenue Float           @default(0)
+  status       PromoCodeStatus @default(ACTIVE)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   @@index([code])
   @@index([status])
