@@ -1,6 +1,8 @@
-**Dashboards (vendor access)**
--points and promocodes verification
--language and responsiveness
--online payment 
+-points and promocodes verification (test implementation)
+-language and responsiveness (test implementation)
+-online payment (feature)
 
- 
+-admin dashboard
+-contact messages (vendor admin)
+-loyalty control (vendor admin)
+-top clients (vendor admin)

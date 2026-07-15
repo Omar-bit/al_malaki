@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   Pencil,
@@ -9,7 +8,6 @@ import {
   ShoppingCart,
   TrendingUp,
   Award,
-  Plus,
   FolderTree,
   Trophy,
   LineChart,
@@ -50,6 +48,7 @@ import type {
   UpdateCategoryPayload,
 } from '../../types/product';
 import { formatCurrency, createSlug } from '../../utils/format';
+import { useAuth } from '../../contexts';
 
 interface ProductFormState {
   name: string;
@@ -90,7 +89,7 @@ const initialFormState: ProductFormState = {
 };
 
 export function AdminAnalyticsPage() {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -461,22 +460,26 @@ export function AdminAnalyticsPage() {
 
           {/* ── Stat Cards ── */}
           <section className='flex items-center  gap-[5%] mb-5'>
-            <StatCard
-              label='Total Revenue'
-              value={formatCurrency(totalRevenue, 'TND', true)}
-              IconComponent={() => <span>DT</span>}
-              variant='analytics'
-              trend='+12.4%'
-              trendPositive={true}
-            />
-            <StatCard
-              label='Total Sales'
-              value={formatCurrency(totalRevenue, 'TND', true)}
-              IconComponent={ShoppingCart}
-              variant='analytics'
-              trend='+12.4%'
-              trendPositive={true}
-            />
+            {user?.role !== 'VENDOR' && (
+              <>
+                <StatCard
+                  label='Total Revenue'
+                  value={formatCurrency(totalRevenue, 'TND', true)}
+                  IconComponent={() => <span>DT</span>}
+                  variant='analytics'
+                  trend='+12.4%'
+                  trendPositive={true}
+                />
+                <StatCard
+                  label='Total Sales'
+                  value={formatCurrency(totalRevenue, 'TND', true)}
+                  IconComponent={ShoppingCart}
+                  variant='analytics'
+                  trend='+12.4%'
+                  trendPositive={true}
+                />
+              </>
+            )}
             <StatCard
               label='Best Selling Product'
               value={featuredProduct?.name ?? 'Miel de montagne'}
@@ -522,8 +525,8 @@ export function AdminAnalyticsPage() {
           </section>
 
           {/* ── Product Performance Table ── */}
-          <section className='rounded-[24px] border border-dark-red bg-[#D9D9D957] p-5 '>
-            <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+          <section className='rounded-[24px] border border-dark-red bg-[#D9D9D957] '>
+            <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-5'>
               <div>
                 <h2 className='text-2xl font-bold text-black'>
                   Product performance
@@ -577,7 +580,7 @@ export function AdminAnalyticsPage() {
               </div>
             </div>
 
-            <TableContainer className='rounded-[16px] border border-[#d5bd9d]  shadow-sm overflow-hidden'>
+            <TableContainer className='rounded-[16px]  overflow-hidden'>
               <Table className='min-w-full text-left'>
                 <TableHead className='bg-[#D9D9D9]/50 text-[#000000AD] '>
                   <TableRow>

@@ -15,6 +15,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
 import { CreatePromoDto } from './dto/create-promo.dto';
 import { UpdatePromoDto } from './dto/update-promo.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../generated/prisma';
 
 @Controller('admin/promo-codes')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -22,6 +24,7 @@ export class PromoController {
   constructor(private readonly promoService: PromoService) {}
 
   @Get()
+  @Roles(Role.ADMIN, Role.VENDOR)
   async listPromoCodes(): Promise<PromoCodeResponse[]> {
     return this.promoService.listPromoCodes();
   }

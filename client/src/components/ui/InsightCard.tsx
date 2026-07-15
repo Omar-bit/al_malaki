@@ -9,7 +9,7 @@ export function InsightCard({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className='flex items-start gap-3 rounded-[18px] border border-[#3F060F] bg-[#D9D9D957] p-4 min-h-[90px] shadow-md shadow-gray-300'>
+    <div className='flex items-start gap-3 rounded-[18px] border border-[#3F060F] bg-[#D9D9D957] p-4 min-h-[90px] shadow shadow-[#000000]/25'>
       {/* Icon */}
       <div className='flex h-8 w-8 items-center justify-center rounded-md bg-[#BE9D61] text-[#000000] shrink-0 mt-0.5'>
         {icon ? (

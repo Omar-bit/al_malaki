@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { useAuth } from '../contexts';
 import { authService } from '../services';
-import authModelImg from '../assets/auth-model.jpg';
+
 import { Hero } from '../components';
 import Button from '../components/ui/Button';
 
@@ -398,14 +398,28 @@ export function DashboardPage() {
 
   const displayName =
     [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Utilisateur';
-
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      navigate('/login', { replace: true });
+    } catch {
+      setUser(null);
+      navigate('/login', { replace: true });
+    }
+  };
   return (
     <div className='min-h-screen bg-[#fdf8f0]'>
       <Header withBackground={false} />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <Hero variant='client-dashboard' />
-
+      <button
+        onClick={handleLogout}
+        className='flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
+      >
+        logout
+      </button>
       {/* ── Two-column section ─────────────────────────────────────────────── */}
       <main className='mx-auto  px-4 py-8 lg:p-12   space-y-6 bg-[#fff9f1]'>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-15 items-start'>

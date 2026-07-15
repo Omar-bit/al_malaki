@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   FileText,
-  DollarSign,
   Image,
   FolderTree,
   Tag,
@@ -182,23 +181,6 @@ export function AdminAddProductPage() {
     }
   };
 
-  const steps = [
-    { id: 1, name: 'Basic Information', icon: FileText },
-    { id: 2, name: 'Pricing', icon: DollarSign },
-    { id: 3, name: 'Media', icon: Image },
-    { id: 4, name: 'Category Placement', icon: FolderTree },
-    { id: 5, name: 'Product Targeting', icon: Tag },
-    { id: 6, name: 'Product Status', icon: Eye },
-    { id: 7, name: 'Performance Boost', icon: Zap },
-    { id: 8, name: 'Search Engine Optimization (SEO)', icon: Search },
-  ];
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <AdminLayout>

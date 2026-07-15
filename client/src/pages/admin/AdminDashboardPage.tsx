@@ -1,10 +1,14 @@
-import { motion } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useAuth } from '../../contexts';
-import { StatCard } from '../../components/ui';
+import { VendorDashboardPage } from './VendorDashboardPage';
 
 export function AdminDashboardPage() {
   const { user } = useAuth();
+
+  // Vendors get their own dedicated dashboard view
+  if (user?.role === 'VENDOR') {
+    return <VendorDashboardPage />;
+  }
 
   return (
     <AdminLayout>
@@ -16,24 +20,12 @@ export function AdminDashboardPage() {
           <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>
             Welcome back, {user ? user.firstName : 'Super Admin'}
           </h1>
-
           <p className='text-[#6D5A46]'>
-            Here's what's happening across your store today.
+            Here&apos;s what&apos;s happening across your store today.
           </p>
         </header>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6'
-        >
-          {/* Top Stats Cards */}
-          <StatCard label='Total Sales' value='--' />
-          <StatCard label='Orders' value='--' />
-          <StatCard label='Customers' value='--' />
-          <StatCard label='Conversion' value='--' />
-
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6'>
           {/* Charts/Big Sections */}
           <div className='col-span-1 sm:col-span-2 md:col-span-3 bg-[#D9D9D957] rounded-3xl p-6 shadow-sm border border-[#3F060F]/40 h-[380px] relative'>
             <div className='flex justify-between items-center mb-6'>
@@ -44,7 +36,6 @@ export function AdminDashboardPage() {
                 Last 7 Days
               </span>
             </div>
-            {/* Chart Placeholder */}
             <div className='w-full h-[80%] flex items-center justify-center text-[#A68F74] bg-[#D5BD9D]/20 rounded-2xl border border-dashed border-[#3F060F]/50'>
               Chart Data Placeholder
             </div>
@@ -54,12 +45,11 @@ export function AdminDashboardPage() {
             <h3 className='text-black font-semibold text-lg mb-6'>
               Recent Activity
             </h3>
-            {/* Activity Placeholder */}
             <div className='w-full h-[80%] flex items-center justify-center text-[#A68F74] bg-[#D5BD9D]/20 rounded-2xl border border-dashed border-[#3F060F]/50'>
               No recent activity
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </AdminLayout>
   );

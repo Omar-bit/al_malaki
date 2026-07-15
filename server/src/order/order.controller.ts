@@ -16,7 +16,8 @@ import { AdminGuard } from '../admin/guards/admin.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/auth-user.type';
 import { IsEnum } from 'class-validator';
-import { OrderStatus } from '../generated/prisma';
+import { OrderStatus, Role } from '../generated/prisma';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 class UpdateOrderStatusDto {
   @IsEnum(OrderStatus)
@@ -44,6 +45,7 @@ export class OrderController {
 
   @Get('admin/all')
   @UseGuards(AdminGuard)
+  @Roles(Role.ADMIN, Role.VENDOR)
   getAllOrders() {
     return this.orderService.getAllOrders();
   }
@@ -58,6 +60,7 @@ export class OrderController {
 
   @Patch(':id/status')
   @UseGuards(AdminGuard)
+  @Roles(Role.ADMIN, Role.VENDOR)
   updateOrderStatus(
     @Param('id') orderId: string,
     @Body() dto: UpdateOrderStatusDto,

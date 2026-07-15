@@ -9,6 +9,7 @@ import type {
 } from '../../types';
 import type { ProductAnalyticsProduct } from '../../types/product';
 import { formatCurrency } from '../../utils/format';
+import { useAuth } from '../../contexts';
 import toast from 'react-hot-toast';
 import {
   TrendingUp,
@@ -51,6 +52,7 @@ const INITIAL_FORM: CreatePromoCodePayload = {
 /* ══════════════════════════ main page ═══════════════════════════════ */
 
 export function AdminPromoCodesPage() {
+  const { user } = useAuth();
   /* ── state ── */
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [stats, setStats] = useState<PromoCodeStats>({
@@ -70,11 +72,23 @@ export function AdminPromoCodesPage() {
   /* ── fetch ── */
   const fetchAll = useCallback(async () => {
     try {
-      const [codes, s, prods] = await Promise.all([
-        promoService.getPromoCodes(),
-        promoService.getPromoStats(),
-        productService.getProducts(),
-      ]);
+      let codes = [];
+      let s = { totalRevenue: 0, totalRedemptions: 0, activeCodes: 0 };
+      let prods = [];
+
+      if (user?.role === 'VENDOR') {
+        [codes, prods] = await Promise.all([
+          promoService.getPromoCodes(),
+          productService.getProducts(),
+        ]);
+      } else {
+        [codes, s, prods] = await Promise.all([
+          promoService.getPromoCodes(),
+          promoService.getPromoStats(),
+          productService.getProducts(),
+        ]);
+      }
+
       setPromoCodes(codes);
       setStats(s);
       setProducts(prods);
@@ -181,13 +195,15 @@ export function AdminPromoCodesPage() {
               Create, track and optimize your marketing promo codes.
             </p>
           </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className='w-full sm:w-auto justify-center bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md'
-          >
-            <Plus className='w-4 h-4' />
-            Create Code
-          </button>
+          {user?.role !== 'VENDOR' && (
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className='w-full sm:w-auto justify-center bg-dark-red hover:bg-dark-red/90 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md'
+            >
+              <Plus className='w-4 h-4' />
+              Create Code
+            </button>
+          )}
         </header>
 
         {loading ? (
@@ -202,35 +218,37 @@ export function AdminPromoCodesPage() {
             className='space-y-6 p-0'
           >
             {/* ── Stats Row ── */}
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-15'>
-              <StatCard
-                label='Total revenue'
-                value={formatCurrency(stats.totalRevenue, 'USD')}
-                icon={
-                  <span className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
-                    DT
-                  </span>
-                }
-              />
-              <StatCard
-                label='Redemptions'
-                value={stats.totalRedemptions.toLocaleString()}
-                icon={
-                  <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
-                    <UsersRound className='size-4' />
-                  </div>
-                }
-              />
-              <StatCard
-                label='Active codes'
-                value={stats.activeCodes}
-                icon={
-                  <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
-                    <Tag className='size-4' />
-                  </div>
-                }
-              />
-            </div>
+            {user?.role !== 'VENDOR' && (
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-15'>
+                <StatCard
+                  label='Total revenue'
+                  value={formatCurrency(stats.totalRevenue, 'USD')}
+                  icon={
+                    <span className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
+                      DT
+                    </span>
+                  }
+                />
+                <StatCard
+                  label='Redemptions'
+                  value={stats.totalRedemptions.toLocaleString()}
+                  icon={
+                    <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
+                      <UsersRound className='size-4' />
+                    </div>
+                  }
+                />
+                <StatCard
+                  label='Active codes'
+                  value={stats.activeCodes}
+                  icon={
+                    <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
+                      <Tag className='size-4' />
+                    </div>
+                  }
+                />
+              </div>
+            )}
 
             {/* ── Performance Table Card ── */}
             <div className='min-h-[50vh] bg-[#D9D9D957] rounded-2xl shadow-sm border border-[#3F060F]/40'>
@@ -278,11 +296,13 @@ export function AdminPromoCodesPage() {
                           Status
                         </span>
                       </TableHeaderCell>
-                      <TableHeaderCell>
-                        <span className='text-[#000000]/68 font-bold font-bona'>
-                          Actions
-                        </span>
-                      </TableHeaderCell>
+                      {user?.role !== 'VENDOR' && (
+                        <TableHeaderCell>
+                          <span className='text-[#000000]/68 font-bold font-bona'>
+                            Actions
+                          </span>
+                        </TableHeaderCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody className=''>
@@ -321,46 +341,48 @@ export function AdminPromoCodesPage() {
                           <TableCell>
                             <StatusBadge status={promo.status} />
                           </TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-4'>
-                              <button
-                                onClick={() => handleToggle(promo.id)}
-                                disabled={togglingId === promo.id}
-                                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${
-                                  promo.status === 'active'
-                                    ? 'bg-green-500'
-                                    : 'bg-gray-300'
-                                }`}
-                                title={
-                                  promo.status === 'active'
-                                    ? 'Disable'
-                                    : 'Enable'
-                                }
-                              >
-                                {togglingId === promo.id ? (
-                                  <Loader2
-                                    className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`}
-                                  />
-                                ) : (
-                                  <span
-                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                      promo.status === 'active'
-                                        ? 'translate-x-5'
-                                        : 'translate-x-0'
-                                    }`}
-                                  />
-                                )}
-                              </button>
+                          {user?.role !== 'VENDOR' && (
+                            <TableCell>
+                              <div className='flex items-center gap-4'>
+                                <button
+                                  onClick={() => handleToggle(promo.id)}
+                                  disabled={togglingId === promo.id}
+                                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${
+                                    promo.status === 'active'
+                                      ? 'bg-green-500'
+                                      : 'bg-gray-300'
+                                  }`}
+                                  title={
+                                    promo.status === 'active'
+                                      ? 'Disable'
+                                      : 'Enable'
+                                  }
+                                >
+                                  {togglingId === promo.id ? (
+                                    <Loader2
+                                      className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`}
+                                    />
+                                  ) : (
+                                    <span
+                                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                        promo.status === 'active'
+                                          ? 'translate-x-5'
+                                          : 'translate-x-0'
+                                      }`}
+                                    />
+                                  )}
+                                </button>
 
-                              <button
-                                onClick={() => confirmDelete(promo)}
-                                title='Delete'
-                                className='p-1.5 rounded-lg hover:bg-red-100 transition-colors text-[#6D5A46] hover:text-red-600'
-                              >
-                                <Trash2 className='w-4 h-4' />
-                              </button>
-                            </div>
-                          </TableCell>
+                                <button
+                                  onClick={() => confirmDelete(promo)}
+                                  title='Delete'
+                                  className='p-1.5 rounded-lg hover:bg-red-100 transition-colors text-[#6D5A46] hover:text-red-600'
+                                >
+                                  <Trash2 className='w-4 h-4' />
+                                </button>
+                              </div>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))
                     )}

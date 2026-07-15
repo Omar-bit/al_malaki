@@ -28,6 +28,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../generated/prisma';
 
 const storage = diskStorage({
   destination: './uploads/products',
@@ -67,6 +69,7 @@ const fileFilter = (req, file, cb) => {
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, AdminGuard)
+@Roles(Role.ADMIN, Role.VENDOR)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 

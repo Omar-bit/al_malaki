@@ -185,6 +185,40 @@ export class AdminService {
     });
   }
 
+  async getVendorDashboardStats(): Promise<{
+    ordersToday: number;
+    topClients: number;
+    newMessages: number;
+    activePromos: number;
+  }> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const [ordersToday, topClients, activePromos] = await Promise.all([
+      this.prismaService.order.count({
+        where: { createdAt: { gte: startOfDay } },
+      }),
+      this.prismaService.user.count({
+        where: { role: Role.CUSTOMER },
+      }),
+      this.prismaService.promoCode.count({
+        where: { status: 'ACTIVE' },
+      }),
+    ]);
+
+    // Try to count contact messages if the model exists
+    let newMessages = 0;
+    try {
+      newMessages = await (this.prismaService as any).contactMessage.count({
+        where: { read: false },
+      });
+    } catch {
+      newMessages = 0;
+    }
+
+    return { ordersToday, topClients, newMessages, activePromos };
+  }
+
   async deleteInvitation(invitationId: string): Promise<{ message: string }> {
     const invitation = await this.prismaService.userInvitation.findUnique({
       where: { id: invitationId },

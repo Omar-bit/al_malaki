@@ -16,6 +16,8 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/auth-user.type';
 import { CreateAdminInvitationDto } from './dto/create-admin-invitation.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../generated/prisma';
 
 @Controller('admin')
 export class AdminController {
@@ -25,6 +27,13 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   async listTeamMembers() {
     return this.adminService.listTeamMembers();
+  }
+
+  @Get('vendor/dashboard-stats')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Roles(Role.ADMIN, Role.VENDOR)
+  async getVendorDashboardStats() {
+    return this.adminService.getVendorDashboardStats();
   }
 
   @Post('invitations')

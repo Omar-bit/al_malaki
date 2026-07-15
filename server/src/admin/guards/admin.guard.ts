@@ -5,13 +5,18 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Role } from '../../generated/prisma';
 import { AuthenticatedRequest } from '../../auth/types/authenticated-request.type';
+import { ROLES_KEY } from '../../auth/decorators/roles.decorator';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -26,8 +31,17 @@ export class AdminGuard implements CanActivate {
       select: { role: true },
     });
 
-    if (!user || user.role !== Role.ADMIN) {
-      throw new ForbiddenException('Admin access required');
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]) || [Role.ADMIN];
+
+    if (!requiredRoles.includes(user.role as Role)) {
+      throw new ForbiddenException('Access denied for your role');
     }
 
     return true;

@@ -61,7 +61,6 @@ export function ProductsPage() {
     [products],
   );
 
-  const heroImages = useMemo(() => products.slice(0, 3), [products]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {

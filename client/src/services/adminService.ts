@@ -135,3 +135,24 @@ export async function deleteAdminInvitation(
 
   return (await response.json()) as DeleteAdminInvitationResponse;
 }
+
+export interface VendorDashboardStats {
+  ordersToday: number;
+  topClients: number;
+  newMessages: number;
+  activePromos: number;
+}
+
+export async function getVendorDashboardStats(): Promise<VendorDashboardStats> {
+  const response = await fetch(`${API_BASE_URL}/admin/vendor/dashboard-stats`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as VendorDashboardStats;
+}
