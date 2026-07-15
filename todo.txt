@@ -1,8 +1,8 @@
--points and promocodes verification (test implementation)
--language and responsiveness (test implementation)
--online payment (feature)
 
--admin dashboard
--contact messages (vendor admin)
 -loyalty control (vendor admin)
 -top clients (vendor admin)
+-contact messages (vendor admin)
+
+-language and responsiveness (test implementation)
+-points and promocodes verification (test implementation)
+-online payment (feature)

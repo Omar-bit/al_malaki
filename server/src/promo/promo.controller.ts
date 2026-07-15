@@ -10,7 +10,11 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { PromoService, PromoCodeResponse, PromoStatsResponse } from './promo.service';
+import {
+  PromoService,
+  PromoCodeResponse,
+  PromoStatsResponse,
+} from './promo.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
 import { CreatePromoDto } from './dto/create-promo.dto';

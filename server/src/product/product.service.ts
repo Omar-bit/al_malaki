@@ -10,26 +10,31 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
-const extractFilename = (url: string | null | undefined): string | undefined => {
+const extractFilename = (
+  url: string | null | undefined,
+): string | undefined => {
   if (!url) return undefined;
   const parts = url.split('/');
   return parts[parts.length - 1];
 };
 
-const getCategoryUrl = (filename: string | null | undefined): string | undefined => {
+const getCategoryUrl = (
+  filename: string | null | undefined,
+): string | undefined => {
   if (!filename) return undefined;
   if (filename.startsWith('http')) return filename;
   const baseUrl = process.env.API_URL || 'http://localhost:3000';
   return `${baseUrl}/uploads/categories/${filename}`;
 };
 
-const getProductUrl = (filename: string | null | undefined): string | undefined => {
+const getProductUrl = (
+  filename: string | null | undefined,
+): string | undefined => {
   if (!filename) return undefined;
   if (filename.startsWith('http')) return filename;
   const baseUrl = process.env.API_URL || 'http://localhost:3000';
   return `${baseUrl}/uploads/products/${filename}`;
 };
-
 
 export interface ProductResponse {
   id: string;
@@ -51,6 +56,8 @@ export interface ProductResponse {
   metaDescription?: string;
   createdAt: Date;
   updatedAt: Date;
+  totalSales?: number;
+  trend?: string;
 }
 
 export interface CategoryResponse {
@@ -90,30 +97,86 @@ export class ProductService {
       include: { category: true },
     });
 
-    return products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      category: product.category?.name ?? 'Uncategorized',
-      brand: product.brand ?? undefined,
-      description: product.description ?? undefined,
-      price: product.price,
-      discountPrice: product.discountPrice ?? undefined,
-      images: Array.isArray(product.images) ? (product.images as string[]).map(img => getProductUrl(img) as string) : [],
-      primaryPlacement: product.primaryPlacement ?? undefined,
-      collection: product.collection ?? undefined,
-      promoCode: product.promoCode ?? undefined,
-      campaign: product.campaign ?? undefined,
-      status: product.status.toLowerCase() as 'active' | 'hidden',
-      performance:
-        performanceReverseMap[
-          product.performance as 'NEW_ARRIVAL' | 'RECOMMENDED' | 'FEATURED'
-        ],
-      slug: product.slug,
-      metaTitle: product.metaTitle ?? undefined,
-      metaDescription: product.metaDescription ?? undefined,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
-    }));
+    // Compute per-product sales from order items
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const sixtyDaysAgo = new Date(now);
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+    const orderItems = await this.prisma.orderItem.findMany({
+      where: {
+        order: { status: { not: 'CANCELLED' } },
+      },
+      select: {
+        productId: true,
+        quantity: true,
+        createdAt: true,
+      },
+    });
+
+    const productSalesMap: Record<string, number> = {};
+    const recentSalesMap: Record<string, number> = {};
+    const previousSalesMap: Record<string, number> = {};
+
+    for (const item of orderItems) {
+      const pid = item.productId;
+      if (!pid) continue;
+
+      productSalesMap[pid] = (productSalesMap[pid] || 0) + item.quantity;
+
+      if (item.createdAt >= thirtyDaysAgo) {
+        recentSalesMap[pid] = (recentSalesMap[pid] || 0) + item.quantity;
+      } else if (item.createdAt >= sixtyDaysAgo) {
+        previousSalesMap[pid] = (previousSalesMap[pid] || 0) + item.quantity;
+      }
+    }
+
+    return products.map((product) => {
+      const pid = product.id;
+      const totalSales = productSalesMap[pid] || 0;
+      const recent = recentSalesMap[pid] || 0;
+      const previous = previousSalesMap[pid] || 0;
+
+      let trend: string | undefined;
+      if (previous > 0) {
+        const pct = ((recent - previous) / previous) * 100;
+        trend = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+      } else if (recent > 0) {
+        trend = '+100%';
+      }
+
+      return {
+        id: product.id,
+        name: product.name,
+        category: product.category?.name ?? 'Uncategorized',
+        brand: product.brand ?? undefined,
+        description: product.description ?? undefined,
+        price: product.price,
+        discountPrice: product.discountPrice ?? undefined,
+        images: Array.isArray(product.images)
+          ? (product.images as string[]).map(
+              (img) => getProductUrl(img) as string,
+            )
+          : [],
+        primaryPlacement: product.primaryPlacement ?? undefined,
+        collection: product.collection ?? undefined,
+        promoCode: product.promoCode ?? undefined,
+        campaign: product.campaign ?? undefined,
+        status: product.status.toLowerCase() as 'active' | 'hidden',
+        performance:
+          performanceReverseMap[
+            product.performance as 'NEW_ARRIVAL' | 'RECOMMENDED' | 'FEATURED'
+          ],
+        slug: product.slug,
+        metaTitle: product.metaTitle ?? undefined,
+        metaDescription: product.metaDescription ?? undefined,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+        totalSales,
+        trend,
+      };
+    });
   }
 
   async getProductBySlug(slug: string): Promise<ProductResponse> {
@@ -134,7 +197,11 @@ export class ProductService {
       description: product.description ?? undefined,
       price: product.price,
       discountPrice: product.discountPrice ?? undefined,
-      images: Array.isArray(product.images) ? (product.images as string[]).map(img => getProductUrl(img) as string) : [],
+      images: Array.isArray(product.images)
+        ? (product.images as string[]).map(
+            (img) => getProductUrl(img) as string,
+          )
+        : [],
       primaryPlacement: product.primaryPlacement ?? undefined,
       collection: product.collection ?? undefined,
       promoCode: product.promoCode ?? undefined,
@@ -182,7 +249,9 @@ export class ProductService {
         description: dto.description?.trim() || null,
         price: dto.price,
         discountPrice: dto.discountPrice ?? null,
-        images: dto.images ? dto.images.map(extractFilename).filter(Boolean) as string[] : [],
+        images: dto.images
+          ? (dto.images.map(extractFilename).filter(Boolean) as string[])
+          : [],
         primaryPlacement: dto.primaryPlacement?.trim() || null,
         collection: dto.collection?.trim() || null,
         promoCode: dto.promoCode?.trim() || null,
@@ -208,7 +277,9 @@ export class ProductService {
       price: createdProduct.price,
       discountPrice: createdProduct.discountPrice ?? undefined,
       images: Array.isArray(createdProduct.images)
-        ? (createdProduct.images as string[]).map(img => getProductUrl(img) as string)
+        ? (createdProduct.images as string[]).map(
+            (img) => getProductUrl(img) as string,
+          )
         : [],
       primaryPlacement: createdProduct.primaryPlacement ?? undefined,
       collection: createdProduct.collection ?? undefined,
@@ -273,7 +344,10 @@ export class ProductService {
     if (dto.price !== undefined) updateData.price = dto.price;
     if (dto.discountPrice !== undefined)
       updateData.discountPrice = dto.discountPrice ?? null;
-    if (dto.images !== undefined) updateData.images = dto.images ? dto.images.map(extractFilename).filter(Boolean) as string[] : [];
+    if (dto.images !== undefined)
+      updateData.images = dto.images
+        ? (dto.images.map(extractFilename).filter(Boolean) as string[])
+        : [];
     if (dto.primaryPlacement !== undefined)
       updateData.primaryPlacement = dto.primaryPlacement?.trim() || null;
     if (dto.collection !== undefined)
@@ -310,7 +384,9 @@ export class ProductService {
       price: updatedProduct.price,
       discountPrice: updatedProduct.discountPrice ?? undefined,
       images: Array.isArray(updatedProduct.images)
-        ? (updatedProduct.images as string[]).map(img => getProductUrl(img) as string)
+        ? (updatedProduct.images as string[]).map(
+            (img) => getProductUrl(img) as string,
+          )
         : [],
       primaryPlacement: updatedProduct.primaryPlacement ?? undefined,
       collection: updatedProduct.collection ?? undefined,
@@ -423,7 +499,9 @@ export class ProductService {
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name.trim() }),
-        ...(dto.image !== undefined && { image: extractFilename(dto.image) || null }),
+        ...(dto.image !== undefined && {
+          image: extractFilename(dto.image) || null,
+        }),
         ...(dto.color !== undefined && { color: dto.color || null }),
       },
     });

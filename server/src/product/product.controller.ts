@@ -157,9 +157,7 @@ export class ProductController {
 
   @Delete('categories/:id')
   @HttpCode(HttpStatus.OK)
-  async deleteCategory(
-    @Param('id') id: string,
-  ): Promise<{ message: string }> {
+  async deleteCategory(@Param('id') id: string): Promise<{ message: string }> {
     return this.productService.deleteCategory(id);
   }
 }

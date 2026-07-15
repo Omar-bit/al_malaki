@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
@@ -27,6 +28,16 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   async listTeamMembers() {
     return this.adminService.listTeamMembers();
+  }
+
+  @Get('dashboard-stats')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Roles(Role.ADMIN)
+  async getAdminDashboardStats(
+    @Query('period') period?: string,
+    @Query('date') date?: string,
+  ) {
+    return this.adminService.getAdminDashboardStats(period, date);
   }
 
   @Get('vendor/dashboard-stats')

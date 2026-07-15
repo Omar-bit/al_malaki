@@ -41,6 +41,7 @@ import {
   getProducts,
   uploadProductImages,
 } from '../../services/productService';
+import { getAllOrders } from '../../services/orderService';
 import type {
   CreateProductPayload,
   ProductAnalyticsProduct,
@@ -49,6 +50,7 @@ import type {
 } from '../../types/product';
 import { formatCurrency, createSlug } from '../../utils/format';
 import { useAuth } from '../../contexts';
+import type { Order } from '../../types';
 
 interface ProductFormState {
   name: string;
@@ -92,6 +94,7 @@ export function AdminAnalyticsPage() {
   const { user } = useAuth();
   const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -137,9 +140,10 @@ export function AdminAnalyticsPage() {
 
     async function loadData() {
       try {
-        const [categoryData, productData] = await Promise.all([
+        const [categoryData, productData, orderData] = await Promise.all([
           getCategories(),
           getProducts(),
+          getAllOrders(),
         ]);
 
         if (!active) {
@@ -148,6 +152,7 @@ export function AdminAnalyticsPage() {
 
         setCategories(categoryData);
         setProducts(productData);
+        setOrders(orderData);
         setFormState((current) => ({
           ...current,
           categoryId: current.categoryId || categoryData[0]?.id || '',
@@ -179,10 +184,29 @@ export function AdminAnalyticsPage() {
     });
   }, [products, searchQuery, statusFilter]);
 
-  const totalRevenue = products.reduce(
-    (sum, product) => sum + (product.discountPrice ?? product.price),
-    0,
-  );
+  const totalRevenue = orders
+    .filter((o) => o.status !== 'CANCELLED')
+    .reduce((sum, o) => sum + o.total, 0);
+  const totalSales = orders.filter((o) => o.status !== 'CANCELLED').length;
+
+  const bestSellerProduct = useMemo(() => {
+    const productSales: Record<string, { name: string; quantity: number }> = {};
+    for (const order of orders) {
+      if (order.status === 'CANCELLED') continue;
+      for (const item of order.items) {
+        const key = item.productId || item.productName;
+        if (!productSales[key]) {
+          productSales[key] = { name: item.productName, quantity: 0 };
+        }
+        productSales[key].quantity += item.quantity;
+      }
+    }
+    const best = Object.values(productSales).sort(
+      (a, b) => b.quantity - a.quantity,
+    )[0];
+    return best || null;
+  }, [orders]);
+
   const featuredProduct = products.find(
     (product) => product.performance === 'featured',
   );
@@ -467,31 +491,35 @@ export function AdminAnalyticsPage() {
                   value={formatCurrency(totalRevenue, 'TND', true)}
                   IconComponent={() => <span>DT</span>}
                   variant='analytics'
-                  trend='+12.4%'
+                  trend={`+${((totalRevenue / (totalRevenue || 1)) * 100).toFixed(1)}%`}
                   trendPositive={true}
                 />
                 <StatCard
                   label='Total Sales'
-                  value={formatCurrency(totalRevenue, 'TND', true)}
+                  value={totalSales.toLocaleString()}
                   IconComponent={ShoppingCart}
                   variant='analytics'
-                  trend='+12.4%'
+                  trend={totalSales > 0 ? `+${totalSales}` : '0'}
                   trendPositive={true}
                 />
               </>
             )}
             <StatCard
               label='Best Selling Product'
-              value={featuredProduct?.name ?? 'Miel de montagne'}
+              value={bestSellerProduct?.name ?? (featuredProduct?.name ?? 'N/A')}
               IconComponent={Award}
               variant='analytics'
-              subtitle='1256 SOLD'
+              subtitle={
+                bestSellerProduct
+                  ? `${bestSellerProduct.quantity} SOLD`
+                  : 'No sales yet'
+              }
             />
             <StatCard
               label='Trending Products'
               value={String(
                 products.filter((p) => p.performance === 'recommended')
-                  .length || 2,
+                  .length || 0,
               )}
               IconComponent={TrendingUp}
               variant='analytics'
@@ -504,22 +532,40 @@ export function AdminAnalyticsPage() {
             <h2 className='text-xl font-bold text-black mb-3'>Insights</h2>
             <div className='grid grid-cols-1 gap-15 sm:grid-cols-3'>
               <InsightCard
-                title='Insights'
+                title='Best Seller'
                 icon={<Trophy className='h-4 w-4' />}
-                productName={featuredProduct?.name ?? 'Miel de montagne'}
-                description={`Best seller with 1,284 units sold and 870K in revenue.`}
+                productName={bestSellerProduct?.name ?? (featuredProduct?.name ?? 'N/A')}
+                description={
+                  bestSellerProduct
+                    ? `Top performer with ${bestSellerProduct.quantity} units sold and ${formatCurrency(totalRevenue)} in revenue.`
+                    : 'No sales data yet.'
+                }
               />
               <InsightCard
-                title='Insights'
+                title='Revenue Overview'
                 icon={<LineChart className='h-4 w-4' />}
-                productName={featuredProduct?.name ?? 'Miel de montagne'}
-                description={`Best seller with 1,284 units sold and 870K in revenue.`}
+                productName={
+                  totalSales > 0
+                    ? `${totalSales} order${totalSales > 1 ? 's' : ''}`
+                    : 'No orders'
+                }
+                description={
+                  totalRevenue > 0
+                    ? `Total revenue of ${formatCurrency(totalRevenue)} across ${totalSales} order${totalSales > 1 ? 's' : ''}.`
+                    : 'Start accepting orders to see revenue data.'
+                }
               />
               <InsightCard
-                title='Insights'
+                title='Trending'
                 icon={<Award className='h-4 w-4' />}
-                productName={trendingProduct?.name ?? 'Miel de montagne'}
-                description={`Best seller with 1,284 units sold and 870K in revenue.`}
+                productName={trendingProduct?.name ?? (bestSellerProduct?.name ?? 'N/A')}
+                description={
+                  trendingProduct
+                    ? `"${trendingProduct.name}" is trending with recommended performance boost.`
+                    : bestSellerProduct
+                      ? `"${bestSellerProduct.name}" is your current best seller.`
+                      : 'No trending products yet.'
+                }
               />
             </div>
           </section>
@@ -640,9 +686,9 @@ export function AdminAnalyticsPage() {
                           {product.category}
                         </TableCell>
 
-                        {/* Total Sales — using unit count placeholder */}
+                        {/* Total Sales */}
                         <TableCell className='!px-4 !py-3 text-sm text-[#000000]/68 group-hover:text-white'>
-                          1254
+                          {product.totalSales ?? 0}
                         </TableCell>
 
                         {/* Revenue */}
@@ -653,8 +699,16 @@ export function AdminAnalyticsPage() {
                         </TableCell>
 
                         {/* Trend */}
-                        <TableCell className='!px-4 !py-3 text-sm font-semibold text-[#2e7d32]'>
-                          +32.4%
+                        <TableCell
+                          className={`!px-4 !py-3 text-sm font-semibold ${
+                            product.trend
+                              ? product.trend.startsWith('+')
+                                ? 'text-[#2e7d32]'
+                                : 'text-[#e53e3e]'
+                              : 'text-[#6D5A46]'
+                          }`}
+                        >
+                          {product.trend || '—'}
                         </TableCell>
 
                         {/* Status badge */}

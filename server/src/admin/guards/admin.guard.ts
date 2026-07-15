@@ -40,7 +40,7 @@ export class AdminGuard implements CanActivate {
       context.getClass(),
     ]) || [Role.ADMIN];
 
-    if (!requiredRoles.includes(user.role as Role)) {
+    if (!requiredRoles.includes(user.role)) {
       throw new ForbiddenException('Access denied for your role');
     }
 

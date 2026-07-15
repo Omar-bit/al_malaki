@@ -182,8 +182,7 @@ export class PromoService {
     }
 
     const updateData: any = {};
-    if (dto.code !== undefined)
-      updateData.code = dto.code.trim().toUpperCase();
+    if (dto.code !== undefined) updateData.code = dto.code.trim().toUpperCase();
     if (dto.discountType !== undefined)
       updateData.discountType = dto.discountType.toUpperCase();
     if (dto.value !== undefined) updateData.value = dto.value;
@@ -198,8 +197,7 @@ export class PromoService {
     if (dto.isLifetime !== undefined) updateData.isLifetime = dto.isLifetime;
     if (dto.source !== undefined)
       updateData.source = dto.source?.trim() || null;
-    if (dto.status !== undefined)
-      updateData.status = dto.status.toUpperCase();
+    if (dto.status !== undefined) updateData.status = dto.status.toUpperCase();
 
     const updated = await this.prisma.promoCode.update({
       where: { id },

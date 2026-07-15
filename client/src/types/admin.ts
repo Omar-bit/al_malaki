@@ -48,3 +48,42 @@ export interface AcceptAdminInvitationResponse {
 export interface DeleteAdminInvitationResponse {
   message: string;
 }
+
+export interface MetricWithTrend {
+  value: number;
+  formattedValue: string;
+  trend: number;
+  isPositive: boolean;
+}
+
+export interface DashboardChartPoint {
+  label: string;
+  revenue: number;
+  orders: number;
+  users: number;
+}
+
+export interface RecentOrder {
+  id: string;
+  customer: string;
+  total: number;
+  status: string;
+  date: string;
+}
+
+export interface BestSellingProduct {
+  name: string;
+  unitsSold: number;
+  revenue: number;
+}
+
+export interface AdminDashboardStats {
+  revenue: MetricWithTrend;
+  orders: MetricWithTrend;
+  users: MetricWithTrend;
+  points: MetricWithTrend;
+  chartData: DashboardChartPoint[];
+  bestSellingProduct: BestSellingProduct | null;
+  recentOrders: RecentOrder[];
+  totalProducts: number;
+}

@@ -17,6 +17,8 @@ export interface ProductAnalyticsProduct {
   metaTitle?: string;
   metaDescription?: string;
   createdAt: string;
+  totalSales?: number;
+  trend?: string;
 }
 
 export interface ProductCategory {

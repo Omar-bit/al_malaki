@@ -359,7 +359,12 @@ export class AuthService {
 
   async updateProfile(
     userId: string,
-    data: { firstName?: string; lastName?: string; phoneNumber?: string; birthDate?: string },
+    data: {
+      firstName?: string;
+      lastName?: string;
+      phoneNumber?: string;
+      birthDate?: string;
+    },
   ): Promise<AuthenticatedUserResponse> {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },

@@ -1,6 +1,7 @@
 import type {
   AcceptAdminInvitationPayload,
   AcceptAdminInvitationResponse,
+  AdminDashboardStats,
   AdminInvitation,
   AdminTeamMember,
   CreateAdminInvitationPayload,
@@ -141,6 +142,28 @@ export interface VendorDashboardStats {
   topClients: number;
   newMessages: number;
   activePromos: number;
+}
+
+export async function getAdminDashboardStats(
+  period?: string,
+  date?: string,
+): Promise<AdminDashboardStats> {
+  const params = new URLSearchParams();
+  if (period) params.append('period', period);
+  if (date) params.append('date', date);
+  const queryString = params.toString() ? `?${params.toString()}` : '';
+
+  const response = await fetch(`${API_BASE_URL}/admin/dashboard-stats${queryString}`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as AdminDashboardStats;
 }
 
 export async function getVendorDashboardStats(): Promise<VendorDashboardStats> {

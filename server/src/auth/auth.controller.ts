@@ -49,7 +49,9 @@ const profilePictureFileFilter = (req, file, cb) => {
   }
 
   cb(
-    new BadRequestException('Only image files are allowed (jpeg, png, webp, gif)'),
+    new BadRequestException(
+      'Only image files are allowed (jpeg, png, webp, gif)',
+    ),
     false,
   );
 };

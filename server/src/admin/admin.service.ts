@@ -219,6 +219,324 @@ export class AdminService {
     return { ordersToday, topClients, newMessages, activePromos };
   }
 
+  async getAdminDashboardStats(period?: string, dateStr?: string) {
+    const baseDate = dateStr ? new Date(dateStr) : new Date();
+    if (isNaN(baseDate.getTime())) {
+      throw new BadRequestException('Invalid date format');
+    }
+
+    // Normalize base date to local timezone without time component
+    const normalizedBaseDate = new Date(baseDate);
+    normalizedBaseDate.setHours(0, 0, 0, 0);
+
+    const p = (period || 'month').toLowerCase();
+
+    let currentStart: Date;
+    let currentEnd: Date;
+    let previousStart: Date;
+    let previousEnd: Date;
+
+    let chartPointsCount = 0;
+    let intervalMs = 0;
+    let getIntervalLabel: (d: Date) => string;
+
+    if (p === 'day') {
+      // Day period: from 00:00 to 23:59 of the selected date
+      currentStart = new Date(normalizedBaseDate);
+      currentEnd = new Date(normalizedBaseDate);
+      currentEnd.setHours(23, 59, 59, 999);
+
+      // Previous period: same day of previous week
+      previousStart = new Date(currentStart);
+      previousStart.setDate(previousStart.getDate() - 7);
+      previousEnd = new Date(previousStart);
+      previousEnd.setHours(23, 59, 59, 999);
+
+      chartPointsCount = 12;
+      intervalMs = 2 * 60 * 60 * 1000;
+      getIntervalLabel = (d: Date) => {
+        const h = d.getHours();
+        return `${String(h).padStart(2, '0')}:00`;
+      };
+    } else if (p === 'week') {
+      // Week period: from Sunday 00:00 to Saturday 23:59 of the selected date's week
+      currentStart = new Date(normalizedBaseDate);
+      const dayOfWeek = currentStart.getDay();
+      currentStart.setDate(currentStart.getDate() - dayOfWeek);
+      currentEnd = new Date(currentStart);
+      currentEnd.setDate(currentEnd.getDate() + 6);
+      currentEnd.setHours(23, 59, 59, 999);
+
+      // Previous period: previous week
+      previousStart = new Date(currentStart);
+      previousStart.setDate(previousStart.getDate() - 7);
+      previousEnd = new Date(previousStart);
+      previousEnd.setDate(previousEnd.getDate() + 6);
+      previousEnd.setHours(23, 59, 59, 999);
+
+      chartPointsCount = 7;
+      intervalMs = 24 * 60 * 60 * 1000;
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      getIntervalLabel = (d: Date) => days[d.getDay()];
+    } else if (p === 'year') {
+      // Year period: from January 1st to December 31st of the selected date's year
+      currentStart = new Date(normalizedBaseDate);
+      currentStart.setMonth(0, 1);
+      currentEnd = new Date(currentStart);
+      currentEnd.setMonth(11, 31);
+      currentEnd.setHours(23, 59, 59, 999);
+
+      // Previous period: previous year
+      previousStart = new Date(currentStart);
+      previousStart.setFullYear(previousStart.getFullYear() - 1);
+      previousEnd = new Date(previousStart);
+      previousEnd.setMonth(11, 31);
+      previousEnd.setHours(23, 59, 59, 999);
+
+      chartPointsCount = 12;
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      getIntervalLabel = (d: Date) => months[d.getMonth()];
+    } else {
+      // Month period: from 1st day of month to last day of month
+      currentStart = new Date(normalizedBaseDate);
+      currentStart.setDate(1);
+      currentEnd = new Date(currentStart);
+      currentEnd.setMonth(currentEnd.getMonth() + 1, 0);
+      currentEnd.setHours(23, 59, 59, 999);
+
+      // Previous period: previous month
+      previousStart = new Date(currentStart);
+      previousStart.setMonth(previousStart.getMonth() - 1, 1);
+      previousEnd = new Date(previousStart);
+      previousEnd.setMonth(previousEnd.getMonth() + 1, 0);
+      previousEnd.setHours(23, 59, 59, 999);
+
+      chartPointsCount = 10;
+      intervalMs = 3 * 24 * 60 * 60 * 1000;
+      getIntervalLabel = (d: Date) => {
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      };
+    }
+
+    const [
+      currentOrders,
+      previousOrders,
+      currentCustomersCount,
+      previousCustomersCount,
+      newCustomersInCurrent,
+      totalProducts,
+    ] = await Promise.all([
+      this.prismaService.order.findMany({
+        where: {
+          createdAt: { gte: currentStart, lte: currentEnd },
+          status: { not: 'CANCELLED' },
+        },
+        include: { items: true },
+      }),
+      this.prismaService.order.findMany({
+        where: {
+          createdAt: { gte: previousStart, lte: previousEnd },
+          status: { not: 'CANCELLED' },
+        },
+      }),
+      this.prismaService.user.count({
+        where: {
+          role: Role.CUSTOMER,
+          createdAt: { lte: currentEnd },
+        },
+      }),
+      this.prismaService.user.count({
+        where: {
+          role: Role.CUSTOMER,
+          createdAt: { lte: previousEnd },
+        },
+      }),
+      this.prismaService.user.findMany({
+        where: {
+          role: Role.CUSTOMER,
+          createdAt: { gte: currentStart, lte: currentEnd },
+        },
+        select: { createdAt: true },
+      }),
+      this.prismaService.product.count({
+        where: { status: 'ACTIVE' },
+      }),
+    ]);
+
+    const currentRevenue = currentOrders.reduce((sum, o) => sum + o.total, 0);
+    const previousRevenue = previousOrders.reduce((sum, o) => sum + o.total, 0);
+    const revenueTrend =
+      previousRevenue === 0
+        ? 0
+        : ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+
+    const currentOrdersCount = currentOrders.length;
+    const previousOrdersCount = previousOrders.length;
+    const ordersTrend =
+      previousOrdersCount === 0
+        ? 0
+        : ((currentOrdersCount - previousOrdersCount) / previousOrdersCount) *
+          100;
+
+    const currentUsersTrend =
+      previousCustomersCount === 0
+        ? 0
+        : ((currentCustomersCount - previousCustomersCount) /
+            previousCustomersCount) *
+          100;
+
+    // points proportional to revenue
+    const currentPoints = Math.round(currentRevenue * 0.384);
+    const previousPoints = Math.round(previousRevenue * 0.384);
+    const pointsTrend =
+      previousPoints === 0
+        ? 0
+        : ((currentPoints - previousPoints) / previousPoints) * 100;
+
+    const chartData: {
+      label: string;
+      revenue: number;
+      orders: number;
+      users: number;
+    }[] = [];
+
+    for (let i = 0; i < chartPointsCount; i++) {
+      let intervalStart: Date;
+      let intervalEnd: Date;
+
+      if (p === 'day') {
+        intervalStart = new Date(currentStart.getTime() + i * intervalMs);
+        intervalEnd = new Date(intervalStart.getTime() + intervalMs);
+      } else if (p === 'week') {
+        intervalStart = new Date(currentStart);
+        intervalStart.setDate(intervalStart.getDate() + i);
+        intervalEnd = new Date(intervalStart);
+        intervalEnd.setHours(23, 59, 59, 999);
+      } else if (p === 'year') {
+        intervalStart = new Date(currentStart);
+        intervalStart.setMonth(intervalStart.getMonth() + i);
+        intervalEnd = new Date(intervalStart);
+        intervalEnd.setMonth(intervalEnd.getMonth() + 1);
+        intervalEnd.setDate(0);
+        intervalEnd.setHours(23, 59, 59, 999);
+      } else {
+        // month
+        intervalStart = new Date(currentStart.getTime() + i * intervalMs);
+        intervalEnd = new Date(intervalStart.getTime() + intervalMs);
+      }
+
+      const intervalOrders = currentOrders.filter(
+        (o) => o.createdAt >= intervalStart && o.createdAt < intervalEnd,
+      );
+      const intervalRevenue = intervalOrders.reduce(
+        (sum, o) => sum + o.total,
+        0,
+      );
+      const intervalOrdersCount = intervalOrders.length;
+
+      const intervalNewUsers = newCustomersInCurrent.filter(
+        (u) => u.createdAt >= intervalStart && u.createdAt < intervalEnd,
+      ).length;
+
+      chartData.push({
+        label: getIntervalLabel(intervalStart),
+        revenue: intervalRevenue,
+        orders: intervalOrdersCount,
+        users: intervalNewUsers,
+      });
+    }
+
+    // Recent orders
+    const recentOrdersRaw = await this.prismaService.order.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        total: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    const recentOrders = recentOrdersRaw.map((o) => ({
+      id: o.id,
+      customer: `${o.firstName} ${o.lastName}`,
+      total: o.total,
+      status: o.status,
+      date: o.createdAt,
+    }));
+
+    // Best selling product in current range
+    const orderItems = currentOrders.flatMap((o) => o.items);
+    const productSalesMap: Record<
+      string,
+      { name: string; quantity: number; revenue: number }
+    > = {};
+    for (const item of orderItems) {
+      const key = item.productId || item.productName;
+      if (!productSalesMap[key]) {
+        productSalesMap[key] = {
+          name: item.productName,
+          quantity: 0,
+          revenue: 0,
+        };
+      }
+      productSalesMap[key].quantity += item.quantity;
+      productSalesMap[key].revenue += item.price * item.quantity;
+    }
+
+    const bestSeller =
+      Object.values(productSalesMap).sort(
+        (a, b) => b.quantity - a.quantity,
+      )[0] || null;
+
+    return {
+      revenue: {
+        value: currentRevenue,
+        formattedValue: `${currentRevenue.toLocaleString()} TND`,
+        trend: parseFloat(revenueTrend.toFixed(1)),
+        isPositive: revenueTrend >= 0,
+      },
+      orders: {
+        value: currentOrdersCount,
+        formattedValue: currentOrdersCount.toLocaleString(),
+        trend: parseFloat(ordersTrend.toFixed(1)),
+        isPositive: ordersTrend >= 0,
+      },
+      users: {
+        value: currentCustomersCount,
+        formattedValue: currentCustomersCount.toLocaleString(),
+        trend: parseFloat(currentUsersTrend.toFixed(1)),
+        isPositive: currentUsersTrend >= 0,
+      },
+      points: {
+        value: currentPoints,
+        formattedValue: `${currentPoints.toLocaleString()} PTS`,
+        trend: parseFloat(pointsTrend.toFixed(1)),
+        isPositive: pointsTrend >= 0,
+      },
+      chartData,
+      bestSellingProduct: bestSeller,
+      recentOrders,
+      totalProducts,
+    };
+  }
+
   async deleteInvitation(invitationId: string): Promise<{ message: string }> {
     const invitation = await this.prismaService.userInvitation.findUnique({
       where: { id: invitationId },
