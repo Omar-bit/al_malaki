@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { useAuth } from '../contexts';
-import { authService } from '../services';
+import { authService, contactService } from '../services';
+import type { ContactMessage } from '../types';
 
 import { Hero } from '../components';
 import Button from '../components/ui/Button';
@@ -317,6 +318,8 @@ export function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSendingMsg, setIsSendingMsg] = useState(false);
   const [contactMessage, setContactMessage] = useState('');
+  const [myMessages, setMyMessages] = useState<ContactMessage[]>([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   // Personal info form state
   const [profileForm, setProfileForm] = useState({
@@ -338,6 +341,23 @@ export function DashboardPage() {
       email: user.email ?? '',
       birthDate: formatBirthDate(user.birthDate),
     });
+  }, [user]);
+
+  // Load user's contact messages
+  useEffect(() => {
+    if (!user) return;
+    const loadMessages = async () => {
+      setIsLoadingMessages(true);
+      try {
+        const messages = await contactService.getMyContactMessages();
+        setMyMessages(messages);
+      } catch {
+        toast.error('Erreur lors du chargement des messages.');
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    };
+    loadMessages();
   }, [user]);
 
   // Redirect if not logged in
@@ -372,18 +392,31 @@ export function DashboardPage() {
     }
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contactMessage.trim()) {
+    if (!contactMessage.trim() || !user) {
       toast.error('Veuillez entrer votre message.');
       return;
     }
     setIsSendingMsg(true);
-    setTimeout(() => {
+    try {
+      await contactService.createContactMessage({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phoneNumber: user.phoneNumber ?? '',
+        message: contactMessage,
+      });
       toast.success('Message envoyé ! Nous vous répondrons bientôt.');
       setContactMessage('');
+      // Refresh messages
+      const messages = await contactService.getMyContactMessages();
+      setMyMessages(messages);
+    } catch {
+      toast.error("Erreur lors de l'envoi du message.");
+    } finally {
       setIsSendingMsg(false);
-    }, 800);
+    }
   };
 
   if (isLoading) {
@@ -414,12 +447,7 @@ export function DashboardPage() {
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <Hero variant='client-dashboard' />
-      <button
-        onClick={handleLogout}
-        className='flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
-      >
-        logout
-      </button>
+
       {/* ── Two-column section ─────────────────────────────────────────────── */}
       <main className='mx-auto  px-4 py-8 lg:p-12   space-y-6 bg-[#fff9f1]'>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-15 items-start'>
@@ -718,7 +746,12 @@ export function DashboardPage() {
           </form>
         </section>
       </main>
-
+      <button
+        onClick={handleLogout}
+        className='flex items-center gap-3 px-3 py-2 w-full text-2xl text-center! justify-center text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
+      >
+        logout
+      </button>
       {/* ── Footer spacer ──────────────────────────────────────────────────── */}
       <div className='h-12' />
 

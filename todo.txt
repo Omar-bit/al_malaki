@@ -1,5 +1,4 @@
 
--contact messages (feature:customer+vendor+admin)
 
 -loyalty control (styles:vendor+admin)
 -influencer tracking (feature: admin + vendor:view_only)

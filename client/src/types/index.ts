@@ -52,3 +52,10 @@ export type {
   CreateOrderItemPayload,
   PaymentMethod
 } from './order';
+
+export type {
+  ContactMessage,
+  MessageStatus,
+  CreateContactMessagePayload,
+  UpdateContactMessageStatusPayload
+} from './contact';

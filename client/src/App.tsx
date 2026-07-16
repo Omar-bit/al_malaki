@@ -24,6 +24,7 @@ import { AdminPromoCodesPage } from './pages/admin/AdminPromoCodesPage';
 import { AdminAddProductPage } from './pages/admin/AdminAddProductPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { AdminLoyaltyPage } from './pages/admin/AdminLoyaltyPage';
+import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
 import { AdminRoute, CartModal, GuestRoute } from './components';
 
 export default function App() {
@@ -78,6 +79,7 @@ export default function App() {
           <Route path='/admin/loyalty' element={<AdminLoyaltyPage />} />
           <Route path='/admin/promo-codes' element={<AdminPromoCodesPage />} />
           <Route path='/admin/orders' element={<AdminOrdersPage />} />
+          <Route path='/admin/messages' element={<AdminMessagesPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
