@@ -59,3 +59,11 @@ export type {
   CreateContactMessagePayload,
   UpdateContactMessageStatusPayload
 } from './contact';
+
+export type {
+  Notification,
+  NotificationListFilters,
+  NotificationStatusFilter,
+  NotificationStreamEvent,
+  NotificationType,
+} from './notification';

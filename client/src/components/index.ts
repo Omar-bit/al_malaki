@@ -6,6 +6,7 @@ export { ProductCard } from './ProductCard';
 export { About } from './About';
 export { Follow } from './Follow';
 export { Footer } from './Footer';
+export { AdminLayout } from './AdminLayout';
 export { AdminRoute } from './AdminRoute';
 export { GuestRoute } from './GuestRoute';
 export { GuestModal } from './GuestModal';

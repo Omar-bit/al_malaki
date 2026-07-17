@@ -1,0 +1,282 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { Bell, CheckCheck, Filter, RefreshCcw } from 'lucide-react';
+import { AdminLayout, Header } from '../components';
+import { useAuth, useNotifications } from '../contexts';
+import type { NotificationStatusFilter, NotificationType } from '../types';
+
+const notificationTypeLabels: Record<NotificationType, string> = {
+  ORDER_CREATED: 'Order created',
+  ORDER_STATUS_CHANGED: 'Order status changed',
+  CONTACT_MESSAGE_CREATED: 'Contact message created',
+  CONTACT_MESSAGE_UPDATED: 'Contact message updated',
+  SYSTEM: 'System',
+};
+
+function formatNotificationDate(date: string) {
+  return new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(date));
+}
+
+function NotificationsContent() {
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, refreshNotifications } =
+    useNotifications();
+  const [statusFilter, setStatusFilter] =
+    useState<NotificationStatusFilter>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | NotificationType>('all');
+
+  const filteredNotifications = useMemo(
+    () =>
+      notifications.filter((notification) => {
+        const matchesStatus =
+          statusFilter === 'all'
+            ? true
+            : statusFilter === 'read'
+              ? notification.isRead
+              : !notification.isRead;
+
+        const matchesType =
+          typeFilter === 'all' ? true : notification.type === typeFilter;
+
+        return matchesStatus && matchesType;
+      }),
+    [notifications, statusFilter, typeFilter],
+  );
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    try {
+      await markAsRead(notificationId);
+    } catch (error) {
+      console.error('Unable to mark notification as read', error);
+      toast.error('Unable to update the notification.');
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+      toast.success('All notifications marked as read.');
+    } catch (error) {
+      console.error('Unable to mark all notifications as read', error);
+      toast.error('Unable to update notifications.');
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      await refreshNotifications();
+    } catch (error) {
+      console.error('Unable to refresh notifications', error);
+      toast.error('Unable to refresh notifications.');
+    }
+  };
+
+  return (
+    <div className='space-y-6'>
+      <section className='rounded-[28px] border border-[#3F060F]/20 bg-[#fff9f1] p-6 shadow-sm'>
+        <div className='flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between'>
+          <div>
+            <div className='mb-3 flex items-center gap-3'>
+              <div className='flex h-12 w-12 items-center justify-center rounded-full bg-[#3f060f] text-[#fdf8f0]'>
+                <Bell className='h-5 w-5' />
+              </div>
+              <div>
+                <h1 className='font-bona text-3xl font-bold text-[#3f060f]'>
+                  Notifications
+                </h1>
+                <p className='font-bona text-sm text-[#6d5a46]'>
+                  Track new orders, order updates, contact activity, and system alerts in one place.
+                </p>
+              </div>
+            </div>
+
+            <div className='flex flex-wrap items-center gap-3'>
+              <div className='rounded-full bg-[#efe0c9] px-4 py-2 font-bona text-sm text-[#3f060f]'>
+                Total: {notifications.length}
+              </div>
+              <div className='rounded-full bg-[#3f060f] px-4 py-2 font-bona text-sm text-[#fdf8f0]'>
+                Unread: {unreadCount}
+              </div>
+            </div>
+          </div>
+
+          <div className='flex flex-wrap gap-3'>
+            <button
+              type='button'
+              onClick={handleRefresh}
+              className='inline-flex items-center gap-2 rounded-full border border-[#3F060F]/20 px-4 py-2 font-bona text-sm text-[#3f060f] transition hover:bg-[#efe0c9]'
+            >
+              <RefreshCcw className='h-4 w-4' />
+              Refresh
+            </button>
+            <button
+              type='button'
+              onClick={handleMarkAllAsRead}
+              disabled={unreadCount === 0}
+              className='inline-flex items-center gap-2 rounded-full bg-[#3f060f] px-4 py-2 font-bona text-sm text-[#fdf8f0] transition hover:bg-[#5a0b18] disabled:cursor-not-allowed disabled:opacity-60'
+            >
+              <CheckCheck className='h-4 w-4' />
+              Mark all as read
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className='rounded-[28px] border border-[#3F060F]/20 bg-[#fff9f1] p-6 shadow-sm'>
+        <div className='mb-4 flex items-center gap-2 font-bona text-sm font-semibold text-[#3f060f]'>
+          <Filter className='h-4 w-4' />
+          Filter notifications
+        </div>
+
+        <div className='grid gap-4 md:grid-cols-2'>
+          <label className='space-y-2'>
+            <span className='font-bona text-sm text-[#6d5a46]'>Status</span>
+            <select
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(event.target.value as NotificationStatusFilter)
+              }
+              className='w-full rounded-2xl border border-[#d4bfa8] bg-[#fdf8f0] px-4 py-3 font-bona text-sm text-[#3f060f] outline-none focus:border-[#3f060f]'
+            >
+              <option value='all'>All notifications</option>
+              <option value='unread'>Unread only</option>
+              <option value='read'>Read only</option>
+            </select>
+          </label>
+
+          <label className='space-y-2'>
+            <span className='font-bona text-sm text-[#6d5a46]'>Type</span>
+            <select
+              value={typeFilter}
+              onChange={(event) =>
+                setTypeFilter(event.target.value as 'all' | NotificationType)
+              }
+              className='w-full rounded-2xl border border-[#d4bfa8] bg-[#fdf8f0] px-4 py-3 font-bona text-sm text-[#3f060f] outline-none focus:border-[#3f060f]'
+            >
+              <option value='all'>All types</option>
+              {Object.entries(notificationTypeLabels).map(([type, label]) => (
+                <option key={type} value={type}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section className='space-y-4'>
+        {isLoading ? (
+          <div className='flex min-h-[240px] items-center justify-center rounded-[28px] border border-[#3F060F]/20 bg-[#fff9f1]'>
+            <div className='h-10 w-10 animate-spin rounded-full border-2 border-[#3f060f] border-t-transparent' />
+          </div>
+        ) : filteredNotifications.length === 0 ? (
+          <div className='rounded-[28px] border border-dashed border-[#3F060F]/20 bg-[#fff9f1] p-10 text-center'>
+            <p className='font-bona text-xl font-bold text-[#3f060f]'>
+              No notifications found
+            </p>
+            <p className='mt-2 font-bona text-sm text-[#6d5a46]'>
+              Try changing the active filters or come back after new platform activity.
+            </p>
+          </div>
+        ) : (
+          filteredNotifications.map((notification) => (
+            <article
+              key={notification.id}
+              className={`rounded-[28px] border p-5 shadow-sm transition ${
+                notification.isRead
+                  ? 'border-[#3F060F]/10 bg-[#fff9f1]'
+                  : 'border-[#3F060F]/25 bg-[#efe0c9]/40'
+              }`}
+            >
+              <div className='flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between'>
+                <div className='space-y-3'>
+                  <div className='flex flex-wrap items-center gap-3'>
+                    <span
+                      className={`rounded-full px-3 py-1 font-bona text-xs font-semibold uppercase tracking-[0.16em] ${
+                        notification.isRead
+                          ? 'bg-[#efe0c9] text-[#6d5a46]'
+                          : 'bg-[#3f060f] text-[#fdf8f0]'
+                      }`}
+                    >
+                      {notification.isRead ? 'Read' : 'Unread'}
+                    </span>
+                    <span className='rounded-full bg-[#fdf8f0] px-3 py-1 font-bona text-xs text-[#6d5a46]'>
+                      {notificationTypeLabels[notification.type]}
+                    </span>
+                    <span className='font-bona text-xs text-[#6d5a46]'>
+                      {formatNotificationDate(notification.createdAt)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h2 className='font-bona text-xl font-bold text-[#3f060f]'>
+                      {notification.title}
+                    </h2>
+                    <p className='mt-2 font-bona text-sm leading-6 text-[#4c372d]'>
+                      {notification.message}
+                    </p>
+                  </div>
+                </div>
+
+                {!notification.isRead && (
+                  <button
+                    type='button'
+                    onClick={() => handleMarkAsRead(notification.id)}
+                    className='inline-flex items-center justify-center rounded-full border border-[#3F060F]/20 px-4 py-2 font-bona text-sm text-[#3f060f] transition hover:bg-[#fdf2e2]'
+                  >
+                    Mark as read
+                  </button>
+                )}
+              </div>
+            </article>
+          ))
+        )}
+      </section>
+    </div>
+  );
+}
+
+export function NotificationsPage() {
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate('/login', { replace: true });
+    }
+  }, [isLoading, user, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center bg-[#fdf8f0]'>
+        <div className='h-10 w-10 animate-spin rounded-full border-2 border-[#3f060f] border-t-transparent' />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.role === 'ADMIN' || user.role === 'VENDOR') {
+    return (
+      <AdminLayout>
+        <div className='px-4 py-5 md:px-8'>
+          <NotificationsContent />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <div className='min-h-screen bg-[#fdf8f0]'>
+      <Header withBackground={false} />
+      <main className='mx-auto max-w-5xl px-4 py-28'>
+        <NotificationsContent />
+      </main>
+    </div>
+  );
+}

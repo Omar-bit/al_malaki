@@ -1,8 +1,5 @@
-
-
--loyalty control (styles:vendor+admin)
--influencer tracking (feature: admin + vendor:view_only)
--points and promocodes verification (test implementation)
--alerts (feature)
--activity tracking "history" (feature:admin)
--online payment (feature:customer)
+- loyalty control (styles:vendor+admin)
+- influencer tracking (feature: admin + vendor:view_only)
+- points and promocodes verification (test implementation)
+- activity tracking "history" (feature:admin)
+- online payment (feature:customer)

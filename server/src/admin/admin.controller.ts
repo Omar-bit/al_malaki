@@ -17,6 +17,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/types/auth-user.type';
 import { CreateAdminInvitationDto } from './dto/create-admin-invitation.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { SendNotificationToRolesDto, SendNotificationToUsersDto } from './dto/send-notification.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../generated/prisma';
 
@@ -74,5 +75,21 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   async deleteInvitation(@Param('id') id: string) {
     return this.adminService.deleteInvitation(id);
+  }
+
+  @Post('notifications/send-to-users')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  async sendNotificationToUsers(@Body() dto: SendNotificationToUsersDto) {
+    return this.adminService.sendNotificationToUsers(dto);
+  }
+
+  @Post('notifications/send-to-roles')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  async sendNotificationToRoles(@Body() dto: SendNotificationToRolesDto) {
+    return this.adminService.sendNotificationToRoles(dto);
   }
 }

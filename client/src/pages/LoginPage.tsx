@@ -67,12 +67,10 @@ export function LoginPage() {
       setUser(user);
       toast.success(t('login.success'));
       console.log('USER :', user);
-      if (user.role === 'ADMIN') {
-        navigate('/admin/analytics', { replace: true });
-      } else if (user.role === 'VENDOR') {
+      if (user.role === 'CUSTOMER') {
         navigate('/dashboard', { replace: true });
       } else {
-        navigate('/dashboard', { replace: true });
+        navigate('/admin/dashboard', { replace: true });
       }
     } catch (error) {
       if (

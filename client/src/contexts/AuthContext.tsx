@@ -22,6 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(currentUser);
       } catch (error) {
         setUser(null);
+        console.error('Error fetching current user:', error);
       } finally {
         setIsLoading(false);
       }

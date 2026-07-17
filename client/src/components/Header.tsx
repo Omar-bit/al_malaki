@@ -1,8 +1,10 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 import { Logo } from './Logo';
 import { useCart } from '../contexts/CartContext';
+import { useAuth, useNotifications } from '../contexts';
 import cartIcon from '../assets/cart.svg';
 import scoopIcon from '../assets/scoop.svg';
 import profile from '../assets/profile.svg';
@@ -32,6 +34,8 @@ export function Header({
   const location = useLocation();
   const navigate = useNavigate();
   const { openCart, totalItems } = useCart();
+  const { user } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const mobileMenuLinks = [
     navLinks.find((link) => link.labelKey === 'products'),
@@ -104,6 +108,13 @@ export function Header({
     return location.pathname === link.href;
   };
 
+  const accountPath = user
+    ? user.role === 'CUSTOMER'
+      ? '/dashboard'
+      : '/admin/dashboard'
+    : '/login';
+  const notificationsPath = user ? '/notifications' : '/login';
+
   return (
     <header
       className={`fixed top-0 left-0 z-30 w-full transition-transform duration-300 ease-in-out ${
@@ -157,7 +168,7 @@ export function Header({
           </button>
 
           <Link
-            to='/login'
+            to={accountPath}
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
           >
@@ -182,6 +193,20 @@ export function Header({
         </button>
 
         <div className='flex items-center gap-3 md:hidden'>
+          {user && (
+            <Link
+              to={notificationsPath}
+              className='relative text-dark-red transition-colors hover:text-gold'
+              aria-label='Notifications'
+            >
+              <Bell className='h-7 w-7' strokeWidth={1.8} />
+              {unreadCount > 0 && (
+                <span className='absolute -right-2 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#3f060f] px-1 text-[11px] font-abee font-bold text-[#fdf8f0]'>
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
           <button
             type='button'
             className='text-dark-red transition-colors hover:text-gold'
@@ -231,6 +256,20 @@ export function Header({
           >
             <img className='size-6' src={scoopIcon} alt='scoop' />
           </button>
+          {user && (
+            <Link
+              to={notificationsPath}
+              className='text-dark-red transition-colors hover:text-gold relative'
+              aria-label='Notifications'
+            >
+              <Bell className='size-6' strokeWidth={1.8} />
+              {unreadCount > 0 && (
+                <span className='absolute -top-1.5 -right-2 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-[#3f060f] text-[#fdf8f0] text-[11px] font-abee font-bold px-1'>
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
           <button
             className='text-dark-red transition-colors hover:text-gold relative'
             aria-label='Cart'
@@ -244,7 +283,7 @@ export function Header({
             )}
           </button>
           <Link
-            to='/login'
+            to={accountPath}
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
           >

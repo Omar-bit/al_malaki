@@ -15,10 +15,11 @@ import {
   Menu,
   X,
   StepBack,
+  Bell,
 } from 'lucide-react';
 import { authService } from '../services';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts';
+import { useAuth, useNotifications } from '../contexts';
 
 const sidebarMenu = [
   {
@@ -96,6 +97,7 @@ const sidebarMenu = [
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
+  const { unreadCount } = useNotifications();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [shouldShowAside, setShouldShowAside] = useState(true);
@@ -144,15 +146,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           >
             <X className='w-5 h-5' />
           </button>
-          <div className='flex items-center gap-3 px-6 mb-5'>
-            <Link
-              to='/admin/management'
-              className='text-base   tracking-widest  flex items-center gap-2 text-[#000000AD]! '
-            >
-              <span>&larr;</span> Admin Management
-            </Link>
-          </div>
-
+          {user?.role === 'ADMIN' && (
+            <div className='flex items-center gap-3 px-6 mb-5'>
+              <Link
+                to='/admin/management'
+                className='text-base   tracking-widest  flex items-center gap-2 text-[#000000AD]! '
+              >
+                <span>&larr;</span> Admin Management
+              </Link>
+            </div>
+          )}
           <div className='px-6 mb-5 flex items-center gap-4 gap-y-2 border-b pb-4 border-[#00000082] '>
             <img
               src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
@@ -173,6 +176,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                       : 'Admin'}
                 </span>
               </div>
+              <Link
+                to='/notifications'
+                className='mt-2 inline-flex items-center gap-2 rounded-full border border-[#3F060F]/15 bg-[#fcecd8] px-3 py-1.5 text-xs font-semibold text-[#3f060f] transition hover:bg-[#f5dfc4]'
+              >
+                <Bell className='h-4 w-4' />
+                Notifications
+                {unreadCount > 0 && (
+                  <span className='flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#3f060f] px-1 text-[10px] font-bold text-[#fdf8f0]'>
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
             </div>
           </div>
 
@@ -248,11 +263,25 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               Al Malaki Admin
             </span>
           </div>
-          <img
-            src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
-            alt={user?.firstName || 'Admin'}
-            className='w-8 h-8 rounded-full shadow-sm'
-          />
+          <div className='flex items-center gap-3'>
+            <Link
+              to='/notifications'
+              className='relative text-black'
+              aria-label='Notifications'
+            >
+              <Bell className='h-5 w-5' />
+              {unreadCount > 0 && (
+                <span className='absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#3f060f] px-1 text-[10px] font-bold text-[#fdf8f0]'>
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+            <img
+              src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
+              alt={user?.firstName || 'Admin'}
+              className='w-8 h-8 rounded-full shadow-sm'
+            />
+          </div>
         </header>
 
         <main className='relative flex-1 overflow-y-auto p-4 md:p-0'>

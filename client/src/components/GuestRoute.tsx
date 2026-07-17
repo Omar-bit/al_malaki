@@ -13,7 +13,7 @@ export function GuestRoute() {
   }
 
   if (user) {
-    if (user.role === 'ADMIN') {
+    if (user.role === 'ADMIN' || user.role === 'VENDOR') {
       return <Navigate to='/admin/dashboard' replace />;
     }
     return <Navigate to='/dashboard' replace />;

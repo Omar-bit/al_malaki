@@ -12,6 +12,7 @@ import { PromoModule } from './promo/promo.module';
 import { OrderModule } from './order/order.module';
 import { LoyaltyModule } from './loyalty/loyalty.module';
 import { ContactModule } from './contact/contact.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ContactModule } from './contact/contact.module';
     OrderModule,
     LoyaltyModule,
     ContactModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

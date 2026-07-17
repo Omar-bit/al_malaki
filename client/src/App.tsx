@@ -16,6 +16,7 @@ import {
   ProductDetailsPage,
   OrderPage,
   OrderConfirmationPage,
+  NotificationsPage,
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -69,6 +70,7 @@ export default function App() {
         <Route path='/invite/accept' element={<InviteAcceptPage />} />
 
         <Route path='/dashboard' element={<DashboardPage />} />
+        <Route path='/notifications' element={<NotificationsPage />} />
 
         {/* Protected Admin Routes */}
         <Route element={<AdminRoute />}>

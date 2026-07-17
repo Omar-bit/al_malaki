@@ -11,8 +11,10 @@ import { createHash, randomBytes } from 'crypto';
 import { hash } from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
+import { NotificationService } from '../notification/notification.service';
 import { CreateAdminInvitationDto } from './dto/create-admin-invitation.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { SendNotificationToRolesDto, SendNotificationToUsersDto } from './dto/send-notification.dto';
 import { Role } from '../generated/prisma';
 
 export interface AdminTeamMemberResponse {
@@ -55,6 +57,7 @@ export class AdminService {
     private readonly prismaService: PrismaService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async listTeamMembers(): Promise<AdminTeamMemberResponse[]> {
@@ -616,6 +619,47 @@ export class AdminService {
 
     return {
       message: 'Invitation accepted successfully',
+    };
+  }
+
+  async sendNotificationToUsers(dto: SendNotificationToUsersDto) {
+    const users = await this.prismaService.user.findMany({
+      where: { id: { in: dto.userIds } },
+      select: { id: true },
+    });
+
+    if (users.length === 0) {
+      throw new BadRequestException('No users found for the given IDs');
+    }
+
+    const results = await Promise.all(
+      users.map((user) =>
+        this.notificationService.createNotification({
+          userId: user.id,
+          type: dto.type,
+          title: dto.title,
+          message: dto.message,
+        }),
+      ),
+    );
+
+    return {
+      message: `Notification sent to ${results.length} user(s)`,
+      sentCount: results.length,
+    };
+  }
+
+  async sendNotificationToRoles(dto: SendNotificationToRolesDto) {
+    const results = await this.notificationService.createNotificationsForRoles({
+      roles: dto.roles,
+      type: dto.type,
+      title: dto.title,
+      message: dto.message,
+    });
+
+    return {
+      message: `Notification sent to ${results.length} user(s)`,
+      sentCount: results.length,
     };
   }
 

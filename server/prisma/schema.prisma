@@ -31,6 +31,7 @@ model User {
   orders           Order[]
   loyalty          CustomerLoyalty?
   contactMessages  ContactMessage[]
+  notifications    Notification[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
@@ -109,6 +110,14 @@ enum Role {
   CUSTOMER
   ADMIN
   VENDOR
+}
+
+enum NotificationType {
+  ORDER_CREATED
+  ORDER_STATUS_CHANGED
+  CONTACT_MESSAGE_CREATED
+  CONTACT_MESSAGE_UPDATED
+  SYSTEM
 }
 
 model UserInvitation {
@@ -289,5 +298,23 @@ model ContactMessage {
 
   @@index([userId])
   @@index([status])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  data      Json             @default("{}")
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId, isRead, createdAt])
+  @@index([userId, type])
   @@index([createdAt])
 }
