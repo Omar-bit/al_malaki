@@ -353,7 +353,7 @@ export function AdminDashboardPage() {
       <div className=' py-6 w-full font-bona bg-[#f7eee1] min-h-screen text-black '>
         {/* Header */}
         <header className='mb-4 px-4'>
-          <h1 className='text-xl font-bold font-bona tracking-wide mb-1'>
+          <h1 className='text-black text-xl font-bold font-bona tracking-wide mb-1'>
             Admin Dashboard
           </h1>
           <p className='text-[11px] font-bona text-[#000000]/68 font-medium uppercase tracking-wider'>

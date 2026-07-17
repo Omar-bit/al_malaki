@@ -1,5 +1,6 @@
-- loyalty control (styles:vendor+admin)
-- influencer tracking (feature: admin + vendor:view_only)
-- points and promocodes verification (test implementation)
 - activity tracking "history" (feature:admin)
+MEET
+- influencer tracking (feature: admin + vendor:view_only)
+- points and promo codes verification (test implementation)
+- order tracking (feature:customer)
 - online payment (feature:customer)
