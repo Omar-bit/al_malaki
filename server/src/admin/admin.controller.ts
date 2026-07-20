@@ -73,23 +73,41 @@ export class AdminController {
   @Delete('invitations/:id')
   @UseGuards(JwtAuthGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
-  async deleteInvitation(@Param('id') id: string) {
-    return this.adminService.deleteInvitation(id);
+  async deleteInvitation(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    return this.adminService.deleteInvitation(id, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Post('notifications/send-to-users')
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.CREATED)
-  async sendNotificationToUsers(@Body() dto: SendNotificationToUsersDto) {
-    return this.adminService.sendNotificationToUsers(dto);
+  async sendNotificationToUsers(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SendNotificationToUsersDto,
+  ) {
+    return this.adminService.sendNotificationToUsers(dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Post('notifications/send-to-roles')
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.CREATED)
-  async sendNotificationToRoles(@Body() dto: SendNotificationToRolesDto) {
-    return this.adminService.sendNotificationToRoles(dto);
+  async sendNotificationToRoles(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SendNotificationToRolesDto,
+  ) {
+    return this.adminService.sendNotificationToRoles(dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 }

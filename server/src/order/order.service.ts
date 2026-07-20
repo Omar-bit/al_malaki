@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import {
   NotificationType,
@@ -17,6 +18,7 @@ export class OrderService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly notificationService: NotificationService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   async createOrder(userId: string, dto: CreateOrderDto) {
@@ -148,7 +150,11 @@ export class OrderService {
     });
   }
 
-  async updateOrderStatus(orderId: string, status: string) {
+  async updateOrderStatus(
+    orderId: string,
+    status: string,
+    actor?: { id: string; email?: string },
+  ) {
     const order = await this.prismaService.order.findUnique({
       where: { id: orderId },
       include: {
@@ -166,6 +172,8 @@ export class OrderService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
+
+    const oldStatus = order.status;
 
     const updatedOrder = await this.prismaService.order.update({
       where: { id: orderId },
@@ -187,6 +195,21 @@ export class OrderService {
       `${updatedOrder.user.firstName} ${updatedOrder.user.lastName}`.trim();
     const shortOrderId = updatedOrder.id.slice(-6).toUpperCase();
     const normalizedStatus = status.toLowerCase();
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'Order',
+        entityId: orderId,
+        action: 'STATUS_CHANGE',
+        description: `Changed order #${shortOrderId} status from ${oldStatus} to ${status}`,
+        changes: {
+          status: { old: oldStatus, new: status },
+        },
+      });
+    }
 
     await Promise.all([
       this.notificationService.createNotification({

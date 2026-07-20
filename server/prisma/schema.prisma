@@ -301,6 +301,24 @@ model ContactMessage {
   @@index([createdAt])
 }
 
+model ActivityLog {
+  id          String   @id @default(uuid())
+  actorId     String
+  actorName   String?
+  actorRole   Role?
+  entityType  String
+  entityId    String?
+  action      String
+  description String?
+  changes     Json?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType, action])
+  @@index([createdAt])
+}
+
 model Notification {
   id        String           @id @default(uuid())
   userId    String

@@ -16,6 +16,7 @@ import {
   X,
   StepBack,
   Bell,
+  History,
 } from 'lucide-react';
 import { authService } from '../services';
 import { useNavigate } from 'react-router-dom';
@@ -75,6 +76,11 @@ const sidebarMenu = [
   {
     category: 'MANAGEMENT & SETTINGS',
     items: [
+      {
+        icon: History,
+        label: 'Activity History',
+        path: '/admin/history',
+      },
       {
         icon: MessageSquare,
         label: 'Contact Messages',

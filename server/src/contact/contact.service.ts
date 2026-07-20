@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 import { CreateContactMessageDto } from './dto/create-contact-message.dto';
 import { NotificationType, Role } from '../generated/prisma';
 import { NotificationService } from '../notification/notification.service';
@@ -9,6 +10,7 @@ export class ContactService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly notificationService: NotificationService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   async createContactMessage(userId: string, dto: CreateContactMessageDto) {
@@ -98,7 +100,11 @@ export class ContactService {
     return message;
   }
 
-  async updateContactMessageStatus(id: string, status: 'UNREAD' | 'READ' | 'RESPONDED') {
+  async updateContactMessageStatus(
+    id: string,
+    status: 'UNREAD' | 'READ' | 'RESPONDED',
+    actor?: { id: string; email?: string },
+  ) {
     const message = await this.prismaService.contactMessage.findUnique({
       where: { id },
       include: {
@@ -117,6 +123,8 @@ export class ContactService {
       throw new NotFoundException('Contact message not found');
     }
 
+    const oldStatus = message.status;
+
     const updatedMessage = await this.prismaService.contactMessage.update({
       where: { id },
       data: { status },
@@ -124,6 +132,21 @@ export class ContactService {
 
     const customerName = `${message.user.firstName} ${message.user.lastName}`.trim();
     const shortMessageId = message.id.slice(-6).toUpperCase();
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'ContactMessage',
+        entityId: id,
+        action: 'STATUS_CHANGE',
+        description: `Changed message #${shortMessageId} status from ${oldStatus} to ${status}`,
+        changes: {
+          status: { old: oldStatus, new: status },
+        },
+      });
+    }
 
     await this.notificationService.createNotification({
       userId: message.userId,

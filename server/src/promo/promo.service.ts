@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 import { CreatePromoDto } from './dto/create-promo.dto';
 import { UpdatePromoDto } from './dto/update-promo.dto';
 
@@ -35,7 +36,10 @@ export interface PromoStatsResponse {
 
 @Injectable()
 export class PromoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activityLogService: ActivityLogService,
+  ) {}
 
   async listPromoCodes(): Promise<PromoCodeResponse[]> {
     const promoCodes = await this.prisma.promoCode.findMany({
@@ -77,7 +81,10 @@ export class PromoService {
     };
   }
 
-  async createPromoCode(dto: CreatePromoDto): Promise<PromoCodeResponse> {
+  async createPromoCode(
+    dto: CreatePromoDto,
+    actor?: { id: string; email?: string },
+  ): Promise<PromoCodeResponse> {
     const trimmedCode = dto.code.trim().toUpperCase();
 
     if (!trimmedCode) {
@@ -119,6 +126,18 @@ export class PromoService {
       include: { product: { select: { id: true, name: true } } },
     });
 
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'PromoCode',
+        entityId: created.id,
+        action: 'CREATE',
+        description: `Created promo code "${created.code}"`,
+      });
+    }
+
     return {
       id: created.id,
       code: created.code,
@@ -144,6 +163,7 @@ export class PromoService {
   async updatePromoCode(
     id: string,
     dto: UpdatePromoDto,
+    actor?: { id: string; email?: string },
   ): Promise<PromoCodeResponse> {
     const existing = await this.prisma.promoCode.findUnique({
       where: { id },
@@ -205,6 +225,39 @@ export class PromoService {
       include: { product: { select: { id: true, name: true } } },
     });
 
+    if (actor) {
+      const changes: Record<string, { old: unknown; new: unknown }> = {};
+      const fieldMap: Record<string, string> = {
+        code: 'code',
+        discountType: 'discount type',
+        value: 'value',
+        usageLimit: 'usage limit',
+        productId: 'product',
+        startDate: 'start date',
+        expiration: 'expiration',
+        isLifetime: 'lifetime',
+        source: 'source',
+        status: 'status',
+      };
+      for (const [key, label] of Object.entries(fieldMap)) {
+        if (key in updateData && existing[key] !== updateData[key]) {
+          changes[label] = { old: existing[key], new: updateData[key] };
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        await this.activityLogService.log({
+          actorId: actor.id,
+          actorName: actor.email,
+          actorRole: undefined,
+          entityType: 'PromoCode',
+          entityId: id,
+          action: 'UPDATE',
+          description: `Updated promo code "${updated.code}"`,
+          changes,
+        });
+      }
+    }
+
     return {
       id: updated.id,
       code: updated.code,
@@ -227,7 +280,10 @@ export class PromoService {
     };
   }
 
-  async deletePromoCode(id: string): Promise<void> {
+  async deletePromoCode(
+    id: string,
+    actor?: { id: string; email?: string },
+  ): Promise<void> {
     const existing = await this.prisma.promoCode.findUnique({
       where: { id },
     });
@@ -237,9 +293,24 @@ export class PromoService {
     }
 
     await this.prisma.promoCode.delete({ where: { id } });
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'PromoCode',
+        entityId: id,
+        action: 'DELETE',
+        description: `Deleted promo code "${existing.code}"`,
+      });
+    }
   }
 
-  async toggleStatus(id: string): Promise<PromoCodeResponse> {
+  async toggleStatus(
+    id: string,
+    actor?: { id: string; email?: string },
+  ): Promise<PromoCodeResponse> {
     const existing = await this.prisma.promoCode.findUnique({
       where: { id },
     });
@@ -248,6 +319,7 @@ export class PromoService {
       throw new NotFoundException('Promo code not found');
     }
 
+    const oldStatus = existing.status;
     const newStatus = existing.status === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
 
     const updated = await this.prisma.promoCode.update({
@@ -255,6 +327,21 @@ export class PromoService {
       data: { status: newStatus },
       include: { product: { select: { id: true, name: true } } },
     });
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'PromoCode',
+        entityId: id,
+        action: 'STATUS_CHANGE',
+        description: `Toggled promo code "${updated.code}" from ${oldStatus} to ${newStatus}`,
+        changes: {
+          status: { old: oldStatus, new: newStatus },
+        },
+      });
+    }
 
     return {
       id: updated.id,

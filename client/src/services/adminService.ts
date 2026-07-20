@@ -1,6 +1,8 @@
 import type {
   AcceptAdminInvitationPayload,
   AcceptAdminInvitationResponse,
+  ActivityLogEntry,
+  ActivityLogFilters,
   AdminDashboardStats,
   AdminInvitation,
   AdminTeamMember,
@@ -8,6 +10,7 @@ import type {
   CreateAdminInvitationResponse,
   DeleteAdminInvitationResponse,
   LoyaltyCustomer,
+  PaginatedResponse,
 } from '../types/admin';
 import { ApiError } from './authService';
 
@@ -143,6 +146,39 @@ export interface VendorDashboardStats {
   topClients: number;
   newMessages: number;
   activePromos: number;
+}
+
+export async function getActivityLogs(
+  filters?: ActivityLogFilters,
+): Promise<PaginatedResponse<ActivityLogEntry>> {
+  const params = new URLSearchParams();
+  if (filters?.page) params.append('page', String(filters.page));
+  if (filters?.limit) params.append('limit', String(filters.limit));
+  if (filters?.entityType) params.append('entityType', filters.entityType);
+  if (filters?.action) params.append('action', filters.action);
+  if (filters?.actorId) params.append('actorId', filters.actorId);
+  if (filters?.actorRole) params.append('actorRole', filters.actorRole);
+  if (filters?.startDate) params.append('startDate', filters.startDate);
+  if (filters?.endDate) params.append('endDate', filters.endDate);
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+  if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+  const queryString = params.toString() ? `?${params.toString()}` : '';
+
+  const response = await fetch(
+    `${API_BASE_URL}/admin/activity-log${queryString}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    },
+  );
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as PaginatedResponse<ActivityLogEntry>;
 }
 
 export async function getAdminDashboardStats(

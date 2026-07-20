@@ -13,6 +13,7 @@ import { OrderModule } from './order/order.module';
 import { LoyaltyModule } from './loyalty/loyalty.module';
 import { ContactModule } from './contact/contact.module';
 import { NotificationModule } from './notification/notification.module';
+import { ActivityLogModule } from './activity-log/activity-log.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { NotificationModule } from './notification/notification.module';
     LoyaltyModule,
     ContactModule,
     NotificationModule,
+    ActivityLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

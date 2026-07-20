@@ -59,9 +59,13 @@ export class ContactController {
   @UseGuards(AdminGuard)
   @Roles(Role.ADMIN, Role.VENDOR)
   updateContactMessageStatus(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: UpdateMessageStatusDto,
   ) {
-    return this.contactService.updateContactMessageStatus(id, dto.status);
+    return this.contactService.updateContactMessageStatus(id, dto.status, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 }

@@ -12,6 +12,7 @@ import { hash } from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { NotificationService } from '../notification/notification.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 import { CreateAdminInvitationDto } from './dto/create-admin-invitation.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { SendNotificationToRolesDto, SendNotificationToUsersDto } from './dto/send-notification.dto';
@@ -58,6 +59,7 @@ export class AdminService {
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
     private readonly notificationService: NotificationService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   async listTeamMembers(): Promise<AdminTeamMemberResponse[]> {
@@ -149,6 +151,15 @@ export class AdminService {
     });
 
     this.logger.log(`Admin invitation sent to ${normalizedEmail}`);
+
+    await this.activityLogService.log({
+      actorId: inviterId,
+      actorName: inviterName,
+      entityType: 'UserInvitation',
+      entityId: normalizedEmail,
+      action: 'CREATE',
+      description: `Sent ${dto.role} invitation to ${normalizedEmail}`,
+    });
 
     return {
       message: 'Invitation sent successfully',
@@ -540,10 +551,13 @@ export class AdminService {
     };
   }
 
-  async deleteInvitation(invitationId: string): Promise<{ message: string }> {
+  async deleteInvitation(
+    invitationId: string,
+    actor?: { id: string; email?: string },
+  ): Promise<{ message: string }> {
     const invitation = await this.prismaService.userInvitation.findUnique({
       where: { id: invitationId },
-      select: { id: true },
+      select: { id: true, email: true, role: true },
     });
 
     if (!invitation) {
@@ -553,6 +567,18 @@ export class AdminService {
     await this.prismaService.userInvitation.delete({
       where: { id: invitationId },
     });
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'UserInvitation',
+        entityId: invitationId,
+        action: 'DELETE',
+        description: `Deleted ${invitation.role} invitation for ${invitation.email}`,
+      });
+    }
 
     return {
       message: 'Invitation deleted successfully',
@@ -622,7 +648,10 @@ export class AdminService {
     };
   }
 
-  async sendNotificationToUsers(dto: SendNotificationToUsersDto) {
+  async sendNotificationToUsers(
+    dto: SendNotificationToUsersDto,
+    actor?: { id: string; email?: string },
+  ) {
     const users = await this.prismaService.user.findMany({
       where: { id: { in: dto.userIds } },
       select: { id: true },
@@ -643,19 +672,46 @@ export class AdminService {
       ),
     );
 
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'Notification',
+        action: 'SEND_TO_USERS',
+        description: `Sent notification "${dto.title}" to ${results.length} user(s)`,
+        metadata: { type: dto.type, userIds: dto.userIds },
+      });
+    }
+
     return {
       message: `Notification sent to ${results.length} user(s)`,
       sentCount: results.length,
     };
   }
 
-  async sendNotificationToRoles(dto: SendNotificationToRolesDto) {
+  async sendNotificationToRoles(
+    dto: SendNotificationToRolesDto,
+    actor?: { id: string; email?: string },
+  ) {
     const results = await this.notificationService.createNotificationsForRoles({
       roles: dto.roles,
       type: dto.type,
       title: dto.title,
       message: dto.message,
     });
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'Notification',
+        action: 'SEND_TO_ROLES',
+        description: `Sent notification "${dto.title}" to roles: ${dto.roles.join(', ')}`,
+        metadata: { type: dto.type, roles: dto.roles },
+      });
+    }
 
     return {
       message: `Notification sent to ${results.length} user(s)`,

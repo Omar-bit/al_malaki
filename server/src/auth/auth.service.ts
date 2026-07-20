@@ -14,6 +14,7 @@ import { CookieOptions } from 'express';
 import { createHash, randomInt } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 import {
   AUTH_COOKIE_NAME,
   buildAuthCookieOptions,
@@ -86,6 +87,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
+    private readonly activityLogService: ActivityLogService,
   ) {}
 
   async requestRegisterOtp(
@@ -339,10 +341,41 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
+    const token = await this.createAccessToken(user.id, user.email);
+
+    await this.activityLogService.log({
+      actorId: user.id,
+      actorName: `${user.firstName} ${user.lastName}`.trim(),
+      actorRole: user.role as any,
+      entityType: 'Auth',
+      entityId: user.id,
+      action: 'LOGIN',
+      description: `User ${user.email} logged in`,
+    });
+
     return {
       user: this.mapUser(user),
-      token: await this.createAccessToken(user.id, user.email),
+      token,
     };
+  }
+
+  async logLogout(userId: string): Promise<void> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: { email: true, firstName: true, lastName: true, role: true },
+    });
+
+    if (user) {
+      await this.activityLogService.log({
+        actorId: userId,
+        actorName: `${user.firstName} ${user.lastName}`.trim(),
+        actorRole: user.role as any,
+        entityType: 'Auth',
+        entityId: userId,
+        action: 'LOGOUT',
+        description: `User ${user.email} logged out`,
+      });
+    }
   }
 
   async getProfile(userId: string): Promise<AuthenticatedUserResponse> {

@@ -17,6 +17,8 @@ import {
 } from './promo.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../auth/types/auth-user.type';
 import { CreatePromoDto } from './dto/create-promo.dto';
 import { UpdatePromoDto } from './dto/update-promo.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -41,27 +43,47 @@ export class PromoController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createPromoCode(
+    @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreatePromoDto,
   ): Promise<PromoCodeResponse> {
-    return this.promoService.createPromoCode(dto);
+    return this.promoService.createPromoCode(dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Patch(':id')
   async updatePromoCode(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: UpdatePromoDto,
   ): Promise<PromoCodeResponse> {
-    return this.promoService.updatePromoCode(id, dto);
+    return this.promoService.updatePromoCode(id, dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePromoCode(@Param('id') id: string): Promise<void> {
-    return this.promoService.deletePromoCode(id);
+  async deletePromoCode(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.promoService.deletePromoCode(id, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Patch(':id/toggle')
-  async toggleStatus(@Param('id') id: string): Promise<PromoCodeResponse> {
-    return this.promoService.toggleStatus(id);
+  async toggleStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<PromoCodeResponse> {
+    return this.promoService.toggleStatus(id, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 }

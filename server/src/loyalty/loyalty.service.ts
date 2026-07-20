@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 import { Role } from '../generated/prisma';
 
 export interface CustomerLoyaltyResponse {
@@ -23,7 +24,10 @@ export interface CustomerLoyaltyResponse {
 
 @Injectable()
 export class LoyaltyService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly activityLogService: ActivityLogService,
+  ) {}
 
   async listCustomers(search?: string): Promise<CustomerLoyaltyResponse[]> {
     const customers = await this.prismaService.user.findMany({
@@ -81,6 +85,7 @@ export class LoyaltyService {
     userId: string,
     points: number,
     description?: string,
+    actor?: { id: string; email?: string },
   ): Promise<CustomerLoyaltyResponse> {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId, role: Role.CUSTOMER },
@@ -90,6 +95,11 @@ export class LoyaltyService {
     if (!user) {
       throw new NotFoundException('Customer not found');
     }
+
+    const oldLoyalty = await this.prismaService.customerLoyalty.findUnique({
+      where: { userId },
+    });
+    const oldPoints = oldLoyalty?.points ?? 0;
 
     const loyalty = await this.prismaService.customerLoyalty.upsert({
       where: { userId },
@@ -119,6 +129,21 @@ export class LoyaltyService {
         description,
       },
     });
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'Loyalty',
+        entityId: loyalty.id,
+        action: 'ADJUST_POINTS',
+        description: `Adjusted points for ${user.firstName} ${user.lastName}: ${points > 0 ? '+' : ''}${points} pts${description ? ` (${description})` : ''}`,
+        changes: {
+          points: { old: oldPoints, new: loyalty.points },
+        },
+      });
+    }
 
     const totalPurchases = user.orders.length;
     const totalSpent = user.orders.reduce((sum, o) => sum + o.total, 0);

@@ -62,9 +62,13 @@ export class OrderController {
   @UseGuards(AdminGuard)
   @Roles(Role.ADMIN, Role.VENDOR)
   updateOrderStatus(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') orderId: string,
     @Body() dto: UpdateOrderStatusDto,
   ) {
-    return this.orderService.updateOrderStatus(orderId, dto.status);
+    return this.orderService.updateOrderStatus(orderId, dto.status, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 }

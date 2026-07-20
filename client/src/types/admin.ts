@@ -88,6 +88,41 @@ export interface AdminDashboardStats {
   totalProducts: number;
 }
 
+export interface ActivityLogEntry {
+  id: string;
+  actorId: string;
+  actorName: string | null;
+  actorRole: 'ADMIN' | 'VENDOR' | null;
+  entityType: string;
+  entityId: string | null;
+  action: string;
+  description: string | null;
+  changes: Record<string, { old: unknown; new: unknown }> | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface ActivityLogFilters {
+  page?: number;
+  limit?: number;
+  entityType?: string;
+  action?: string;
+  actorId?: string;
+  actorRole?: string;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface LoyaltyCustomer {
   id: string;
   userId: string;

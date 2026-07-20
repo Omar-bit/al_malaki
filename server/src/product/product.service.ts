@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ActivityLogService } from '../activity-log/activity-log.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -89,7 +90,10 @@ const performanceReverseMap: Record<
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activityLogService: ActivityLogService,
+  ) {}
 
   async listProducts(): Promise<ProductResponse[]> {
     const products = await this.prisma.product.findMany({
@@ -219,7 +223,10 @@ export class ProductService {
     };
   }
 
-  async createProduct(dto: CreateProductDto): Promise<ProductResponse> {
+  async createProduct(
+    dto: CreateProductDto,
+    actor?: { id: string; email?: string },
+  ): Promise<ProductResponse> {
     const category = await this.prisma.productCategory.findUnique({
       where: { id: dto.categoryId },
     });
@@ -268,6 +275,18 @@ export class ProductService {
       include: { category: true },
     });
 
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'Product',
+        entityId: createdProduct.id,
+        action: 'CREATE',
+        description: `Created product "${createdProduct.name}"`,
+      });
+    }
+
     return {
       id: createdProduct.id,
       name: createdProduct.name,
@@ -304,6 +323,7 @@ export class ProductService {
   async updateProduct(
     id: string,
     dto: UpdateProductDto,
+    actor?: { id: string; email?: string },
   ): Promise<ProductResponse> {
     const existingProduct = await this.prisma.product.findUnique({
       where: { id },
@@ -375,6 +395,44 @@ export class ProductService {
       include: { category: true },
     });
 
+    if (actor) {
+      const changes: Record<string, { old: unknown; new: unknown }> = {};
+      const fieldMap: Record<string, string> = {
+        name: 'name',
+        categoryId: 'category',
+        brand: 'brand',
+        description: 'description',
+        price: 'price',
+        discountPrice: 'discount price',
+        status: 'status',
+        performance: 'performance',
+        slug: 'slug',
+        primaryPlacement: 'primary placement',
+        collection: 'collection',
+        promoCode: 'promo code',
+        campaign: 'campaign',
+        metaTitle: 'meta title',
+        metaDescription: 'meta description',
+      };
+      for (const [key, label] of Object.entries(fieldMap)) {
+        if (key in updateData && existingProduct[key] !== updateData[key]) {
+          changes[label] = { old: existingProduct[key], new: updateData[key] };
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        await this.activityLogService.log({
+          actorId: actor.id,
+          actorName: actor.email,
+          actorRole: undefined,
+          entityType: 'Product',
+          entityId: id,
+          action: 'UPDATE',
+          description: `Updated product "${updatedProduct.name}"`,
+          changes,
+        });
+      }
+    }
+
     return {
       id: updatedProduct.id,
       name: updatedProduct.name,
@@ -408,7 +466,10 @@ export class ProductService {
     };
   }
 
-  async deleteProduct(id: string): Promise<void> {
+  async deleteProduct(
+    id: string,
+    actor?: { id: string; email?: string },
+  ): Promise<void> {
     const existingProduct = await this.prisma.product.findUnique({
       where: { id },
     });
@@ -420,6 +481,18 @@ export class ProductService {
     await this.prisma.product.delete({
       where: { id },
     });
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'Product',
+        entityId: id,
+        action: 'DELETE',
+        description: `Deleted product "${existingProduct.name}"`,
+      });
+    }
   }
 
   async listCategories(): Promise<CategoryResponse[]> {
@@ -434,7 +507,10 @@ export class ProductService {
     }));
   }
 
-  async createCategory(dto: CreateCategoryDto): Promise<CategoryResponse> {
+  async createCategory(
+    dto: CreateCategoryDto,
+    actor?: { id: string; email?: string },
+  ): Promise<CategoryResponse> {
     const trimmedName = dto.name.trim();
 
     if (!trimmedName) {
@@ -458,6 +534,18 @@ export class ProductService {
       },
     });
 
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'ProductCategory',
+        entityId: created.id,
+        action: 'CREATE',
+        description: `Created category "${trimmedName}"`,
+      });
+    }
+
     return {
       ...created,
       image: getCategoryUrl(created.image),
@@ -468,6 +556,7 @@ export class ProductService {
   async updateCategory(
     id: string,
     dto: UpdateCategoryDto,
+    actor?: { id: string; email?: string },
   ): Promise<CategoryResponse> {
     const existing = await this.prisma.productCategory.findUnique({
       where: { id },
@@ -506,6 +595,31 @@ export class ProductService {
       },
     });
 
+    if (actor) {
+      const changes: Record<string, { old: unknown; new: unknown }> = {};
+      if (dto.name !== undefined && dto.name.trim() !== existing.name) {
+        changes.name = { old: existing.name, new: dto.name.trim() };
+      }
+      if (dto.color !== undefined && dto.color !== existing.color) {
+        changes.color = { old: existing.color, new: dto.color };
+      }
+      if (dto.image !== undefined && extractFilename(dto.image) !== existing.image) {
+        changes.image = { old: existing.image, new: extractFilename(dto.image) || null };
+      }
+      if (Object.keys(changes).length > 0) {
+        await this.activityLogService.log({
+          actorId: actor.id,
+          actorName: actor.email,
+          actorRole: undefined,
+          entityType: 'ProductCategory',
+          entityId: id,
+          action: 'UPDATE',
+          description: `Updated category "${updated.name}"`,
+          changes,
+        });
+      }
+    }
+
     return {
       ...updated,
       image: getCategoryUrl(updated.image),
@@ -513,7 +627,10 @@ export class ProductService {
     };
   }
 
-  async deleteCategory(id: string): Promise<{ message: string }> {
+  async deleteCategory(
+    id: string,
+    actor?: { id: string; email?: string },
+  ): Promise<{ message: string }> {
     const existing = await this.prisma.productCategory.findUnique({
       where: { id },
       include: { _count: { select: { products: true } } },
@@ -530,6 +647,19 @@ export class ProductService {
     }
 
     await this.prisma.productCategory.delete({ where: { id } });
+
+    if (actor) {
+      await this.activityLogService.log({
+        actorId: actor.id,
+        actorName: actor.email,
+        actorRole: undefined,
+        entityType: 'ProductCategory',
+        entityId: id,
+        action: 'DELETE',
+        description: `Deleted category "${existing.name}"`,
+      });
+    }
+
     return { message: 'Category deleted successfully' };
   }
 }

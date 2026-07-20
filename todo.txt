@@ -1,4 +1,3 @@
-- activity tracking "history" (feature:admin)
 MEET
 - influencer tracking (feature: admin + vendor:view_only)
 - points and promo codes verification (test implementation)

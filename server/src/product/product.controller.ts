@@ -24,6 +24,8 @@ import {
 } from './product.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/guards/admin.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../auth/types/auth-user.type';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -80,22 +82,38 @@ export class ProductController {
 
   @Post('products')
   @HttpCode(HttpStatus.CREATED)
-  async createProduct(@Body() dto: CreateProductDto): Promise<ProductResponse> {
-    return this.productService.createProduct(dto);
+  async createProduct(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateProductDto,
+  ): Promise<ProductResponse> {
+    return this.productService.createProduct(dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Patch('products/:id')
   async updateProduct(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: UpdateProductDto,
   ): Promise<ProductResponse> {
-    return this.productService.updateProduct(id, dto);
+    return this.productService.updateProduct(id, dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Delete('products/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteProduct(@Param('id') id: string): Promise<void> {
-    return this.productService.deleteProduct(id);
+  async deleteProduct(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.productService.deleteProduct(id, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Post('products/upload-images')
@@ -125,9 +143,13 @@ export class ProductController {
   @Post('categories')
   @HttpCode(HttpStatus.CREATED)
   async createCategory(
+    @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateCategoryDto,
   ): Promise<CategoryResponse> {
-    return this.productService.createCategory(dto);
+    return this.productService.createCategory(dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Post('categories/upload-image')
@@ -149,15 +171,25 @@ export class ProductController {
 
   @Patch('categories/:id')
   async updateCategory(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: UpdateCategoryDto,
   ): Promise<CategoryResponse> {
-    return this.productService.updateCategory(id, dto);
+    return this.productService.updateCategory(id, dto, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 
   @Delete('categories/:id')
   @HttpCode(HttpStatus.OK)
-  async deleteCategory(@Param('id') id: string): Promise<{ message: string }> {
-    return this.productService.deleteCategory(id);
+  async deleteCategory(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<{ message: string }> {
+    return this.productService.deleteCategory(id, {
+      id: user.userId,
+      email: user.email,
+    });
   }
 }
