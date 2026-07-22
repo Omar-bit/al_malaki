@@ -127,9 +127,9 @@ export function AdminInfluencerTrackingPage() {
 
   return (
     <AdminLayout>
-      <div className='py-5 w-full font-bona! text-black'>
+      <div className='py-4 w-full font-bona! text-black'>
         {/* Header */}
-        <header className='mb-4  px-4 md:px-8 '>
+        <header className='mb-4  px-4 md:px-6 '>
           <h1 className='text-xl font-bold font-bona tracking-wide mb-1 text-black'>
             Admin Dashboard
           </h1>
@@ -140,7 +140,7 @@ export function AdminInfluencerTrackingPage() {
         {/* Divider Line */}
         <div className='w-full h-[0.5px] bg-[#000000]/68 mb-6' />
 
-        <main className='px-4 md:px-8 '>
+        <main className='px-4 md:px-6 '>
           <div className='mb-6'>
             <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>
               Marketing &amp; Influencers
@@ -150,7 +150,7 @@ export function AdminInfluencerTrackingPage() {
             </p>
           </div>
 
-          <section className='rounded-[28px] border border-dark-red bg-[#e3e0db] px-4 py-5  md:px-5'>
+          <section className='rounded-[28px] border border-dark-red bg-[#e3e0db] px-4 py-5  md:px-5 min-h-[60vh]'>
             <div className='mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between'>
               <div>
                 <div className='flex items-center gap-2'>
@@ -278,7 +278,7 @@ export function AdminInfluencerTrackingPage() {
             </div>
 
             {/* <div className='overflow-hidden rounded-[22px] border border-dark-red/35 bg-[#f7f0e7]'> */}
-            <TableContainer className='w-full border border rounded-xl '>
+            <TableContainer className='w-full border border rounded-xl min-h-[30vh]'>
               <Table>
                 <TableHead className=' bg-[#D9D9D980]/50!'>
                   <TableRow>
@@ -325,10 +325,10 @@ export function AdminInfluencerTrackingPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    items.map((item) => (
+                    items.map((item, itemIndex) => (
                       <TableRow
                         key={item.id}
-                        className='border-t border-[#000000]/68 hover:bg-[#efe2cf]/60'
+                        className={`${itemIndex === 0 ? 'border-t' : 'border-y'} border-[#000000]/68 hover:bg-[#efe2cf]/60`}
                       >
                         <TableCell className='align-top'>
                           <div className='min-w-[180px]'>
