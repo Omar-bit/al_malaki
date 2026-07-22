@@ -49,9 +49,13 @@ export function TableHeaderCell({
   children,
   className = '',
   align = 'left',
-}: CommonProps & { align?: 'left' | 'right' | 'center' }) {
+  onClick,
+}: CommonProps & { align?: 'left' | 'right' | 'center'; onClick?: () => void }) {
   return (
-    <th className={`py-3 px-3 font-semibold text-black text-${align} ${className}`}>
+    <th
+      className={`py-3 px-3 font-semibold text-black text-${align} ${onClick ? 'cursor-pointer select-none' : ''} ${className}`}
+      onClick={onClick}
+    >
       {children}
     </th>
   );

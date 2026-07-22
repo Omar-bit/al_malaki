@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
+  ArrowDown,
+  ArrowUp,
   ArrowUpDown,
   Copy,
   Filter,
@@ -114,6 +116,18 @@ export function AdminInfluencerTrackingPage() {
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleSort = (column: typeof sortBy) => {
+    setLoading(true);
+    setSortBy((prev) => {
+      if (prev === column) {
+        setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
+        return prev;
+      }
+      setSortOrder('desc');
+      return column;
+    });
   };
 
   const copyLink = async (url: string) => {
@@ -282,26 +296,104 @@ export function AdminInfluencerTrackingPage() {
               <Table>
                 <TableHead className=' bg-[#D9D9D980]/50!'>
                   <TableRow>
-                    <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
-                      Influencer
+                    <TableHeaderCell
+                      className='text-[#000000]/68! font-bold! font-bona!'
+                      onClick={() => handleSort('influencerName')}
+                    >
+                      <span className='inline-flex items-center gap-1'>
+                        Influencer
+                        <span className='inline-flex flex-col -gap-1 leading-none'>
+                          <ArrowUp
+                            className={`h-2.5 w-2.5 ${sortBy === 'clicks' && sortOrder === 'asc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                          <ArrowDown
+                            className={`h-2.5 w-2.5 -mt-1 ${sortBy === 'clicks' && sortOrder === 'desc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                        </span>
+                      </span>
                     </TableHeaderCell>
                     <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
                       Referral Link
                     </TableHeaderCell>
-                    <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
-                      Clicks
+                    <TableHeaderCell
+                      className='text-[#000000]/68! font-bold! font-bona!'
+                      onClick={() => handleSort('clicks')}
+                    >
+                      <span className='inline-flex items-center gap-1'>
+                        Clicks
+                        <span className='inline-flex flex-col -gap-1 leading-none'>
+                          <ArrowUp
+                            className={`h-2.5 w-2.5 ${sortBy === 'clicks' && sortOrder === 'asc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                          <ArrowDown
+                            className={`h-2.5 w-2.5 -mt-1 ${sortBy === 'clicks' && sortOrder === 'desc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                        </span>
+                      </span>
                     </TableHeaderCell>
-                    <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
-                      Accounts
+                    <TableHeaderCell
+                      className='text-[#000000]/68! font-bold! font-bona!'
+                      onClick={() => handleSort('accountsCreated')}
+                    >
+                      <span className='inline-flex items-center gap-1'>
+                        Accounts
+                        <span className='inline-flex flex-col -gap-1 leading-none'>
+                          <ArrowUp
+                            className={`h-2.5 w-2.5 ${sortBy === 'accountsCreated' && sortOrder === 'asc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                          <ArrowDown
+                            className={`h-2.5 w-2.5 -mt-1 ${sortBy === 'accountsCreated' && sortOrder === 'desc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                        </span>
+                      </span>
                     </TableHeaderCell>
-                    <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
-                      Orders
+                    <TableHeaderCell
+                      className='text-[#000000]/68! font-bold! font-bona!'
+                      onClick={() => handleSort('orders')}
+                    >
+                      <span className='inline-flex items-center gap-1'>
+                        Orders
+                        <span className='inline-flex flex-col -gap-1 leading-none'>
+                          <ArrowUp
+                            className={`h-2.5 w-2.5 ${sortBy === 'orders' && sortOrder === 'asc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                          <ArrowDown
+                            className={`h-2.5 w-2.5 -mt-1 ${sortBy === 'orders' && sortOrder === 'desc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                        </span>
+                      </span>
                     </TableHeaderCell>
-                    <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
-                      Revenue
+                    <TableHeaderCell
+                      className='text-[#000000]/68! font-bold! font-bona!'
+                      onClick={() => handleSort('revenue')}
+                    >
+                      <span className='inline-flex items-center gap-1'>
+                        Revenue
+                        <span className='inline-flex flex-col -gap-1 leading-none'>
+                          <ArrowUp
+                            className={`h-2.5 w-2.5 ${sortBy === 'revenue' && sortOrder === 'asc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                          <ArrowDown
+                            className={`h-2.5 w-2.5 -mt-1 ${sortBy === 'revenue' && sortOrder === 'desc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                        </span>
+                      </span>
                     </TableHeaderCell>
-                    <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
-                      Conv %
+                    <TableHeaderCell
+                      className='text-[#000000]/68! font-bold! font-bona!'
+                      onClick={() => handleSort('conversionRate')}
+                    >
+                      <span className='inline-flex items-center gap-1'>
+                        Conv %
+                        <span className='inline-flex flex-col -gap-1 leading-none'>
+                          <ArrowUp
+                            className={`h-2.5 w-2.5 ${sortBy === 'conversionRate' && sortOrder === 'asc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                          <ArrowDown
+                            className={`h-2.5 w-2.5 -mt-1 ${sortBy === 'conversionRate' && sortOrder === 'desc' ? 'text-black' : 'text-black/30'}`}
+                          />
+                        </span>
+                      </span>
                     </TableHeaderCell>
                   </TableRow>
                 </TableHead>
@@ -364,7 +456,33 @@ export function AdminInfluencerTrackingPage() {
                           {item.accountsCreated.toLocaleString()}
                         </TableCell>
                         <TableCell className='font-aboreto text-md text-black'>
-                          {item.orders.toLocaleString()}
+                          <svg
+                            width='21'
+                            height='21'
+                            viewBox='0 0 21 21'
+                            fill='none'
+                            className='size-4! inline-block mr-1'
+                            xmlns='http://www.w3.org/2000/svg'
+                          >
+                            <g clip-path='url(#clip0_517_1190)'>
+                              <path
+                                d='M0.875 0.875H4.375L6.72 12.5912C6.80001 12.9941 7.01917 13.356 7.3391 13.6135C7.65903 13.8711 8.05936 14.0079 8.47 14H16.975C17.3856 14.0079 17.786 13.8711 18.1059 13.6135C18.4258 13.356 18.645 12.9941 18.725 12.5912L20.125 5.25H5.25M8.75 18.375C8.75 18.8582 8.35825 19.25 7.875 19.25C7.39175 19.25 7 18.8582 7 18.375C7 17.8917 7.39175 17.5 7.875 17.5C8.35825 17.5 8.75 17.8917 8.75 18.375ZM18.375 18.375C18.375 18.8582 17.9832 19.25 17.5 19.25C17.0167 19.25 16.625 18.8582 16.625 18.375C16.625 17.8917 17.0167 17.5 17.5 17.5C17.9832 17.5 18.375 17.8917 18.375 18.375Z'
+                                stroke='#1E1E1E'
+                                stroke-width='3.5'
+                                stroke-linecap='round'
+                                stroke-linejoin='round'
+                              />
+                            </g>
+                            <defs>
+                              <clipPath id='clip0_517_1190'>
+                                <rect width='21' height='21' fill='white' />
+                              </clipPath>
+                            </defs>
+                          </svg>
+
+                          <span className='inline'>
+                            {item.orders.toLocaleString()}
+                          </span>
                         </TableCell>
                         <TableCell className='font-aboreto text-md text-black'>
                           {formatCurrency(item.revenue, 'TND', true)} DT
