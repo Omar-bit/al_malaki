@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { authService } from '../services';
+import { getStoredInfluencerTrackingCode } from '../services/influencerTrackingService';
 import {
   validateBirthDateValue,
   validateEmailValue,
@@ -215,6 +216,7 @@ export function RegisterPage() {
         birthDate: birthDateValidation.value,
         profilePicture,
         password: passwordValidation.value,
+        influencerTrackingCode: getStoredInfluencerTrackingCode(),
       });
 
       toast.success(t('register.success'));

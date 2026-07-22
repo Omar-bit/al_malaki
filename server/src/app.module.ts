@@ -14,6 +14,7 @@ import { LoyaltyModule } from './loyalty/loyalty.module';
 import { ContactModule } from './contact/contact.module';
 import { NotificationModule } from './notification/notification.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
+import { InfluencerTrackingModule } from './influencer-tracking/influencer-tracking.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ActivityLogModule } from './activity-log/activity-log.module';
     ContactModule,
     NotificationModule,
     ActivityLogModule,
+    InfluencerTrackingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

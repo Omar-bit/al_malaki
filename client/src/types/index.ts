@@ -67,3 +67,10 @@ export type {
   NotificationStreamEvent,
   NotificationType,
 } from './notification';
+
+export type {
+  InfluencerTrackingItem,
+  InfluencerTrackingStats,
+  CreateInfluencerTrackingPayload,
+  InfluencerTrackingFilters,
+} from './influencer';

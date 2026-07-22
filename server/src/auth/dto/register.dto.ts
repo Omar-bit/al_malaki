@@ -62,4 +62,12 @@ export class RegisterDto {
   @IsString()
   @MaxLength(191)
   profilePicture?: string;
+
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsOptional()
+  @IsString()
+  @MaxLength(191)
+  influencerTrackingCode?: string;
 }

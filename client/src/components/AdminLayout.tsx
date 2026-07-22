@@ -199,17 +199,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
           <nav className='flex-1 overflow-y-auto px-4 custom-scrollbar space-y-3'>
             {sidebarMenu
-              .map((section) => {
-                if (user?.role === 'VENDOR') {
-                  return {
-                    ...section,
-                    items: section.items.filter(
-                      (item) => item.path !== '/admin/influencers',
-                    ),
-                  };
-                }
-                return section;
-              })
               .filter((section) => section.items.length > 0)
               .map((section, idx) => (
                 <div key={idx}>

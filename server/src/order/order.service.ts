@@ -36,6 +36,16 @@ export class OrderService {
     }
 
     const productMap = new Map(products.map((p) => [p.id, p]));
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        influencerTrackingLinkId: true,
+      },
+    });
+    const explicitInfluencerTrackingLinkId =
+      await this.resolveInfluencerTrackingLinkId(dto.influencerTrackingCode);
+    const influencerTrackingLinkId =
+      explicitInfluencerTrackingLinkId ?? user?.influencerTrackingLinkId ?? null;
 
     let subtotal = 0;
     const orderItems = dto.items.map((item) => {
@@ -75,6 +85,7 @@ export class OrderService {
         postalCode: dto.postalCode,
         subtotal,
         total: subtotal,
+        influencerTrackingLinkId,
         items: { create: orderItems },
       },
       include: { items: true },
@@ -238,5 +249,27 @@ export class OrderService {
     ]);
 
     return updatedOrder;
+  }
+
+  private async resolveInfluencerTrackingLinkId(
+    code?: string,
+  ): Promise<string | null> {
+    const normalizedCode = code?.trim().toLowerCase();
+
+    if (!normalizedCode) {
+      return null;
+    }
+
+    const trackingLink = await this.prismaService.influencerTrackingLink.findFirst(
+      {
+        where: {
+          code: normalizedCode,
+          status: 'ACTIVE',
+        },
+        select: { id: true },
+      },
+    );
+
+    return trackingLink?.id ?? null;
   }
 }

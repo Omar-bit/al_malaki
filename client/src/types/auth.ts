@@ -28,6 +28,7 @@ export interface RegisterPayload {
   birthDate: string;
   profilePicture?: string;
   password: string;
+  influencerTrackingCode?: string;
 }
 
 export interface RegisterResponse {

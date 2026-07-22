@@ -62,6 +62,10 @@ export class CreateOrderDto {
   @IsNotEmpty()
   postalCode: string;
 
+  @IsOptional()
+  @IsString()
+  influencerTrackingCode?: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)

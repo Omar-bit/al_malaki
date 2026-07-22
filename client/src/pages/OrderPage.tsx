@@ -5,6 +5,7 @@ import { useAuth, useCart } from '../contexts';
 import type { CartItem } from '../contexts/CartContext';
 import { orderService } from '../services';
 import { ApiError } from '../services/authService';
+import { getStoredInfluencerTrackingCode } from '../services/influencerTrackingService';
 
 type Step = 'shipping' | 'payment';
 type PaymentMethod = 'cash' | 'card';
@@ -144,6 +145,7 @@ export function OrderPage() {
         address: shippingForm.address,
         city: shippingForm.city,
         postalCode: shippingForm.postalCode,
+        influencerTrackingCode: getStoredInfluencerTrackingCode(),
         items: items.map((item) => ({
           productId: item.id,
           quantity: item.quantity,

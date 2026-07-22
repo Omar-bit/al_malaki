@@ -1,0 +1,460 @@
+import { useCallback, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
+import {
+  ArrowUpDown,
+  Copy,
+  Filter,
+  Loader2,
+  Plus,
+  Search,
+  UsersRound,
+  X,
+} from 'lucide-react';
+import { AdminLayout } from '../../components/AdminLayout';
+import { useAuth } from '../../contexts';
+import { influencerTrackingService } from '../../services';
+import type {
+  CreateInfluencerTrackingPayload,
+  InfluencerTrackingItem,
+} from '../../types';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '../../components/ui';
+import { formatCurrency } from '../../utils/format';
+
+const INITIAL_FORM: CreateInfluencerTrackingPayload = {
+  influencerName: '',
+  influencerHandle: '',
+  destinationPath: '/',
+  notes: '',
+};
+
+export function AdminInfluencerTrackingPage() {
+  const { user } = useAuth();
+  const [items, setItems] = useState<InfluencerTrackingItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'disabled'>(
+    'all',
+  );
+  const [sortBy, setSortBy] = useState<
+    | 'createdAt'
+    | 'influencerName'
+    | 'clicks'
+    | 'accountsCreated'
+    | 'orders'
+    | 'revenue'
+    | 'conversionRate'
+  >('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [form, setForm] = useState<CreateInfluencerTrackingPayload>(INITIAL_FORM);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+
+  const loadItems = useCallback(async () => {
+    try {
+      const result = await influencerTrackingService.getInfluencerTrackingLinks({
+        search: search || undefined,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        sortBy,
+        sortOrder,
+      });
+      setItems(result);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to load influencer performance.');
+    } finally {
+      setLoading(false);
+    }
+  }, [search, sortBy, sortOrder, statusFilter]);
+
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
+
+  const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!form.influencerName?.trim()) {
+      toast.error('Influencer name is required.');
+      return;
+    }
+
+    setCreating(true);
+
+    try {
+      await influencerTrackingService.createInfluencerTrackingLink({
+        influencerName: form.influencerName.trim(),
+        influencerHandle: form.influencerHandle?.trim() || undefined,
+        destinationPath: form.destinationPath?.trim() || '/',
+        notes: form.notes?.trim() || undefined,
+      });
+      toast.success('Tracking link created successfully.');
+      setForm(INITIAL_FORM);
+      setIsCreateModalOpen(false);
+      setLoading(true);
+      await loadItems();
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to create tracking link.',
+      );
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const copyLink = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Tracking link copied.');
+    } catch {
+      toast.error('Unable to copy tracking link.');
+    }
+  };
+
+  return (
+    <AdminLayout>
+      <div className='min-h-full'>
+        <div className='mx-auto overflow-x-hidden p-4 font-bona!'>
+          <div className='mb-4'>
+            <p className='text-lg font-bold text-black'>Admin Dashboard</p>
+            <p className='text-sm text-[#6D5A46]'>Manage your platform</p>
+          </div>
+          <hr className='text-[#000000]/65 w-[85vw] -ml-5 my-5' />
+
+          <header className='mb-5'>
+            <h1 className='text-2xl font-bold text-black'>
+              Marketing &amp; Influencers
+            </h1>
+            <p className='text-xs text-[#6D5A46] mt-1'>
+              Track influencer performance and manage promotional campaigns.
+            </p>
+          </header>
+
+          <section className='rounded-[28px] border border-dark-red/35 bg-[#f3e8d8] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] md:px-5'>
+            <div className='mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between'>
+              <div>
+                <div className='flex items-center gap-2'>
+                  <UsersRound className='h-5 w-5 text-dark-red' />
+                  <h2 className='text-[1.6rem] font-bold text-black'>
+                    Influencer Performance
+                  </h2>
+                </div>
+                <p className='mt-1 text-[11px] uppercase tracking-[0.14em] text-[#6D5A46]'>
+                  Track traffic, conversions, and revenue generated by each
+                  influencer.
+                </p>
+              </div>
+
+              {user?.role === 'ADMIN' && (
+                <button
+                  type='button'
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className='inline-flex items-center justify-center gap-2 self-start rounded-xl bg-[#7a7268] px-5 py-3 text-sm font-semibold text-[#f7eee1] transition hover:opacity-90'
+                >
+                  <Plus className='h-4 w-4' />
+                  Create New Tracking Link
+                </button>
+              )}
+            </div>
+
+            <div className='mb-5 flex flex-col gap-3 lg:flex-row lg:items-center'>
+              <div className='relative flex-1'>
+                <Search className='absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dark-red/80' />
+                <input
+                  type='search'
+                  value={search}
+                  onChange={(event) => {
+                    setLoading(true);
+                    setSearch(event.target.value);
+                  }}
+                  placeholder='Search influencers'
+                  className='h-14 w-full rounded-[14px] border border-dark-red bg-transparent pl-13 pr-4 text-base text-black outline-none transition placeholder:text-[#6D5A46] focus:ring-2 focus:ring-dark-red/10'
+                />
+              </div>
+
+              <div className='relative min-w-[140px]'>
+                <Filter className='pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dark-red/80' />
+                <select
+                  value={statusFilter}
+                  onChange={(event) => {
+                    setLoading(true);
+                    setStatusFilter(
+                      event.target.value as 'all' | 'active' | 'disabled',
+                    );
+                  }}
+                  className='h-14 w-full appearance-none rounded-[14px] border border-dark-red bg-transparent pl-12 pr-8 text-base text-black outline-none transition cursor-pointer'
+                >
+                  <option value='all'>All</option>
+                  <option value='active'>Active</option>
+                  <option value='disabled'>Disabled</option>
+                </select>
+              </div>
+
+              <div className='relative min-w-[170px]'>
+                <ArrowUpDown className='pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dark-red/80' />
+                <select
+                  value={`${sortBy}:${sortOrder}`}
+                  onChange={(event) => {
+                    setLoading(true);
+                    const [nextSortBy, nextSortOrder] = event.target.value.split(
+                      ':',
+                    ) as [
+                      typeof sortBy,
+                      typeof sortOrder,
+                    ];
+                    setSortBy(nextSortBy);
+                    setSortOrder(nextSortOrder);
+                  }}
+                  className='h-14 w-full appearance-none rounded-[14px] border border-dark-red bg-transparent pl-12 pr-8 text-base text-black outline-none transition cursor-pointer'
+                >
+                  <option value='createdAt:desc'>Newest</option>
+                  <option value='influencerName:asc'>Name A-Z</option>
+                  <option value='clicks:desc'>Most clicks</option>
+                  <option value='accountsCreated:desc'>Most accounts</option>
+                  <option value='orders:desc'>Most orders</option>
+                  <option value='revenue:desc'>Highest revenue</option>
+                  <option value='conversionRate:desc'>Best conversion</option>
+                </select>
+              </div>
+            </div>
+
+            <div className='overflow-hidden rounded-[22px] border border-dark-red/35 bg-[#f7f0e7]'>
+              <TableContainer>
+                <Table>
+                  <TableHead className='bg-[#e8ddd0]'>
+                    <TableRow>
+                      <TableHeaderCell className='text-[#6D5A46] text-sm'>
+                        Influencer
+                      </TableHeaderCell>
+                      <TableHeaderCell className='text-[#6D5A46] text-sm'>
+                        Referral Link
+                      </TableHeaderCell>
+                      <TableHeaderCell className='text-[#6D5A46] text-sm'>
+                        Clicks
+                      </TableHeaderCell>
+                      <TableHeaderCell className='text-[#6D5A46] text-sm'>
+                        Accounts
+                      </TableHeaderCell>
+                      <TableHeaderCell className='text-[#6D5A46] text-sm'>
+                        Orders
+                      </TableHeaderCell>
+                      <TableHeaderCell className='text-[#6D5A46] text-sm'>
+                        Revenue
+                      </TableHeaderCell>
+                      <TableHeaderCell className='text-[#6D5A46] text-sm'>
+                        Conv %
+                      </TableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {loading ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className='py-14 text-center'>
+                          <div className='flex items-center justify-center gap-3 text-[#6D5A46]'>
+                            <Loader2 className='h-5 w-5 animate-spin' />
+                            Loading influencer performance...
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : items.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={7}
+                          className='py-14 text-center text-[#6D5A46]'
+                        >
+                          No influencer tracking links match the current filters.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      items.map((item) => (
+                        <TableRow
+                          key={item.id}
+                          className='border-t border-[#d5bd9d] hover:bg-[#efe2cf]/60'
+                        >
+                          <TableCell className='align-top'>
+                            <div className='min-w-[180px]'>
+                              <p className='text-base font-bold text-black leading-tight'>
+                                {item.influencerName}
+                              </p>
+                              <p className='text-sm text-[#6D5A46]'>
+                                {item.influencerHandle
+                                  ? `@${item.influencerHandle.replace(/^@+/, '')}`
+                                  : `@${item.code}`}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className='align-top'>
+                            <div className='flex min-w-[220px] items-center gap-2'>
+                              <span className='rounded-md bg-[#ddd1c3] px-2 py-1 text-xs text-[#6D5A46]'>
+                                {item.trackingUrl.replace(/^https?:\/\//, '')}
+                              </span>
+                              <button
+                                type='button'
+                                onClick={() => copyLink(item.trackingUrl)}
+                                className='rounded-md p-2 text-[#6D5A46] transition hover:bg-[#e2d4c3] hover:text-dark-red'
+                                title='Copy tracking link'
+                              >
+                                <Copy className='h-4 w-4' />
+                              </button>
+                            </div>
+                          </TableCell>
+                          <TableCell className='font-abee text-[#3f060f]'>
+                            {item.clicks.toLocaleString()}
+                          </TableCell>
+                          <TableCell className='font-abee text-[#3f060f]'>
+                            {item.accountsCreated.toLocaleString()}
+                          </TableCell>
+                          <TableCell className='font-abee text-[#3f060f]'>
+                            {item.orders.toLocaleString()}
+                          </TableCell>
+                          <TableCell className='font-abee text-[#3f060f]'>
+                            {formatCurrency(item.revenue, 'TND', true)} DT
+                          </TableCell>
+                          <TableCell className='font-abee text-[#3f060f]'>
+                            {item.conversionRate.toFixed(1)}%
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm'>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className='w-full max-w-2xl rounded-[28px] border border-dark-red bg-[#f7eee1] p-6 shadow-xl'
+            >
+              <div className='mb-5 flex items-start justify-between gap-4'>
+                <div>
+                  <h2 className='text-2xl font-bold text-black'>
+                    Create tracking link
+                  </h2>
+                  <p className='text-sm text-[#6D5A46]'>
+                    Add an influencer and generate a referral link for campaign
+                    tracking.
+                  </p>
+                </div>
+                <button
+                  type='button'
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className='rounded-full p-2 text-[#6D5A46] transition hover:bg-[#eadbc6]'
+                >
+                  <X className='h-5 w-5' />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreate} className='space-y-4'>
+                <div className='grid gap-4 md:grid-cols-2'>
+                  <label className='block text-sm'>
+                    <span className='mb-2 block text-black'>Influencer name</span>
+                    <input
+                      value={form.influencerName ?? ''}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          influencerName: event.target.value,
+                        }))
+                      }
+                      placeholder='e.g. Amal Ben Salah'
+                      className='h-12 w-full rounded-xl border border-dark-red/35 bg-[#fff9f1] px-4 text-black outline-none transition focus:ring-2 focus:ring-dark-red/10'
+                    />
+                  </label>
+
+                  <label className='block text-sm'>
+                    <span className='mb-2 block text-black'>Handle</span>
+                    <input
+                      value={form.influencerHandle ?? ''}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          influencerHandle: event.target.value,
+                        }))
+                      }
+                      placeholder='e.g. amal'
+                      className='h-12 w-full rounded-xl border border-dark-red/35 bg-[#fff9f1] px-4 text-black outline-none transition focus:ring-2 focus:ring-dark-red/10'
+                    />
+                  </label>
+                </div>
+
+                <label className='block text-sm'>
+                  <span className='mb-2 block text-black'>
+                    Destination path
+                  </span>
+                  <input
+                    value={form.destinationPath ?? '/'}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        destinationPath: event.target.value,
+                      }))
+                    }
+                    placeholder='/'
+                    className='h-12 w-full rounded-xl border border-dark-red/35 bg-[#fff9f1] px-4 text-black outline-none transition focus:ring-2 focus:ring-dark-red/10'
+                  />
+                </label>
+
+                <label className='block text-sm'>
+                  <span className='mb-2 block text-black'>Notes</span>
+                  <textarea
+                    value={form.notes ?? ''}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        notes: event.target.value,
+                      }))
+                    }
+                    placeholder='Campaign details or internal notes'
+                    rows={4}
+                    className='w-full rounded-xl border border-dark-red/35 bg-[#fff9f1] px-4 py-3 text-black outline-none transition focus:ring-2 focus:ring-dark-red/10'
+                  />
+                </label>
+
+                <div className='flex items-center justify-end gap-3 pt-2'>
+                  <button
+                    type='button'
+                    onClick={() => setIsCreateModalOpen(false)}
+                    className='rounded-full border border-[#6D5A46] bg-white px-5 py-2 text-sm font-semibold text-[#6D5A46]'
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type='submit'
+                    disabled={creating}
+                    className='inline-flex items-center gap-2 rounded-full bg-dark-red px-6 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60'
+                  >
+                    {creating ? (
+                      <Loader2 className='h-4 w-4 animate-spin' />
+                    ) : (
+                      <Plus className='h-4 w-4' />
+                    )}
+                    Create link
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </AdminLayout>
+  );
+}

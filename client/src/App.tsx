@@ -21,13 +21,19 @@ import {
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
+import { AdminInfluencerTrackingPage } from './pages/admin/AdminInfluencerTrackingPage';
 import { AdminPromoCodesPage } from './pages/admin/AdminPromoCodesPage';
 import { AdminAddProductPage } from './pages/admin/AdminAddProductPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { AdminLoyaltyPage } from './pages/admin/AdminLoyaltyPage';
 import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
 import { AdminHistoryPage } from './pages/admin/AdminHistoryPage';
-import { AdminRoute, CartModal, GuestRoute } from './components';
+import {
+  AdminRoute,
+  CartModal,
+  GuestRoute,
+  InfluencerTrackingBootstrap,
+} from './components';
 
 export default function App() {
   const { i18n } = useTranslation();
@@ -39,6 +45,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <InfluencerTrackingBootstrap />
       <Toaster
         position='bottom-right'
         toastOptions={{
@@ -77,6 +84,10 @@ export default function App() {
         <Route element={<AdminRoute />}>
           <Route path='/admin/dashboard' element={<AdminDashboardPage />} />
           <Route path='/admin/analytics' element={<AdminAnalyticsPage />} />
+          <Route
+            path='/admin/influencers'
+            element={<AdminInfluencerTrackingPage />}
+          />
           <Route path='/admin/products/new' element={<AdminAddProductPage />} />
           <Route path='/admin/management' element={<AdminManagementPage />} />
           <Route path='/admin/loyalty' element={<AdminLoyaltyPage />} />

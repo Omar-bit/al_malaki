@@ -1,5 +1,30 @@
 MEET
-- influencer tracking (feature: admin + vendor:view_only)
 - points and promo codes verification (test implementation)
 - order tracking (feature:customer)
 - online payment (feature:customer)
+
+
+
+
+
+
+
+
+
+
+
+
+The loyalty points system is currently admin-managed only with no integration into the order lifecycle. Here's how it works:
+Earning/Spending: Purely manual — PATCH /admin/loyalty/customers/:userId/adjust-points with { points: number }. A positive value earns, a negative value spends. Only ADMIN/VENDOR roles can call it.
+Database models:
+- CustomerLoyalty — one per user, tracks points (balance), totalPointsEarned, totalPointsSpent.
+- LoyaltyTransaction — audit log for every EARN or SPEND event with amount and optional description.
+Key gaps (no implementation for):
+- Automatic earning on order placement or delivery
+- Customer-facing endpoints (no GET /loyalty/my-points)
+- Points redemption at checkout (not in CreateOrderDto)
+- Minimum balance checks (balance can go negative)
+- Points-to-currency conversion rate
+- Points expiration
+- Linkage between LoyaltyTransaction and Order (schema supports orderId but code never sets it)
+In short: it's a manual ledger admins can adjust, with full audit trails, but no automated rules or customer self-service yet.

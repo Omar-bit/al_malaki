@@ -54,5 +54,6 @@ export interface CreateOrderPayload {
   address: string;
   city: string;
   postalCode: string;
+  influencerTrackingCode?: string;
   items: CreateOrderItemPayload[];
 }

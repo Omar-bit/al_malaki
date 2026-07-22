@@ -195,6 +195,9 @@ export class AuthService {
     const normalizedProfilePicture = this.normalizeOptionalText(
       registerDto.profilePicture,
     );
+    const influencerTrackingLinkId = await this.resolveInfluencerTrackingLinkId(
+      registerDto.influencerTrackingCode,
+    );
 
     const existingUser = await this.prismaService.user.findUnique({
       where: { email: normalizedEmail },
@@ -223,6 +226,11 @@ export class AuthService {
           passwordHash,
           role: 'CUSTOMER',
           verifiedEmail: false,
+          influencerTrackingLinkId:
+            influencerTrackingLinkId ?? existingUser.influencerTrackingLinkId,
+          influencerTrackedAt: influencerTrackingLinkId
+            ? new Date()
+            : existingUser.influencerTrackedAt,
         },
       });
 
@@ -239,6 +247,8 @@ export class AuthService {
           profilePicture: normalizedProfilePicture,
           role: 'CUSTOMER',
           verifiedEmail: false,
+          influencerTrackingLinkId,
+          influencerTrackedAt: influencerTrackingLinkId ? new Date() : null,
         },
       });
 
@@ -505,6 +515,28 @@ export class AuthService {
 
     const trimmedValue = value.trim();
     return trimmedValue.length > 0 ? trimmedValue : null;
+  }
+
+  private async resolveInfluencerTrackingLinkId(
+    code?: string,
+  ): Promise<string | null> {
+    const normalizedCode = code?.trim().toLowerCase();
+
+    if (!normalizedCode) {
+      return null;
+    }
+
+    const trackingLink = await this.prismaService.influencerTrackingLink.findFirst(
+      {
+        where: {
+          code: normalizedCode,
+          status: 'ACTIVE',
+        },
+        select: { id: true },
+      },
+    );
+
+    return trackingLink?.id ?? null;
   }
 
   private async verifyRegisterOtpCode(

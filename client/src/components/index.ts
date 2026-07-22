@@ -11,4 +11,5 @@ export { AdminRoute } from './AdminRoute';
 export { GuestRoute } from './GuestRoute';
 export { GuestModal } from './GuestModal';
 export { CartModal } from './CartModal';
+export { InfluencerTrackingBootstrap } from './InfluencerTrackingBootstrap';
 
