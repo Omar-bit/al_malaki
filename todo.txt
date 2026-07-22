@@ -1,5 +1,5 @@
 MEET
-- points and promo codes verification (test implementation)
+- points system and promo codes application (implementation)
 - order tracking (feature:customer)
 - online payment (feature:customer)
 
