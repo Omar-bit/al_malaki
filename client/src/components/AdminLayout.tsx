@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import crown from '../assets/crown.png';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -17,6 +17,7 @@ import {
   StepBack,
   Bell,
   History,
+  ChevronLeft,
 } from 'lucide-react';
 import { authService } from '../services';
 import { useNavigate } from 'react-router-dom';
@@ -106,10 +107,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { unreadCount } = useNotifications();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('adminSidebarCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [shouldShowAside, setShouldShowAside] = useState(true);
 
+  useEffect(() => {
+    localStorage.setItem('adminSidebarCollapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
+
   // Close sidebar on route change on mobile
-  React.useEffect(() => {
+  useEffect(() => {
     setIsSidebarOpen(false);
 
     setShouldShowAside(location.pathname !== '/admin/management');
@@ -139,7 +148,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       {shouldShowAside && (
         <aside
-          className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#EFE0C9] bg-honeyPattern shadow-lg flex flex-col pt-5 transform transition-transform duration-300 ease-in-out  ${
+          className={`fixed md:static inset-y-0 left-0 z-50 w-64 ${isCollapsed ? 'md:w-16' : 'md:w-64'} bg-[#EFE0C9] bg-honeyPattern shadow-lg flex flex-col pt-5 transform transition-all duration-300 ease-in-out ${
             isSidebarOpen
               ? 'translate-x-0'
               : '-translate-x-full md:translate-x-0'
@@ -153,22 +162,22 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <X className='w-5 h-5' />
           </button>
           {user?.role === 'ADMIN' && (
-            <div className='flex items-center gap-3 px-6 mb-5'>
+            <div className={`flex items-center gap-3 mb-5 ${isCollapsed ? 'md:px-1' : 'px-6'}`}>
               <Link
                 to='/admin/management'
-                className='text-base   tracking-widest  flex items-center gap-2 text-[#000000AD]! '
+                className={`text-base tracking-widest flex items-center gap-2 text-[#000000AD]! ${isCollapsed ? 'md:justify-center md:gap-0 w-full' : ''}`}
               >
-                <span>&larr;</span> Admin Management
+                <span>&larr;</span> <span className={isCollapsed ? 'md:hidden' : ''}>Admin Management</span>
               </Link>
             </div>
           )}
-          <div className='px-6 mb-5 flex items-center gap-4 gap-y-2 border-b pb-4 border-[#00000082] '>
+          <div className={`mb-5 flex items-center gap-4 gap-y-2 border-b pb-4 border-[#00000082] ${isCollapsed ? 'md:px-1 md:justify-center' : 'px-6'}`}>
             <img
               src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
               alt={user?.firstName || 'Admin'}
               className='w-14 h-14 rounded-full '
             />
-            <div>
+            <div className={`${isCollapsed ? 'md:hidden' : ''}`}>
               <h2 className='text-base font-bold text-black tracking-wide capitalize font-bona! leading-tight'>
                 {user ? `${user.firstName} ${user.lastName}` : 'User'}
               </h2>
@@ -202,7 +211,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               .filter((section) => section.items.length > 0)
               .map((section, idx) => (
                 <div key={idx}>
-                  <h3 className='text-[12px] font-normal font-bona! text-[#000000AD]  tracking-widest px-2 mb-2 uppercase'>
+                  <h3 className={`text-[12px] font-normal font-bona! text-[#000000AD] tracking-widest px-2 mb-2 uppercase ${isCollapsed ? 'md:hidden' : ''}`}>
                     {section.category}
                   </h3>
                   <ul className='space-y-1'>
@@ -210,14 +219,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                       <li key={itemIdx}>
                         <Link
                           to={item.path}
-                          className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 ${
+                          className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl transition-all duration-200 ${
                             location.pathname === item.path
                               ? 'bg-[#FCECD8] text-dark-red shadow-sm font-bold'
                               : 'text-black hover:bg-[#D5BD9D] hover:text-dark-red'
-                          }`}
+                          } ${isCollapsed ? 'md:justify-center md:px-0 md:gap-0' : ''}`}
                         >
-                          <item.icon className='w-5 h-5' />
-                          <span className='text-md'>
+                          <item.icon className='w-5 h-5 shrink-0' />
+                          <span className={`text-md ${isCollapsed ? 'md:hidden' : ''}`}>
                             {item.path === '/admin/dashboard' &&
                             user?.role === 'VENDOR'
                               ? 'My Dashboard'
@@ -231,13 +240,22 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               ))}
           </nav>
 
-          <div className='p-2 mt-auto'>
+          <div className='p-2 mt-auto space-y-1'>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={`hidden md:flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200 ${isCollapsed ? 'md:justify-center md:px-0 md:gap-0' : ''}`}
+            >
+              <ChevronLeft className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+              <span className={`text-md ${isCollapsed ? 'md:hidden' : ''}`}>
+                {isCollapsed ? 'Expand' : 'Collapse'}
+              </span>
+            </button>
             <button
               onClick={handleLogout}
-              className='flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
+              className={`flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200 ${isCollapsed ? 'md:justify-center md:px-0 md:gap-0' : ''}`}
             >
-              <LogOut className='w-5 h-5' />
-              <span className='text-md'>Logout</span>
+              <LogOut className='w-5 h-5 shrink-0' />
+              <span className={`text-md ${isCollapsed ? 'md:hidden' : ''}`}>Logout</span>
             </button>
           </div>
         </aside>
