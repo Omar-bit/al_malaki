@@ -1,5 +1,6 @@
 
-- notification sound of new orders
+
+-notifications navigable (make notifications navigable so onclick on a notification it takes you to the corresponding page and item)
 
 - points system and promo codes application (implementation)
 for each dinar a point
@@ -8,6 +9,7 @@ for each dinar a point
 
 
 DONE
+- notification sound of new orders
 - categorize notifications by type
 - add disable to ref link
 - product placement (home on/off)

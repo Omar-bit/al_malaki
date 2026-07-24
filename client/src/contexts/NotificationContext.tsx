@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import { notificationService } from '../services';
 import type { Notification, NotificationStreamEvent } from '../types/notification';
 import { useAuth } from './AuthContext';
+import newOrderSound from '../assets/new-order.mp3';
 
 interface NotificationContextType {
   notifications: Notification[];
@@ -110,6 +111,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       const payload = JSON.parse(event.data) as NotificationStreamEvent;
 
       if (payload.kind === 'notification.created') {
+        if (
+          payload.notification.type === 'ORDER_CREATED' &&
+          user &&
+          (user.role === 'ADMIN' || user.role === 'VENDOR')
+        ) {
+          try {
+            new Audio(newOrderSound).play();
+          } catch {
+            // Audio not available
+          }
+        }
         setNotifications((currentNotifications) =>
           sortNotifications([
             payload.notification,
