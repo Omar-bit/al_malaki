@@ -24,6 +24,8 @@ function formatNotificationDate(date: string) {
 function NotificationsContent() {
   const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, refreshNotifications } =
     useNotifications();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [statusFilter, setStatusFilter] =
     useState<NotificationStatusFilter>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | NotificationType>('all');
@@ -84,6 +86,42 @@ function NotificationsContent() {
       }
     }
     if (unread.length > 0) toast.success('Marked as read.');
+  };
+
+  const navigateToNotification = (notification: Notification) => {
+    const isAdmin =
+      user?.role === 'ADMIN' || user?.role === 'VENDOR';
+    const orderId = notification.data?.orderId as string | undefined;
+    const contactMessageId = notification.data?.contactMessageId as string | undefined;
+
+    if (orderId) {
+      if (isAdmin) {
+        navigate(`/admin/orders?highlight=${orderId}`);
+      } else {
+        navigate(`/dashboard?highlight=${orderId}`);
+      }
+      return;
+    }
+
+    if (contactMessageId) {
+      if (isAdmin) {
+        navigate(`/admin/messages?highlight=${contactMessageId}`);
+      } else {
+        navigate(`/dashboard`);
+      }
+      return;
+    }
+  };
+
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.isRead) {
+      try {
+        await markAsRead(notification.id);
+      } catch (error) {
+        console.error('Unable to mark notification as read', error);
+      }
+    }
+    navigateToNotification(notification);
   };
 
   const handleMarkAsRead = async (notificationId: string) => {
@@ -285,9 +323,11 @@ function NotificationsContent() {
                 {isExpanded && (
                   <div className='border-t border-[#3F060F]/10 px-5 pb-5'>
                     {items.map((notification) => (
-                      <div
+                      <button
                         key={notification.id}
-                        className={`flex items-start justify-between gap-4 py-4 ${
+                        type='button'
+                        onClick={() => handleNotificationClick(notification)}
+                        className={`flex w-full items-start justify-between gap-4 py-4 text-left transition hover:bg-[#3f060f]/5 ${
                           notification.isRead ? '' : ''
                         }`}
                       >
@@ -312,15 +352,17 @@ function NotificationsContent() {
                         </div>
 
                         {!notification.isRead && (
-                          <button
-                            type='button'
-                            onClick={() => handleMarkAsRead(notification.id)}
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkAsRead(notification.id);
+                            }}
                             className='shrink-0 rounded-full border border-[#3F060F]/20 px-3 py-1 font-bona text-xs text-[#3f060f] transition hover:bg-[#fdf2e2]'
                           >
                             Mark read
-                          </button>
+                          </span>
                         )}
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}

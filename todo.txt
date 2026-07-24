@@ -1,19 +1,9 @@
-
-
--notifications navigable (make notifications navigable so onclick on a notification it takes you to the corresponding page and item)
-
 - points system and promo codes application (implementation)
 for each dinar a point
 10 points = 0.5d 
 
 
 
-DONE
-- notification sound of new orders
-- categorize notifications by type
-- add disable to ref link
-- product placement (home on/off)
-- best seller (auto)
 
 
 BLOCKED
@@ -25,3 +15,11 @@ BLOCKED
 - online payment docs
 
 
+
+DONE
+-notifications navigable
+- notification sound of new orders
+- categorize notifications by type
+- add disable to ref link
+- product placement (home on/off)
+- best seller (auto)
