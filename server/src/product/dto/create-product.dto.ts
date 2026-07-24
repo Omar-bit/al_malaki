@@ -1,6 +1,7 @@
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -41,8 +42,8 @@ export class CreateProductDto {
   images?: string[];
 
   @IsOptional()
-  @IsString()
-  primaryPlacement?: string;
+  @IsBoolean()
+  placement?: boolean;
 
   @IsOptional()
   @IsString()

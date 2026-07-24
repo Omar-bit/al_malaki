@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { getPublicProducts } from '../services/productService';
+import { getLandingProducts } from '../services/productService';
 import type { ProductAnalyticsProduct } from '../types/product';
 import Button from './ui/Button';
 
@@ -16,11 +16,8 @@ export function Products() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const fetchedProducts = await getPublicProducts();
-        // Display up to 3 active products
-        setProducts(
-          fetchedProducts.filter((p) => p.status === 'active').slice(0, 3),
-        );
+        const fetchedProducts = await getLandingProducts();
+        setProducts(fetchedProducts.slice(0, 3));
       } catch (error) {
         console.error('Failed to fetch products', error);
       }

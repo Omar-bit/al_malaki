@@ -9,6 +9,11 @@ import {
 export class PublicProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @Get('products/landing')
+  async listLandingProducts(): Promise<ProductResponse[]> {
+    return this.productService.listLandingProducts();
+  }
+
   @Get('products')
   async listProducts(): Promise<ProductResponse[]> {
     return this.productService.listProducts();

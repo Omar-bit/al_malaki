@@ -202,7 +202,7 @@ model Product {
   price            Float
   discountPrice    Float?
   images           Json               @default("[]")
-  primaryPlacement String?
+  placement        Boolean              @default(false)
   collection       String?
   promoCode        String?
   campaign         String?

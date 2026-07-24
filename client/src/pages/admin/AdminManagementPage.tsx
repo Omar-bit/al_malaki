@@ -16,7 +16,7 @@ import { Logo } from '../../components';
 
 const roleBadgeMap: Record<TeamRole, string> = {
   ADMIN: 'Super admin',
-  VENDOR: 'Team member',
+  VENDOR: 'Admin',
 };
 
 export function AdminManagementPage() {
@@ -181,7 +181,6 @@ export function AdminManagementPage() {
                 const isOnline = member.id === user?.id;
                 const displayName =
                   `${member.firstName} ${member.lastName}`.trim();
-
                 return (
                   <button
                     key={member.id}
@@ -317,8 +316,8 @@ export function AdminManagementPage() {
                     }
                     className='w-full rounded-full border border-[#6a4c41]/40 bg-white/80 px-4 py-2 text-sm text-dark-red outline-none transition focus:border-dark-red'
                   >
-                    <option value='ADMIN'>Admin</option>
-                    <option value='VENDOR'>Vendor (new)</option>
+                    <option value='ADMIN'>Super Admin</option>
+                    <option value='VENDOR'>Admin</option>
                   </select>
                 </div>
                 <button

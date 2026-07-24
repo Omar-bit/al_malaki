@@ -36,7 +36,7 @@ interface ProductFormState {
   price: string;
   discountPrice: string;
   images: string[];
-  primaryPlacement: string;
+  placement: boolean;
   collection: string;
   promoCode: string;
   campaign: string;
@@ -55,7 +55,7 @@ const initialFormState: ProductFormState = {
   price: '',
   discountPrice: '',
   images: [],
-  primaryPlacement: 'Homepage',
+  placement: false,
   collection: '',
   promoCode: '',
   campaign: '',
@@ -114,7 +114,7 @@ export function AdminAddProductPage() {
 
   const handleFieldChange = (
     key: keyof ProductFormState,
-    value: string | string[],
+    value: string | string[] | boolean,
   ) => {
     setFormState((current) => ({ ...current, [key]: value }));
   };
@@ -154,7 +154,7 @@ export function AdminAddProductPage() {
           ? Number(formState.discountPrice)
           : undefined,
       images: imageUrls,
-      primaryPlacement: formState.primaryPlacement || undefined,
+      placement: formState.placement,
       collection: formState.collection.trim() || undefined,
       promoCode: formState.promoCode.trim() || undefined,
       campaign: formState.campaign.trim() || undefined,
@@ -407,30 +407,35 @@ export function AdminAddProductPage() {
                   Decide where the product fits in primary navigations
                 </p>
               </div>
-              <div className='grid gap-5 md:grid-cols-2'>
-                <SelectField
-                  className='!bg-[#D9D9D9]/34 border-dark-red !border rounded-lg!'
-                  label='Primary Placement'
-                  value={formState.primaryPlacement}
-                  onChange={(value) =>
-                    handleFieldChange('primaryPlacement', value)
+              <label className='flex cursor-pointer items-center gap-3'>
+                <button
+                  type='button'
+                  role='switch'
+                  aria-checked={formState.placement}
+                  onClick={() =>
+                    handleFieldChange('placement', !formState.placement)
                   }
-                  options={['Homepage', 'Collection', 'Featured'].map(
-                    (item) => ({
-                      value: item,
-                      label: item,
-                    }),
-                  )}
-                  placeholder='Select placement'
-                />
-                <FormField
-                  className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
-                  label='Collection'
-                  value={formState.collection}
-                  onChange={(value) => handleFieldChange('collection', value)}
-                  placeholder='Add to collection'
-                />
-              </div>
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                    formState.placement ? 'bg-dark-red' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                      formState.placement ? 'translate-x-[22px]' : 'translate-x-[2px]'
+                    }`}
+                  />
+                </button>
+                <span className='text-sm font-medium text-black'>
+                  Show on Landing Page
+                </span>
+              </label>
+              <FormField
+                className=' !mt-0 !border-dark-red !border !rounded-lg !bg-[#D9D9D957]'
+                label='Collection'
+                value={formState.collection}
+                onChange={(value) => handleFieldChange('collection', value)}
+                placeholder='Add to collection'
+              />
             </div>
 
             {/* Step 5: Product Targeting */}

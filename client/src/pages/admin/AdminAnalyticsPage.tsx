@@ -60,7 +60,7 @@ interface ProductFormState {
   price: string;
   discountPrice: string;
   images: string[];
-  primaryPlacement: string;
+  placement: boolean;
   collection: string;
   promoCode: string;
   campaign: string;
@@ -79,7 +79,7 @@ const initialFormState: ProductFormState = {
   price: '',
   discountPrice: '',
   images: [],
-  primaryPlacement: 'Homepage',
+  placement: false,
   collection: '',
   promoCode: '',
   campaign: '',
@@ -244,7 +244,7 @@ export function AdminAnalyticsPage() {
 
   const handleProductChange = (
     key: keyof ProductFormState,
-    value: string | string[],
+    value: string | string[] | boolean,
   ) => {
     setFormState((current) => ({ ...current, [key]: value }));
   };
@@ -283,7 +283,7 @@ export function AdminAnalyticsPage() {
           ? Number(formState.discountPrice)
           : undefined,
       images: imageUrls, // uploaded URLs
-      primaryPlacement: formState.primaryPlacement || undefined,
+      placement: formState.placement,
       collection: formState.collection.trim() || undefined,
       promoCode: formState.promoCode.trim() || undefined,
       campaign: formState.campaign.trim() || undefined,
@@ -829,31 +829,36 @@ export function AdminAnalyticsPage() {
                 label: category.name,
               }))}
             />
-            <div className='flex items-end gap-3'>
-              <div className='flex-1'>
-                <SelectField
-                  label='Placement'
-                  value={formState.primaryPlacement}
-                  onChange={(value) =>
-                    handleProductChange('primaryPlacement', value)
-                  }
-                  options={['Homepage', 'Collection', 'Featured'].map(
-                    (item) => ({
-                      value: item,
-                      label: item,
-                    }),
-                  )}
-                />
-              </div>
+            <label className='flex cursor-pointer items-center gap-3'>
               <button
                 type='button'
-                onClick={() => setIsCategoryModalOpen(true)}
-                className='flex items-center gap-2 rounded-full border-2 border-[#d5bd9d] bg-white px-5 py-3 text-sm font-bold text-[#6D5A46] shadow-sm transition-all hover:border-dark-red hover:bg-[#F7EEE1] hover:text-dark-red mb-[2px]'
+                role='switch'
+                aria-checked={formState.placement}
+                onClick={() =>
+                  handleProductChange('placement', !formState.placement)
+                }
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                  formState.placement ? 'bg-dark-red' : 'bg-gray-300'
+                }`}
               >
-                <FolderTree className='h-4 w-4' />
-                <span className='hidden sm:inline'>Manage</span>
+                <span
+                  className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                    formState.placement ? 'translate-x-[22px]' : 'translate-x-[2px]'
+                  }`}
+                />
               </button>
-            </div>
+              <span className='text-sm font-medium text-black'>
+                Show on Landing Page
+              </span>
+            </label>
+            <button
+              type='button'
+              onClick={() => setIsCategoryModalOpen(true)}
+              className='flex items-center gap-2 rounded-full border-2 border-[#d5bd9d] bg-white px-5 py-3 text-sm font-bold text-[#6D5A46] shadow-sm transition-all hover:border-dark-red hover:bg-[#F7EEE1] hover:text-dark-red mb-[2px]'
+            >
+              <FolderTree className='h-4 w-4' />
+              <span className='hidden sm:inline'>Manage</span>
+            </button>
           </div>
 
           <div className='grid gap-5 md:grid-cols-2'>
@@ -1364,10 +1369,10 @@ export function AdminAnalyticsPage() {
             <div className='grid gap-4 rounded-2xl bg-[#F7EEE1] p-4 md:grid-cols-2'>
               <div>
                 <span className='block text-xs font-semibold uppercase tracking-wider text-[#6D5A46]'>
-                  Placement
+                  Landing Page
                 </span>
                 <span className='text-sm text-black'>
-                  {viewingProduct.primaryPlacement || 'Not set'}
+                  {viewingProduct.placement ? 'Shown' : 'Hidden'}
                 </span>
               </div>
               <div>

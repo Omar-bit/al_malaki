@@ -7,7 +7,7 @@ export interface ProductAnalyticsProduct {
   price: number;
   discountPrice?: number;
   images: string[];
-  primaryPlacement?: string;
+  placement: boolean;
   collection?: string;
   promoCode?: string;
   campaign?: string;
@@ -36,7 +36,7 @@ export interface CreateProductPayload {
   price: number;
   discountPrice?: number;
   images?: string[];
-  primaryPlacement?: string;
+  placement?: boolean;
   collection?: string;
   promoCode?: string;
   campaign?: string;

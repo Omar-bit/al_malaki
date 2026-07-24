@@ -46,7 +46,7 @@ export interface ProductResponse {
   price: number;
   discountPrice?: number;
   images: string[];
-  primaryPlacement?: string;
+  placement: boolean;
   collection?: string;
   promoCode?: string;
   campaign?: string;
@@ -163,7 +163,7 @@ export class ProductService {
               (img) => getProductUrl(img) as string,
             )
           : [],
-        primaryPlacement: product.primaryPlacement ?? undefined,
+        placement: product.placement,
         collection: product.collection ?? undefined,
         promoCode: product.promoCode ?? undefined,
         campaign: product.campaign ?? undefined,
@@ -206,7 +206,7 @@ export class ProductService {
             (img) => getProductUrl(img) as string,
           )
         : [],
-      primaryPlacement: product.primaryPlacement ?? undefined,
+      placement: product.placement,
       collection: product.collection ?? undefined,
       promoCode: product.promoCode ?? undefined,
       campaign: product.campaign ?? undefined,
@@ -221,6 +221,12 @@ export class ProductService {
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
     };
+  }
+
+  async listLandingProducts(): Promise<ProductResponse[]> {
+    return this.listProducts().then((products) =>
+      products.filter((p) => p.placement),
+    );
   }
 
   async createProduct(
@@ -259,7 +265,7 @@ export class ProductService {
         images: dto.images
           ? (dto.images.map(extractFilename).filter(Boolean) as string[])
           : [],
-        primaryPlacement: dto.primaryPlacement?.trim() || null,
+        placement: dto.placement ?? false,
         collection: dto.collection?.trim() || null,
         promoCode: dto.promoCode?.trim() || null,
         campaign: dto.campaign?.trim() || null,
@@ -296,11 +302,11 @@ export class ProductService {
       price: createdProduct.price,
       discountPrice: createdProduct.discountPrice ?? undefined,
       images: Array.isArray(createdProduct.images)
-        ? (createdProduct.images as string[]).map(
-            (img) => getProductUrl(img) as string,
-          )
-        : [],
-      primaryPlacement: createdProduct.primaryPlacement ?? undefined,
+          ? (createdProduct.images as string[]).map(
+              (img) => getProductUrl(img) as string,
+            )
+          : [],
+        placement: createdProduct.placement,
       collection: createdProduct.collection ?? undefined,
       promoCode: createdProduct.promoCode ?? undefined,
       campaign: createdProduct.campaign ?? undefined,
@@ -368,8 +374,8 @@ export class ProductService {
       updateData.images = dto.images
         ? (dto.images.map(extractFilename).filter(Boolean) as string[])
         : [];
-    if (dto.primaryPlacement !== undefined)
-      updateData.primaryPlacement = dto.primaryPlacement?.trim() || null;
+    if (dto.placement !== undefined)
+      updateData.placement = dto.placement;
     if (dto.collection !== undefined)
       updateData.collection = dto.collection?.trim() || null;
     if (dto.promoCode !== undefined)
@@ -407,7 +413,7 @@ export class ProductService {
         status: 'status',
         performance: 'performance',
         slug: 'slug',
-        primaryPlacement: 'primary placement',
+        placement: 'placement',
         collection: 'collection',
         promoCode: 'promo code',
         campaign: 'campaign',
@@ -442,11 +448,11 @@ export class ProductService {
       price: updatedProduct.price,
       discountPrice: updatedProduct.discountPrice ?? undefined,
       images: Array.isArray(updatedProduct.images)
-        ? (updatedProduct.images as string[]).map(
-            (img) => getProductUrl(img) as string,
-          )
-        : [],
-      primaryPlacement: updatedProduct.primaryPlacement ?? undefined,
+          ? (updatedProduct.images as string[]).map(
+              (img) => getProductUrl(img) as string,
+            )
+          : [],
+        placement: updatedProduct.placement,
       collection: updatedProduct.collection ?? undefined,
       promoCode: updatedProduct.promoCode ?? undefined,
       campaign: updatedProduct.campaign ?? undefined,
