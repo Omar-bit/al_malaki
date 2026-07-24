@@ -395,12 +395,15 @@ export function AdminInfluencerTrackingPage() {
                         </span>
                       </span>
                     </TableHeaderCell>
+                    <TableHeaderCell className='text-[#000000]/68! font-bold! font-bona!'>
+                      Status
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className='py-14 text-center'>
+                      <TableCell colSpan={8} className='py-14 text-center'>
                         <div className='flex items-center justify-center gap-3 text-[#6D5A46]'>
                           <Loader2 className='h-5 w-5 animate-spin' />
                           Loading influencer performance...
@@ -410,7 +413,7 @@ export function AdminInfluencerTrackingPage() {
                   ) : items.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={7}
+                        colSpan={8}
                         className='py-14 text-center text-[#6D5A46]'
                       >
                         No influencer tracking links match the current filters.
@@ -489,6 +492,51 @@ export function AdminInfluencerTrackingPage() {
                         </TableCell>
                         <TableCell className='font-aboreto text-md text-black'>
                           {item.conversionRate.toFixed(1)}%
+                        </TableCell>
+                        <TableCell className='align-top'>
+                          <button
+                            type='button'
+                            role='switch'
+                            aria-checked={item.status === 'active'}
+                            onClick={async () => {
+                              const nextStatus =
+                                item.status === 'active'
+                                  ? 'disabled'
+                                  : 'active';
+                              try {
+                                await influencerTrackingService.updateInfluencerTrackingLink(
+                                  item.id,
+                                  { status: nextStatus },
+                                );
+                                setItems((current) =>
+                                  current.map((i) =>
+                                    i.id === item.id
+                                      ? { ...i, status: nextStatus }
+                                      : i,
+                                  ),
+                                );
+                                toast.success(
+                                  `Link ${nextStatus === 'active' ? 'enabled' : 'disabled'} for ${item.influencerName}`,
+                                );
+                              } catch (error) {
+                                console.error(error);
+                                toast.error('Failed to update link status.');
+                              }
+                            }}
+                            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                              item.status === 'active'
+                                ? 'bg-dark-red'
+                                : 'bg-gray-300'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                                item.status === 'active'
+                                  ? 'translate-x-[22px]'
+                                  : 'translate-x-[2px]'
+                              }`}
+                            />
+                          </button>
                         </TableCell>
                       </TableRow>
                     ))

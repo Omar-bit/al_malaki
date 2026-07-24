@@ -192,6 +192,46 @@ export class InfluencerTrackingService {
     return this.mapTrackingLink(created);
   }
 
+  async updateTrackingLink(
+    id: string,
+    dto: { status?: 'active' | 'disabled' },
+    actor: { id: string; email?: string },
+  ): Promise<InfluencerTrackingItemResponse> {
+    const existing = await this.prisma.influencerTrackingLink.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new Error('Tracking link not found');
+    }
+
+    const updated = await this.prisma.influencerTrackingLink.update({
+      where: { id },
+      data: {
+        ...(dto.status && { status: dto.status.toUpperCase() as 'ACTIVE' | 'DISABLED' }),
+      },
+      include: {
+        _count: {
+          select: { attributedUsers: true },
+        },
+        attributedOrders: {
+          select: { id: true, total: true, status: true },
+        },
+      },
+    });
+
+    await this.activityLogService.log({
+      actorId: actor.id,
+      actorName: actor.email,
+      entityType: 'InfluencerTracking',
+      entityId: id,
+      action: 'UPDATE',
+      description: `${dto.status === 'disabled' ? 'Disabled' : 'Enabled'} tracking link "${updated.code}" for ${updated.influencerName}`,
+    });
+
+    return this.mapTrackingLink(updated);
+  }
+
   async trackVisitByCode(code: string): Promise<{ tracked: boolean }> {
     const normalizedCode = code.trim().toLowerCase();
 

@@ -4,6 +4,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -17,6 +19,7 @@ import type { AuthenticatedUser } from '../auth/types/auth-user.type';
 import { CreateInfluencerTrackingDto } from './dto/create-influencer-tracking.dto';
 import { ListInfluencerTrackingDto } from './dto/list-influencer-tracking.dto';
 import { TrackInfluencerVisitDto } from './dto/track-influencer-visit.dto';
+import { UpdateInfluencerTrackingDto } from './dto/update-influencer-tracking.dto';
 import {
   InfluencerTrackingItemResponse,
   InfluencerTrackingService,
@@ -60,6 +63,20 @@ export class InfluencerTrackingController {
     @Body() dto: CreateInfluencerTrackingDto,
   ): Promise<InfluencerTrackingItemResponse> {
     return this.influencerTrackingService.createTrackingLink(dto, {
+      id: user.userId,
+      email: user.email,
+    });
+  }
+
+  @Patch('admin/influencer-tracking/:id')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Roles(Role.ADMIN)
+  async updateTrackingLink(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateInfluencerTrackingDto,
+  ): Promise<InfluencerTrackingItemResponse> {
+    return this.influencerTrackingService.updateTrackingLink(id, dto, {
       id: user.userId,
       email: user.email,
     });

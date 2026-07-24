@@ -145,6 +145,28 @@ export async function getInfluencerTrackingStats(): Promise<InfluencerTrackingSt
   return (await response.json()) as InfluencerTrackingStats;
 }
 
+export async function updateInfluencerTrackingLink(
+  id: string,
+  payload: { status?: 'active' | 'disabled' },
+): Promise<InfluencerTrackingItem> {
+  const response = await fetch(
+    `${API_BASE_URL}/admin/influencer-tracking/${id}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as InfluencerTrackingItem;
+}
+
 export async function createInfluencerTrackingLink(
   payload: CreateInfluencerTrackingPayload,
 ): Promise<InfluencerTrackingItem> {
