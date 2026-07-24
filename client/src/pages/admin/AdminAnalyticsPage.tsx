@@ -220,11 +220,35 @@ export function AdminAnalyticsPage() {
       ...initialFormState,
       categoryId: categories[0]?.id ?? '',
     });
-    // Revoke all object URLs to free memory
     setPendingImages((current) => {
       current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
       return [];
     });
+  };
+
+  const openEditModal = (product: ProductAnalyticsProduct) => {
+    setEditingProductId(product.id);
+    setFormState({
+      name: product.name,
+      categoryId:
+        categories.find((c) => c.name === product.category)?.id ?? '',
+      brand: product.brand ?? '',
+      description: product.description ?? '',
+      price: String(product.price),
+      discountPrice: product.discountPrice ? String(product.discountPrice) : '',
+      images: product.images,
+      placement: product.placement,
+      collection: product.collection ?? '',
+      promoCode: product.promoCode ?? '',
+      campaign: product.campaign ?? '',
+      status: product.status,
+      performance: product.performance,
+      slug: product.slug,
+      metaTitle: product.metaTitle ?? '',
+      metaDescription: product.metaDescription ?? '',
+    });
+    setPendingImages([]);
+    setIsProductModalOpen(true);
   };
 
   const handleDeleteProduct = async () => {
@@ -656,13 +680,16 @@ export function AdminAnalyticsPage() {
                     <TableHeader>
                       <span className='text-[#000000]/68 text-lg '>Status</span>
                     </TableHeader>
+                    <TableHeader>
+                      <span className='text-[#000000]/68 text-lg '>Actions</span>
+                    </TableHeader>
                   </TableRow>
                 </TableHead>
                 <TableBody className='divide-y divide-[#ede0cc] bg-transparent'>
                   {filteredProducts.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={7}
                         className='!px-4 !py-6 text-center text-xs text-[#6D5A46]'
                       >
                         No products found for current filters.
@@ -737,37 +764,40 @@ export function AdminAnalyticsPage() {
                             </span>
                           )}
                         </TableCell>
+                        <TableCell className='!px-4 !py-3'>
+                          <div className='flex items-center gap-1'>
+                            <button
+                              type='button'
+                              onClick={() => setViewingProduct(product)}
+                              className='rounded-full p-1.5 text-[#a89580] transition-colors hover:bg-[#F7EEE1] hover:text-dark-red'
+                              title='View details'
+                            >
+                              <Eye className='h-4 w-4' />
+                            </button>
+                            <button
+                              type='button'
+                              onClick={() => openEditModal(product)}
+                              className='rounded-full p-1.5 text-[#a89580] transition-colors hover:bg-[#F7EEE1] hover:text-dark-red'
+                              title='Edit product'
+                            >
+                              <Pencil className='h-4 w-4' />
+                            </button>
+                            <button
+                              type='button'
+                              onClick={() => setDeletingProduct(product)}
+                              className='rounded-full p-1.5 text-[#a89580] transition-colors hover:bg-[#fff0f0] hover:text-red-600'
+                              title='Delete product'
+                            >
+                              <Trash2 className='h-4 w-4' />
+                            </button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
-
-            {/* Action buttons row inside performance section */}
-            <div className='flex items-center justify-end gap-2 mt-3'>
-              {filteredProducts.map((product) => (
-                <span key={product.id} style={{ display: 'none' }}>
-                  {/* hidden action triggers available via row click */}
-                </span>
-              ))}
-            </div>
-
-            {/* Row-level actions (eye, edit, delete) accessible via hover row */}
-            {filteredProducts.length > 0 && (
-              <div className='mt-2 flex flex-wrap items-center justify-end gap-1 opacity-0 h-0 overflow-hidden'>
-                {/* These are kept for logical reasons but hidden */}
-                <button type='button' onClick={() => {}} className='hidden'>
-                  <Eye className='h-4 w-4' />
-                </button>
-                <button type='button' onClick={() => {}} className='hidden'>
-                  <Pencil className='h-4 w-4' />
-                </button>
-                <button type='button' onClick={() => {}} className='hidden'>
-                  <Trash2 className='h-4 w-4' />
-                </button>
-              </div>
-            )}
           </section>
         </div>
       </div>
