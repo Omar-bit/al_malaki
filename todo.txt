@@ -1,4 +1,3 @@
-- categorize notifications by type
 
 - notification sound of new orders
 
@@ -9,6 +8,7 @@ for each dinar a point
 
 
 DONE
+- categorize notifications by type
 - add disable to ref link
 - product placement (home on/off)
 - best seller (auto)
