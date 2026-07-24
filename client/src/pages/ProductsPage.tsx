@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Header, Footer, ProductCard } from '../components';
 import { FilterBar } from '../components/ui/FilterBar';
 import {
@@ -19,6 +20,7 @@ const INITIAL_DISPLAY_COUNT = 6;
 
 export function ProductsPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -115,37 +117,42 @@ export function ProductsPage() {
       </section>
 
       {/* ── Best Seller Section ───────────────────────────────────── */}
-      <section className='bg-white px-10 md:px-16 py-14 md:py-16 min-h-screen'>
-        <div className='max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12'>
-          {/* Left: title + bio */}
-          <div className='flex-1'>
-            <h2
-              className={`${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'} text-[38px] md:text-[58px] text-dark-red leading-tight text-center`}
-            >
-              {t('productsPage.bestSellerTitle', 'Our best seller')}
-            </h2>
-            <p className='mt-3 font-abhaya text-base md:text-lg text-dark-red/60 text-center'>
-              {t(
-                'productsPage.bestSellerBio',
-                '(Biography of the best seller)',
+      {bestSeller && (
+        <section
+          className='bg-white px-10 md:px-16 py-14 md:py-16 min-h-screen'
+          onClick={() => navigate(`/products/${bestSeller.slug}`)}
+        >
+          <div className='max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 cursor-pointer'>
+            <div className='flex-1'>
+              <h2
+                className={`${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'} text-[38px] md:text-[58px] text-dark-red leading-tight text-center`}
+              >
+                {t('productsPage.bestSellerTitle', 'Our best seller')}
+              </h2>
+              <p className='mt-5 font-abhaya text-base md:text-lg text-dark-red/60 text-center'>
+                {bestSeller.name}
+              </p>
+              {bestSeller.description && (
+                <p className='mt-3 font-bona text-sm md:text-base text-black/60 text-center leading-relaxed max-w-md mx-auto'>
+                  {bestSeller.description}
+                </p>
               )}
-            </p>
-          </div>
+            </div>
 
-          {/* Right: featured product image */}
-          <div className='flex-1 flex justify-center'>
-            {bestSeller?.images[0] ? (
-              <img
-                src={bestSellerImage}
-                alt={bestSeller.name}
-                className=' object-cover rounded-tl-[50%] rounded-br-[50%] size-[400px]'
-              />
-            ) : (
-              <div className='w-full h-full animate-pulse bg-[#2a2a2a]' />
-            )}
+            <div className='flex-1 flex justify-center'>
+              {bestSeller.images[0] ? (
+                <img
+                  src={bestSeller.images[0]}
+                  alt={bestSeller.name}
+                  className='object-cover rounded-tl-[50%] rounded-br-[50%] size-[400px]'
+                />
+              ) : (
+                <div className='size-[400px] animate-pulse rounded-tl-[50%] rounded-br-[50%] bg-[#2a2a2a]' />
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Products Grid ─────────────────────────────────────────── */}
       <main className='grow bg-[#f9f4ec] px-10 md:px-16 pt-14 pb-10'>
