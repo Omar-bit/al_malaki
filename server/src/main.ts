@@ -45,12 +45,20 @@ async function seedDefaultAdmin(prisma: PrismaService) {
     return;
   }
 
-  const existing = await prisma.user.findFirst({
-    where: { role: 'ADMIN' },
+  const existing = await prisma.user.findUnique({
+    where: { email },
   });
 
   if (existing) {
-    console.log('Admin account already exists, skipping seed');
+    if (existing.role === 'ADMIN') {
+      console.log('Admin account already exists, skipping seed');
+      return;
+    }
+    await prisma.user.update({
+      where: { email },
+      data: { role: 'ADMIN', verifiedEmail: true },
+    });
+    console.log(`Existing user ${email} promoted to ADMIN`);
     return;
   }
 
