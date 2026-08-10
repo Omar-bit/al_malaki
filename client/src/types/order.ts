@@ -33,7 +33,10 @@ export interface Order {
   city: string;
   postalCode: string;
   subtotal: number;
+  discount: number;
+  pointsUsed: number;
   total: number;
+  promoCodeId: string | null;
   items: OrderItem[];
   createdAt: string;
   updatedAt: string;
@@ -55,5 +58,21 @@ export interface CreateOrderPayload {
   city: string;
   postalCode: string;
   influencerTrackingCode?: string;
+  promoCode?: string;
+  pointsToUse?: number;
   items: CreateOrderItemPayload[];
+}
+
+export interface LoyaltyInfo {
+  points: number;
+  totalPointsEarned: number;
+  totalPointsSpent: number;
+}
+
+export interface PromoValidationResult {
+  code: string;
+  discountType: 'FIXED' | 'PERCENTAGE';
+  value: number;
+  productId: string | null;
+  discountAmount: number;
 }

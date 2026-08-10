@@ -6,6 +6,7 @@ import type { CartItem } from '../contexts/CartContext';
 import { orderService } from '../services';
 import { ApiError } from '../services/authService';
 import { getStoredInfluencerTrackingCode } from '../services/influencerTrackingService';
+import type { LoyaltyInfo, PromoValidationResult } from '../types/order';
 
 type Step = 'shipping' | 'payment';
 type PaymentMethod = 'cash' | 'card';
@@ -45,6 +46,8 @@ const INITIAL_PAYMENT_FORM: PaymentFormState = {
   expiry: '',
   cvc: '',
 };
+
+const POINTS_REDEMPTION_RATE = 0.05; // 10 pts = 0.5 DT => 1 pt = 0.05 DT
 
 function formatTotal(value: number) {
   return `${Math.round(value)} dt`;
@@ -94,6 +97,16 @@ export function OrderPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Promo code state
+  const [promoInput, setPromoInput] = useState('');
+  const [promoApplied, setPromoApplied] = useState<PromoValidationResult | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+
+  // Points state
+  const [loyalty, setLoyalty] = useState<LoyaltyInfo | null>(null);
+  const [usePoints, setUsePoints] = useState(false);
+
   useEffect(() => {
     if (!user) {
       setShippingForm(INITIAL_SHIPPING_FORM);
@@ -108,13 +121,37 @@ export function OrderPage() {
       email: user.email ?? '',
       phoneNumber: user.phoneNumber ?? '',
     }));
+
+    orderService.getMyLoyalty().then(setLoyalty).catch(() => null);
   }, [user]);
 
   const subtotal = totalPrice;
-  const promoDiscount = 0;
-  const pointsDiscount = 0;
-  const totalWithPromo = subtotal - promoDiscount;
-  const finalTotal = totalWithPromo - pointsDiscount;
+  const promoDiscount = promoApplied?.discountAmount ?? 0;
+  const availablePoints = loyalty?.points ?? 0;
+  const pointsDiscount = usePoints ? availablePoints * POINTS_REDEMPTION_RATE : 0;
+  const pointsToUse = usePoints ? availablePoints : 0;
+  const finalTotal = Math.max(0, subtotal - promoDiscount - pointsDiscount);
+
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setIsValidatingPromo(true);
+    setPromoError(null);
+    setPromoApplied(null);
+    try {
+      const result = await orderService.validatePromoCode(promoInput.trim(), subtotal);
+      setPromoApplied(result);
+    } catch (err) {
+      setPromoError(err instanceof ApiError ? err.message : 'Invalid promo code');
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setPromoApplied(null);
+    setPromoInput('');
+    setPromoError(null);
+  };
 
   const handleContinue = () => {
     setStep('payment');
@@ -124,7 +161,6 @@ export function OrderPage() {
     if (items.length === 0) return;
 
     if (paymentMethod === 'card') {
-      // Online payment not yet implemented — placeholder guard
       setSubmitError(
         'Online card payment is not yet available. Please select payment on delivery.',
       );
@@ -146,6 +182,8 @@ export function OrderPage() {
         city: shippingForm.city,
         postalCode: shippingForm.postalCode,
         influencerTrackingCode: getStoredInfluencerTrackingCode(),
+        promoCode: promoApplied?.code,
+        pointsToUse: pointsToUse > 0 ? pointsToUse : undefined,
         items: items.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
@@ -532,20 +570,92 @@ export function OrderPage() {
                 )}
               </div>
 
-              <div className='mt-4   font-bona text-base text-[#000000]'>
+              {/* Promo code input */}
+              <div className='mt-4'>
+                {promoApplied ? (
+                  <div className='flex items-center justify-between rounded-xl bg-green-50 border border-green-300 px-3 py-2'>
+                    <span className='font-abee text-sm text-green-700'>
+                      <span className='font-bold'>{promoApplied.code}</span>
+                      {' — '}
+                      {promoApplied.discountType === 'FIXED'
+                        ? `-${promoApplied.value} dt`
+                        : `-${promoApplied.value}%`}
+                    </span>
+                    <button
+                      type='button'
+                      onClick={handleRemovePromo}
+                      className='ml-2 font-abee text-xs text-red-500 hover:text-red-700'
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className='flex gap-2'>
+                    <input
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
+                      placeholder='Promo code'
+                      className='h-9 flex-1 rounded-xl border border-dark-red bg-[#F1E2CB21] px-3 font-abee text-[13px] text-dark-red outline-none transition focus:border-[#6d232f] focus:ring-2 focus:ring-[#6d232f]/10'
+                    />
+                    <button
+                      type='button'
+                      onClick={handleApplyPromo}
+                      disabled={isValidatingPromo || !promoInput.trim()}
+                      className='rounded-xl bg-[#5b0814] px-4 py-1.5 font-bona text-sm text-[#fdf7ef] disabled:opacity-50'
+                    >
+                      {isValidatingPromo ? '...' : 'Apply'}
+                    </button>
+                  </div>
+                )}
+                {promoError && (
+                  <p className='mt-1 font-abee text-xs text-red-600'>{promoError}</p>
+                )}
+              </div>
+
+              {/* Points redemption */}
+              {loyalty && loyalty.points > 0 && (
+                <div className='mt-3 flex items-center justify-between rounded-xl border border-dark-red bg-[#F1E2CB21] px-3 py-2'>
+                  <div>
+                    <p className='font-bona text-sm text-dark-red'>
+                      My points: <span className='font-bold'>{loyalty.points} pts</span>
+                    </p>
+                    <p className='font-abee text-xs text-[#6d232f]'>
+                      Worth {(loyalty.points * POINTS_REDEMPTION_RATE).toFixed(2)} dt
+                    </p>
+                  </div>
+                  <button
+                    type='button'
+                    onClick={() => setUsePoints((v) => !v)}
+                    className={`rounded-full px-4 py-1.5 font-bona text-sm transition-colors ${
+                      usePoints
+                        ? 'bg-[#5b0814] text-[#fdf7ef]'
+                        : 'border border-dark-red text-dark-red'
+                    }`}
+                  >
+                    {usePoints ? 'Applied' : 'Use'}
+                  </button>
+                </div>
+              )}
+
+              <div className='mt-4 font-bona text-base text-[#000000]'>
                 <div className='flex items-center justify-between py-1.5'>
                   <span>Initial total</span>
                   <span>{formatTotal(subtotal)}</span>
                 </div>
-                <div className='flex items-center justify-between py-1.5'>
-                  <span>Total with promo</span>
-                  <span>{formatTotal(totalWithPromo)}</span>
-                </div>
-                <div className='flex items-center justify-between py-1.5'>
-                  <span>Points</span>
-                  <span>{formatTotal(pointsDiscount)}</span>
-                </div>
-                <div className='mt-2 flex items-center justify-between border-t border-[#000000]/40 pt-3 text-lg font-bold '>
+                {promoDiscount > 0 && (
+                  <div className='flex items-center justify-between py-1.5 text-green-700'>
+                    <span>Promo discount</span>
+                    <span>-{formatTotal(promoDiscount)}</span>
+                  </div>
+                )}
+                {pointsDiscount > 0 && (
+                  <div className='flex items-center justify-between py-1.5 text-green-700'>
+                    <span>Points ({pointsToUse} pts)</span>
+                    <span>-{pointsDiscount.toFixed(2)} dt</span>
+                  </div>
+                )}
+                <div className='mt-2 flex items-center justify-between border-t border-[#000000]/40 pt-3 text-lg font-bold'>
                   <span>Total</span>
                   <span>{formatTotal(finalTotal)}</span>
                 </div>

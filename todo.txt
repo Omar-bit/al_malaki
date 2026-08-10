@@ -1,19 +1,24 @@
 - points system and promo codes application (implementation)
-for each dinar a point
-10 points = 0.5d 
+    for each dinar a point ; 10 points = 0.5d 
+
+- customize pack 
+
+- messaging system (customer and admin) figma 
+
+-refactore , quality improvement and security and caching
+
+
+
+
+
+
 
 
 
 
 
 BLOCKED
-
-- messaging system (customer and admin) figma 
-
-- customize pack figma
-
 - online payment docs
-
 
 
 DONE

@@ -66,6 +66,15 @@ export class CreateOrderDto {
   @IsString()
   influencerTrackingCode?: string;
 
+  @IsOptional()
+  @IsString()
+  promoCode?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  pointsToUse?: number;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)

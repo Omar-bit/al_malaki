@@ -1,5 +1,10 @@
 import { ApiError } from './authService';
-import type { CreateOrderPayload, Order } from '../types/order';
+import type {
+  CreateOrderPayload,
+  LoyaltyInfo,
+  Order,
+  PromoValidationResult,
+} from '../types/order';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:3000';
@@ -90,6 +95,41 @@ export async function getAllOrders(): Promise<Order[]> {
   }
 
   return response.json() as Promise<Order[]>;
+}
+
+export async function getMyLoyalty(): Promise<LoyaltyInfo> {
+  const response = await fetch(`${API_BASE_URL}/orders/my/loyalty`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return response.json() as Promise<LoyaltyInfo>;
+}
+
+export async function validatePromoCode(
+  code: string,
+  subtotal: number,
+): Promise<PromoValidationResult> {
+  const params = new URLSearchParams({ code, subtotal: subtotal.toString() });
+  const response = await fetch(
+    `${API_BASE_URL}/orders/validate-promo?${params.toString()}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    },
+  );
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return response.json() as Promise<PromoValidationResult>;
 }
 
 export async function updateOrderStatus(orderId: string, status: string): Promise<Order> {

@@ -250,7 +250,11 @@ model Order {
   city                String
   postalCode          String
   subtotal            Float
+  discount            Float                @default(0)
+  pointsUsed          Int                  @default(0)
   total               Float
+  promoCodeId         String?
+  promoCode           PromoCode?           @relation(fields: [promoCodeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   items               OrderItem[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
@@ -259,6 +263,7 @@ model Order {
   influencerTrackingLink   InfluencerTrackingLink? @relation("InfluencerAttributedOrders", fields: [influencerTrackingLinkId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([userId])
+  @@index([promoCodeId])
   @@index([influencerTrackingLinkId])
 }
 
@@ -305,6 +310,7 @@ model PromoCode {
   totalUsage   Int             @default(0)
   totalRevenue Float           @default(0)
   status       PromoCodeStatus @default(ACTIVE)
+  orders       Order[]
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 

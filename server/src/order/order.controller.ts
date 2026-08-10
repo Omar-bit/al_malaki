@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
@@ -41,6 +42,24 @@ export class OrderController {
   @Get('my')
   getUserOrders(@CurrentUser() user: AuthenticatedUser) {
     return this.orderService.getUserOrders(user.userId);
+  }
+
+  @Get('my/loyalty')
+  getMyLoyalty(@CurrentUser() user: AuthenticatedUser) {
+    return this.orderService.getMyLoyalty(user.userId);
+  }
+
+  @Get('validate-promo')
+  validatePromoCode(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('code') code: string,
+    @Query('subtotal') subtotal: string,
+  ) {
+    return this.orderService.validatePromoCode(
+      code,
+      user.userId,
+      parseFloat(subtotal) || 0,
+    );
   }
 
   @Get('admin/all')

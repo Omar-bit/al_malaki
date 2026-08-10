@@ -13,6 +13,9 @@ import {
 } from '../generated/prisma';
 import { NotificationService } from '../notification/notification.service';
 
+const POINTS_PER_DINAR = 1;
+const POINTS_REDEMPTION_RATE = 0.05; // 10 points = 0.5 DT => 1 point = 0.05 DT
+
 @Injectable()
 export class OrderService {
   constructor(
@@ -38,9 +41,7 @@ export class OrderService {
     const productMap = new Map(products.map((p) => [p.id, p]));
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
-      select: {
-        influencerTrackingLinkId: true,
-      },
+      select: { influencerTrackingLinkId: true },
     });
     const explicitInfluencerTrackingLinkId =
       await this.resolveInfluencerTrackingLinkId(dto.influencerTrackingCode);
@@ -71,6 +72,84 @@ export class OrderService {
       };
     });
 
+    // Promo code discount
+    let promoDiscount = 0;
+    let promoCodeId: string | null = null;
+
+    if (dto.promoCode?.trim()) {
+      const code = dto.promoCode.trim().toUpperCase();
+      const promo = await this.prismaService.promoCode.findUnique({
+        where: { code },
+      });
+
+      if (!promo || promo.status !== 'ACTIVE') {
+        throw new BadRequestException('Invalid or inactive promo code');
+      }
+
+      const now = new Date();
+      if (promo.startDate > now) {
+        throw new BadRequestException('Promo code is not yet active');
+      }
+      if (!promo.isLifetime && promo.expiration && promo.expiration < now) {
+        throw new BadRequestException('Promo code has expired');
+      }
+
+      if (promo.usageLimit !== null) {
+        const usageCount = await this.prismaService.order.count({
+          where: {
+            userId,
+            promoCodeId: promo.id,
+            status: { not: 'CANCELLED' },
+          },
+        });
+        if (usageCount >= promo.usageLimit) {
+          throw new BadRequestException(
+            'You have reached the usage limit for this promo code',
+          );
+        }
+      }
+
+      // Determine the base amount the discount applies to
+      let discountBase = subtotal;
+      if (promo.productId) {
+        const scopedItems = orderItems.filter(
+          (item) => item.productId === promo.productId,
+        );
+        if (scopedItems.length === 0) {
+          throw new BadRequestException(
+            'This promo code does not apply to any item in your order',
+          );
+        }
+        discountBase = scopedItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0,
+        );
+      }
+
+      if (promo.discountType === 'FIXED') {
+        promoDiscount = Math.min(promo.value, discountBase);
+      } else {
+        promoDiscount = discountBase * (promo.value / 100);
+      }
+
+      promoCodeId = promo.id;
+    }
+
+    // Points redemption
+    let pointsUsed = 0;
+    let pointsDiscount = 0;
+
+    if (dto.pointsToUse && dto.pointsToUse > 0) {
+      const loyalty = await this.prismaService.customerLoyalty.findUnique({
+        where: { userId },
+      });
+      const availablePoints = loyalty?.points ?? 0;
+      pointsUsed = Math.min(dto.pointsToUse, availablePoints);
+      pointsDiscount = pointsUsed * POINTS_REDEMPTION_RATE;
+    }
+
+    const total = Math.max(0, subtotal - promoDiscount - pointsDiscount);
+
     const order = await this.prismaService.order.create({
       data: {
         userId,
@@ -84,12 +163,47 @@ export class OrderService {
         city: dto.city,
         postalCode: dto.postalCode,
         subtotal,
-        total: subtotal,
+        discount: promoDiscount,
+        pointsUsed,
+        total,
+        promoCodeId,
         influencerTrackingLinkId,
         items: { create: orderItems },
       },
       include: { items: true },
     });
+
+    // Deduct redeemed points
+    if (pointsUsed > 0) {
+      const loyalty = await this.prismaService.customerLoyalty.upsert({
+        where: { userId },
+        create: { userId, points: 0, totalPointsEarned: 0, totalPointsSpent: 0 },
+        update: {
+          points: { decrement: pointsUsed },
+          totalPointsSpent: { increment: pointsUsed },
+        },
+      });
+      await this.prismaService.loyaltyTransaction.create({
+        data: {
+          loyaltyId: loyalty.id,
+          type: 'SPEND',
+          amount: pointsUsed,
+          description: `Redeemed on order #${order.id.slice(-6).toUpperCase()}`,
+          orderId: order.id,
+        },
+      });
+    }
+
+    // Update promo code stats
+    if (promoCodeId) {
+      await this.prismaService.promoCode.update({
+        where: { id: promoCodeId },
+        data: {
+          totalUsage: { increment: 1 },
+          totalRevenue: { increment: total },
+        },
+      });
+    }
 
     const customerName = `${order.firstName} ${order.lastName}`.trim();
     const shortOrderId = order.id.slice(-6).toUpperCase();
@@ -121,6 +235,81 @@ export class OrderService {
     ]);
 
     return order;
+  }
+
+  async validatePromoCode(code: string, userId: string, subtotal: number) {
+    const promo = await this.prismaService.promoCode.findUnique({
+      where: { code: code.trim().toUpperCase() },
+      select: {
+        id: true,
+        code: true,
+        discountType: true,
+        value: true,
+        productId: true,
+        usageLimit: true,
+        isLifetime: true,
+        expiration: true,
+        startDate: true,
+        status: true,
+      },
+    });
+
+    if (!promo || promo.status !== 'ACTIVE') {
+      throw new BadRequestException('Invalid or inactive promo code');
+    }
+
+    const now = new Date();
+    if (promo.startDate > now) {
+      throw new BadRequestException('Promo code is not yet active');
+    }
+    if (!promo.isLifetime && promo.expiration && promo.expiration < now) {
+      throw new BadRequestException('Promo code has expired');
+    }
+
+    if (promo.usageLimit !== null) {
+      const usageCount = await this.prismaService.order.count({
+        where: { userId, promoCodeId: promo.id, status: { not: 'CANCELLED' } },
+      });
+      if (usageCount >= promo.usageLimit) {
+        throw new BadRequestException(
+          'You have reached the usage limit for this promo code',
+        );
+      }
+    }
+
+    let discountBase = subtotal;
+    if (promo.productId) {
+      discountBase = 0; // caller must supply product-level subtotal; we return productId so frontend knows
+    }
+
+    let discountAmount = 0;
+    if (discountBase > 0) {
+      if (promo.discountType === 'FIXED') {
+        discountAmount = Math.min(promo.value, discountBase);
+      } else {
+        discountAmount = discountBase * (promo.value / 100);
+      }
+    }
+
+    return {
+      code: promo.code,
+      discountType: promo.discountType,
+      value: promo.value,
+      productId: promo.productId,
+      discountAmount,
+    };
+  }
+
+  async getMyLoyalty(userId: string) {
+    const loyalty = await this.prismaService.customerLoyalty.findUnique({
+      where: { userId },
+      select: { points: true, totalPointsEarned: true, totalPointsSpent: true },
+    });
+    return {
+      points: loyalty?.points ?? 0,
+      totalPointsEarned: loyalty?.totalPointsEarned ?? 0,
+      totalPointsSpent: loyalty?.totalPointsSpent ?? 0,
+    };
   }
 
   async getUserOrders(userId: string) {
@@ -222,6 +411,35 @@ export class OrderService {
       });
     }
 
+    // Award points when order is delivered (1 point per dinar of the final total)
+    if (status === 'DELIVERED' && oldStatus !== 'DELIVERED') {
+      const pointsToAward = Math.floor(updatedOrder.total * POINTS_PER_DINAR);
+      if (pointsToAward > 0) {
+        const loyalty = await this.prismaService.customerLoyalty.upsert({
+          where: { userId: updatedOrder.userId },
+          create: {
+            userId: updatedOrder.userId,
+            points: pointsToAward,
+            totalPointsEarned: pointsToAward,
+            totalPointsSpent: 0,
+          },
+          update: {
+            points: { increment: pointsToAward },
+            totalPointsEarned: { increment: pointsToAward },
+          },
+        });
+        await this.prismaService.loyaltyTransaction.create({
+          data: {
+            loyaltyId: loyalty.id,
+            type: 'EARN',
+            amount: pointsToAward,
+            description: `Earned on order #${shortOrderId}`,
+            orderId,
+          },
+        });
+      }
+    }
+
     await Promise.all([
       this.notificationService.createNotification({
         userId: updatedOrder.userId,
@@ -260,15 +478,14 @@ export class OrderService {
       return null;
     }
 
-    const trackingLink = await this.prismaService.influencerTrackingLink.findFirst(
-      {
+    const trackingLink =
+      await this.prismaService.influencerTrackingLink.findFirst({
         where: {
           code: normalizedCode,
           status: 'ACTIVE',
         },
         select: { id: true },
-      },
-    );
+      });
 
     return trackingLink?.id ?? null;
   }
