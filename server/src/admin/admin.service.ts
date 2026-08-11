@@ -204,33 +204,52 @@ export class AdminService {
     topClients: number;
     newMessages: number;
     activePromos: number;
+    pendingOrders: number;
+    activeInfluencerCampaigns: number;
   }> {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    const [ordersToday, topClients, activePromos] = await Promise.all([
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [
+      ordersToday,
+      recentCustomerGroups,
+      activePromos,
+      newMessages,
+      pendingOrders,
+      activeInfluencerCampaigns,
+    ] = await Promise.all([
       this.prismaService.order.count({
         where: { createdAt: { gte: startOfDay } },
       }),
-      this.prismaService.user.count({
-        where: { role: Role.CUSTOMER },
+      this.prismaService.order.groupBy({
+        by: ['userId'],
+        where: { createdAt: { gte: thirtyDaysAgo } },
       }),
       this.prismaService.promoCode.count({
         where: { status: 'ACTIVE' },
       }),
+      this.prismaService.contactMessage.count({
+        where: { status: 'UNREAD' },
+      }),
+      this.prismaService.order.count({
+        where: { status: 'PENDING' },
+      }),
+      this.prismaService.influencerTrackingLink.count({
+        where: { status: 'ACTIVE' },
+      }),
     ]);
 
-    // Try to count contact messages if the model exists
-    let newMessages = 0;
-    try {
-      newMessages = await (this.prismaService as any).contactMessage.count({
-        where: { read: false },
-      });
-    } catch {
-      newMessages = 0;
-    }
-
-    return { ordersToday, topClients, newMessages, activePromos };
+    return {
+      ordersToday,
+      topClients: recentCustomerGroups.length,
+      newMessages,
+      activePromos,
+      pendingOrders,
+      activeInfluencerCampaigns,
+    };
   }
 
   async getAdminDashboardStats(period?: string, dateStr?: string) {

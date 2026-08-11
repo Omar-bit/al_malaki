@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Header, Footer } from '../components';
+import { Footer, ProductQRCode } from '../components';
+import { ArrowLeft } from 'lucide-react';
 import { getPublicProduct } from '../services/productService';
 import { useCart } from '../contexts/CartContext';
 import type { ProductAnalyticsProduct } from '../types/product';
@@ -24,6 +25,7 @@ export function ProductDetailsPage() {
         setProduct(data);
       } catch (error) {
         toast.error('Failed to load product details');
+        console.log(error);
         navigate('/products');
       } finally {
         setIsLoading(false);
@@ -39,9 +41,14 @@ export function ProductDetailsPage() {
 
   return (
     <div className='relative bg-[#f7eee1] min-h-screen overflow-x-hidden flex flex-col'>
-      <Header />
-
-      <main className='flex-grow max-h-screen pt-[80px] px-5 pb-20 max-w-7xl mx-auto w-full'>
+      <main className='flex-grow  px-5 pb-10 max-w-7xl mx-auto w-full pt-10 min-h-screen flex flex-col items-center justify-center'>
+        <button
+          onClick={() => navigate(-1)}
+          aria-label='Go back'
+          className='mb-6 inline-flex items-center justify-center w-11 h-11 rounded-full bg-dark-red text-[#f7eee1] hover:bg-dark-red/90 transition-colors shadow-md absolute top-3 left-3'
+        >
+          <ArrowLeft className='w-5 h-5' />
+        </button>
         {isLoading ? (
           <div className='flex justify-center items-center h-64'>
             <div className='text-dark-red text-xl'>Loading...</div>
@@ -67,16 +74,16 @@ export function ProductDetailsPage() {
 
             {/* Right side: Details */}
             <div className='flex flex-col text-dark-red'>
-              <h1 className='text-6xl md:text-5xl font-augent font-bold leading-tight mb-4'>
+              <h1 className='text-6xl md:text-5xl font-augent font-bold leading-tight mb-2'>
                 {product.name}
               </h1>
 
-              <p className='text-lg md:text-xl text-black! font-bona mb-10 leading-relaxed max-w-md'>
+              <p className='text-lg md:text-xl text-black! font-bona mb-5 leading-relaxed max-w-md'>
                 {product.description ||
                   'A refined and pure honey selection, carefully crafted by nature to bring you energy, balance, and a quiet moment of indulgence.'}
               </p>
 
-              <div className='flex items-center gap-10 mb-10 text-black!'>
+              <div className='flex items-center gap-10 mb-5 text-black!'>
                 <span className='text-2xl text-black font-bold font-aboreto stroke-1'>
                   {product.price.toFixed(2)} DT
                 </span>
@@ -85,7 +92,7 @@ export function ProductDetailsPage() {
                 </span>
               </div>
 
-              <div className='flex items-center gap-6 mb-12'>
+              <div className='flex items-center gap-6 mb-5'>
                 <div className='flex items-center border border-dark-red '>
                   <button
                     onClick={handleDecrement}
@@ -122,13 +129,13 @@ export function ProductDetailsPage() {
                   setQuantity(1);
                   openCart();
                 }}
-                className='w-fit px-20 py-4 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold text-dark-red hover:opacity-90 transition-opacity shadow-md mb-16'
+                className='w-fit px-20 py-4 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold text-dark-red hover:opacity-90 transition-opacity shadow-md mb-5'
               >
                 Add to cart
               </button>
 
               {/* Specs Footer */}
-              <div className='grid grid-cols-3 gap-4 border-t border-[#000000]/25 text-[#000000]/68 pt-6 text-sm font-bona text-center'>
+              <div className='grid grid-cols-3 gap-4 border-t border-[#000000]/25 text-[#000000]/68 pt-3 text-sm font-bona text-center'>
                 <div className='flex flex-col justify-center items-center px-2'>
                   <span>100%</span>
                   <span>Pure & Raw</span>
@@ -140,6 +147,28 @@ export function ProductDetailsPage() {
                 <div className='flex flex-col justify-center items-center px-2'>
                   <span>Origin</span>
                   <span>Tunisia</span>
+                </div>
+              </div>
+
+              {/* Share via QR */}
+              <div className='mt-5 flex items-center gap-5 rounded-[24px] border border-dark-red/20 bg-white/50 p-5'>
+                <ProductQRCode
+                  slug={product.slug}
+                  name={product.name}
+                  price={product.price}
+                  discountPrice={product.discountPrice}
+                  size={96}
+                  showUrl={false}
+                  actions={['copy', 'download']}
+                />
+                <div>
+                  <p className='font-bona font-bold text-black'>
+                    Scan to share
+                  </p>
+                  <p className='text-sm font-bona text-[#000000]/68 max-w-xs'>
+                    Scan this code with a phone camera to open {product.name}{' '}
+                    instantly, or copy the link to share it.
+                  </p>
                 </div>
               </div>
             </div>

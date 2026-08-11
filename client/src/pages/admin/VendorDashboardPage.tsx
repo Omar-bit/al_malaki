@@ -93,6 +93,8 @@ export function VendorDashboardPage() {
     topClients: 0,
     newMessages: 0,
     activePromos: 0,
+    pendingOrders: 0,
+    activeInfluencerCampaigns: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -107,24 +109,32 @@ export function VendorDashboardPage() {
 
   const tasks: TaskRowProps[] = [
     {
-      text: `Reply to ${stats.newMessages || 3} unread contact messages`,
+      text: stats.newMessages
+        ? `Reply to ${stats.newMessages} unread contact message${stats.newMessages === 1 ? '' : 's'}`
+        : 'No unread contact messages',
       tag: 'Messages',
       tagPath: '/admin/messages',
     },
     {
-      text: "Review today's order fulfillment",
+      text: stats.pendingOrders
+        ? `Fulfill ${stats.pendingOrders} pending order${stats.pendingOrders === 1 ? '' : 's'}`
+        : "Review today's order fulfillment",
       tag: 'Orders',
       tagPath: '/admin/orders',
     },
     {
-      text: 'Check influencer campaign performance',
+      text: stats.activeInfluencerCampaigns
+        ? `Monitor ${stats.activeInfluencerCampaigns} active influencer campaign${stats.activeInfluencerCampaigns === 1 ? '' : 's'}`
+        : 'Check influencer campaign performance',
       tag: 'Marketing',
-      tagPath: '/admin/promo-codes',
+      tagPath: '/admin/influencers',
     },
     {
-      text: 'Update product analytics report',
-      tag: 'Analytics',
-      tagPath: '/admin/analytics',
+      text: stats.activePromos
+        ? `Review ${stats.activePromos} active promo code${stats.activePromos === 1 ? '' : 's'}`
+        : 'Update product analytics report',
+      tag: stats.activePromos ? 'Promos' : 'Analytics',
+      tagPath: stats.activePromos ? '/admin/promo-codes' : '/admin/analytics',
     },
   ];
 

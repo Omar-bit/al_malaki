@@ -146,6 +146,8 @@ export interface VendorDashboardStats {
   topClients: number;
   newMessages: number;
   activePromos: number;
+  pendingOrders: number;
+  activeInfluencerCampaigns: number;
 }
 
 export async function getActivityLogs(

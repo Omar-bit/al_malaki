@@ -11,8 +11,10 @@ import {
   FolderTree,
   Trophy,
   LineChart,
+  Download,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
+import { ProductQRCode } from '../../components/ProductQRCode';
 import {
   Modal,
   ImageUpload,
@@ -42,6 +44,7 @@ import {
   uploadProductImages,
 } from '../../services/productService';
 import { getAllOrders } from '../../services/orderService';
+import { exportAllProductQRCodesZip } from '../../utils/qrCode';
 import type {
   CreateProductPayload,
   ProductAnalyticsProduct,
@@ -102,6 +105,7 @@ export function AdminAnalyticsPage() {
     useState<ProductAnalyticsProduct | null>(null);
   const [deletingProduct, setDeletingProduct] =
     useState<ProductAnalyticsProduct | null>(null);
+  const [isExportingQr, setIsExportingQr] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'hidden'>(
     'all',
@@ -436,6 +440,28 @@ export function AdminAnalyticsPage() {
     }
   };
 
+  const handleExportAllQrCodes = async () => {
+    if (products.length === 0) {
+      toast.error('No products to export.');
+      return;
+    }
+    setIsExportingQr(true);
+    try {
+      await exportAllProductQRCodesZip(
+        products.map((product) => ({
+          name: product.name,
+          slug: product.slug,
+        })),
+      );
+      toast.success('QR codes exported.');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to export QR codes.');
+    } finally {
+      setIsExportingQr(false);
+    }
+  };
+
   const handleDeleteCategory = async (id: string) => {
     try {
       await deleteCategory(id);
@@ -489,6 +515,15 @@ export function AdminAnalyticsPage() {
               >
                 <FolderTree className='h-3.5 w-3.5' />
                 Manage categories
+              </button>
+              <button
+                type='button'
+                onClick={handleExportAllQrCodes}
+                disabled={isExportingQr || products.length === 0}
+                className='group flex items-center gap-2 rounded-full border border-[#d5bd9d] bg-white px-4 py-1.5 text-xs font-semibold text-[#6D5A46] transition-all hover:border-dark-red hover:text-dark-red disabled:cursor-not-allowed disabled:opacity-50'
+              >
+                <Download className='h-3.5 w-3.5' />
+                {isExportingQr ? 'Exporting…' : 'Export all QR codes'}
               </button>
               {/* <button
                 type='button'
@@ -1394,6 +1429,18 @@ export function AdminAnalyticsPage() {
                   </div>
                 )}
               </div>
+            </div>
+
+            <div className='rounded-2xl border border-[#d5bd9d] bg-white/60 p-5'>
+              <h4 className='mb-4 text-center font-semibold text-black'>
+                QR Code &amp; Sharing
+              </h4>
+              <ProductQRCode
+                slug={viewingProduct.slug}
+                name={viewingProduct.name}
+                price={viewingProduct.price}
+                discountPrice={viewingProduct.discountPrice}
+              />
             </div>
 
             <div className='grid gap-4 rounded-2xl bg-[#F7EEE1] p-4 md:grid-cols-2'>

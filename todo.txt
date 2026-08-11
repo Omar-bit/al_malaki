@@ -1,10 +1,7 @@
-- add qr to prods
-
-- vendor dashboard dynamic
 
 - messaging system (customer and admin) figma 
 
--refactore , quality improvement and security and caching
+- refactore , quality improvement and security and caching
 
 
 
@@ -18,7 +15,8 @@ BLOCKED
 
 
 DONE
--notifications navigable
+- add qr to prods
+- notifications navigable
 - notification sound of new orders
 - categorize notifications by type
 - add disable to ref link
