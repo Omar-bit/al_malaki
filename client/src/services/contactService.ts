@@ -1,6 +1,8 @@
 import type {
   ContactMessage,
+  ContactMessageReply,
   CreateContactMessagePayload,
+  CreateReplyPayload,
   UpdateContactMessageStatusPayload,
 } from '../types/contact';
 import { ApiError } from './authService';
@@ -106,6 +108,39 @@ export async function getContactMessageById(id: string): Promise<ContactMessage>
   }
 
   return (await response.json()) as ContactMessage;
+}
+
+export async function createReply(
+  id: string,
+  payload: CreateReplyPayload,
+): Promise<ContactMessageReply> {
+  const response = await fetch(`${API_BASE_URL}/contact-messages/${id}/replies`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await parseError(response);
+    throw new ApiError(error.message, response.status, error.code);
+  }
+
+  return (await response.json()) as ContactMessageReply;
+}
+
+export function createAdminMessagesStream(): EventSource {
+  return new EventSource(`${API_BASE_URL}/contact-messages/admin/stream`, {
+    withCredentials: true,
+  });
+}
+
+export function createUserMessagesStream(): EventSource {
+  return new EventSource(`${API_BASE_URL}/contact-messages/stream`, {
+    withCredentials: true,
+  });
 }
 
 export async function updateContactMessageStatus(

@@ -2,9 +2,22 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
 import { contactService } from '../../services';
-import type { ContactMessage } from '../../types';
+import type {
+  ContactMessage,
+  ContactStreamEvent,
+} from '../../types/contact';
 import toast from 'react-hot-toast';
 import { Loader2, Send, ArrowLeft } from 'lucide-react';
+
+type ChatItem =
+  | { kind: 'message'; id: string; createdAt: string; text: string }
+  | {
+      kind: 'reply';
+      id: string;
+      createdAt: string;
+      text: string;
+      fromStaff: boolean;
+    };
 
 /* ────────────────────────── helpers ────────────────────────── */
 
@@ -36,6 +49,19 @@ function buildChats(messages: ContactMessage[]): Chat[] {
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
     const last = list[list.length - 1];
+
+    // Find the most recent activity (message OR reply) for preview + sorting
+    let latestAt = last.createdAt;
+    let latestPreview = last.message;
+    for (const m of list) {
+      for (const r of m.replies ?? []) {
+        if (new Date(r.createdAt).getTime() >= new Date(latestAt).getTime()) {
+          latestAt = r.createdAt;
+          latestPreview = r.body;
+        }
+      }
+    }
+
     chats.push({
       key,
       firstName: last.firstName,
@@ -46,7 +72,7 @@ function buildChats(messages: ContactMessage[]): Chat[] {
         last.firstName,
       )}+${encodeURIComponent(last.lastName)}&background=random`,
       messages: list,
-      lastMessage: last,
+      lastMessage: { ...last, createdAt: latestAt, message: latestPreview },
       unreadCount: list.filter((m) => m.status === 'UNREAD').length,
     });
   }
@@ -62,6 +88,31 @@ function buildChats(messages: ContactMessage[]): Chat[] {
 function formatTime(iso: string) {
   const d = new Date(iso);
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function buildTimeline(messages: ContactMessage[]): ChatItem[] {
+  const items: ChatItem[] = [];
+  for (const m of messages) {
+    items.push({
+      kind: 'message',
+      id: m.id,
+      createdAt: m.createdAt,
+      text: m.message,
+    });
+    for (const r of m.replies ?? []) {
+      items.push({
+        kind: 'reply',
+        id: r.id,
+        createdAt: r.createdAt,
+        text: r.body,
+        fromStaff: r.authorRole !== 'CUSTOMER',
+      });
+    }
+  }
+  items.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+  return items;
 }
 
 /* ══════════════════════════ main page ═══════════════════════════════ */
@@ -89,18 +140,63 @@ export function AdminMessagesPage() {
     fetchMessages();
   }, [fetchMessages]);
 
+  // Real-time updates
+  useEffect(() => {
+    const stream = contactService.createAdminMessagesStream();
+    stream.onmessage = (event) => {
+      const payload = JSON.parse(event.data) as ContactStreamEvent;
+      if (payload.kind === 'message.created') {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === payload.message.id)) return prev;
+          return [payload.message, ...prev];
+        });
+      } else if (payload.kind === 'reply.created') {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === payload.contactMessageId
+              ? {
+                  ...m,
+                  replies: [
+                    ...(m.replies ?? []).filter((r) => r.id !== payload.reply.id),
+                    payload.reply,
+                  ],
+                }
+              : m,
+          ),
+        );
+      } else if (payload.kind === 'message.status.updated') {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === payload.contactMessageId
+              ? { ...m, status: payload.status }
+              : m,
+          ),
+        );
+      }
+    };
+    return () => stream.close();
+  }, []);
+
   const chats = useMemo(() => buildChats(messages), [messages]);
   const selectedChat = useMemo(
     () => chats.find((c) => c.key === selectedKey) ?? null,
     [chats, selectedKey],
   );
 
-  // Auto-scroll to latest message when chat changes or new message arrives
+  // Auto-scroll to latest message when chat changes or new message/reply arrives
+  const totalItems = useMemo(() => {
+    if (!selectedChat) return 0;
+    return selectedChat.messages.reduce(
+      (n, m) => n + 1 + (m.replies?.length ?? 0),
+      0,
+    );
+  }, [selectedChat]);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [selectedKey, selectedChat?.messages.length]);
+  }, [selectedKey, totalItems]);
 
   // Mark unread as READ when opening a chat
   useEffect(() => {
@@ -129,31 +225,29 @@ export function AdminMessagesPage() {
 
   const handleReply = async () => {
     if (!selectedChat || !draft.trim()) return;
-    const subject = encodeURIComponent('Re: Your message to Al Malaki');
-    const body = encodeURIComponent(draft.trim());
-    window.location.href = `mailto:${selectedChat.email}?subject=${subject}&body=${body}`;
-
+    // Reply against the most recent incoming message in the conversation.
+    const target = selectedChat.messages[selectedChat.messages.length - 1];
+    const body = draft.trim();
+    setDraft('');
     try {
-      const pending = selectedChat.messages.filter(
-        (m) => m.status !== 'RESPONDED',
-      );
-      const updated = await Promise.all(
-        pending.map((m) =>
-          contactService.updateContactMessageStatus(m.id, {
-            status: 'RESPONDED',
-          }),
+      const reply = await contactService.createReply(target.id, { body });
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === target.id
+            ? {
+                ...m,
+                status: 'RESPONDED',
+                replies: [
+                  ...(m.replies ?? []).filter((r) => r.id !== reply.id),
+                  reply,
+                ],
+              }
+            : m,
         ),
       );
-      setMessages((prev) =>
-        prev.map((m) => {
-          const found = updated.find((u) => u.id === m.id);
-          return found ?? m;
-        }),
-      );
-      toast.success('Reply opened in your mail app');
-      setDraft('');
     } catch (err: any) {
-      toast.error(err?.message ?? 'Failed to update status');
+      setDraft(body);
+      toast.error(err?.message ?? 'Failed to send reply');
     }
   };
 
@@ -311,26 +405,44 @@ export function AdminMessagesPage() {
                     ref={scrollRef}
                     className='flex-1 overflow-y-auto custom-scrollbar px-4 md:px-6 py-4 space-y-3'
                   >
-                    {selectedChat.messages.map((m) => (
-                      <div
-                        key={m.id}
-                        className='flex items-end gap-2 max-w-[80%]'
-                      >
-                        <img
-                          src={selectedChat.avatar}
-                          alt=''
-                          className='w-7 h-7 rounded-full shrink-0'
-                        />
-                        <div>
-                          <div className='px-4 py-2 rounded-2xl rounded-bl-sm bg-[#D9D9D9] text-black  break-words'>
-                            {m.message}
-                          </div>
-                          <div className='text-sm text-[#000000]/50 mt-1 pl-1 font-aboreto font-semibold'>
-                            {formatTime(m.createdAt)}
+                    {buildTimeline(selectedChat.messages).map((item) =>
+                      item.kind === 'reply' && item.fromStaff ? (
+                        <div
+                          key={`r-${item.id}`}
+                          className='flex items-end gap-2 max-w-[80%] ml-auto justify-end'
+                        >
+                          <div>
+                            <div className='px-4 py-2 rounded-2xl rounded-br-sm bg-dark-red text-white break-words'>
+                              {item.text}
+                            </div>
+                            <div className='text-sm text-[#000000]/50 mt-1 pr-1 text-right font-aboreto font-semibold'>
+                              {formatTime(item.createdAt)}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ) : (
+                        <div
+                          key={
+                            item.kind === 'reply' ? `r-${item.id}` : `m-${item.id}`
+                          }
+                          className='flex items-end gap-2 max-w-[80%]'
+                        >
+                          <img
+                            src={selectedChat.avatar}
+                            alt=''
+                            className='w-7 h-7 rounded-full shrink-0'
+                          />
+                          <div>
+                            <div className='px-4 py-2 rounded-2xl rounded-bl-sm bg-[#D9D9D9] text-black  break-words'>
+                              {item.text}
+                            </div>
+                            <div className='text-sm text-[#000000]/50 mt-1 pl-1 font-aboreto font-semibold'>
+                              {formatTime(item.createdAt)}
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                    )}
                   </div>
 
                   {/* Input */}

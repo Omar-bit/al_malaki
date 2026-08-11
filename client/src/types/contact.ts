@@ -1,5 +1,16 @@
 export type MessageStatus = 'UNREAD' | 'READ' | 'RESPONDED';
 
+export type Role = 'CUSTOMER' | 'ADMIN' | 'VENDOR';
+
+export interface ContactMessageReply {
+  id: string;
+  contactMessageId: string;
+  authorId: string;
+  authorRole: Role;
+  body: string;
+  createdAt: string;
+}
+
 export interface ContactMessage {
   id: string;
   userId: string;
@@ -11,6 +22,7 @@ export interface ContactMessage {
   status: MessageStatus;
   createdAt: string;
   updatedAt: string;
+  replies?: ContactMessageReply[];
   user?: {
     id: string;
     email: string;
@@ -30,3 +42,23 @@ export interface CreateContactMessagePayload {
 export interface UpdateContactMessageStatusPayload {
   status: MessageStatus;
 }
+
+export interface CreateReplyPayload {
+  body: string;
+}
+
+export type ContactStreamEvent =
+  | { kind: 'connected' }
+  | { kind: 'message.created'; message: ContactMessage }
+  | {
+      kind: 'reply.created';
+      contactMessageId: string;
+      customerId: string;
+      reply: ContactMessageReply;
+    }
+  | {
+      kind: 'message.status.updated';
+      contactMessageId: string;
+      customerId: string;
+      status: MessageStatus;
+    };

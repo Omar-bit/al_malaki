@@ -31,6 +31,7 @@ model User {
   orders           Order[]
   loyalty          CustomerLoyalty?
   contactMessages  ContactMessage[]
+  contactMessageReplies ContactMessageReply[] @relation("ContactMessageReplyAuthor")
   notifications    Notification[]
   createdInfluencerTrackingLinks InfluencerTrackingLink[] @relation("CreatedInfluencerTrackingLinks")
   influencerTrackingLinkId       String?
@@ -337,12 +338,27 @@ model ContactMessage {
   phoneNumber String
   message     String
   status      MessageStatus @default(UNREAD)
+  replies     ContactMessageReply[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+}
+
+model ContactMessageReply {
+  id               String         @id @default(uuid())
+  contactMessageId String
+  contactMessage   ContactMessage @relation(fields: [contactMessageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  authorId         String
+  author           User           @relation("ContactMessageReplyAuthor", fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  authorRole       Role
+  body             String         @db.Text
+  createdAt        DateTime       @default(now())
+
+  @@index([contactMessageId, createdAt])
+  @@index([authorId])
 }
 
 model ActivityLog {

@@ -32,6 +32,7 @@ import { AdminHistoryPage } from './pages/admin/AdminHistoryPage';
 import {
   AdminRoute,
   CartModal,
+  CustomerChatWidget,
   GuestRoute,
   InfluencerTrackingBootstrap,
 } from './components';
@@ -48,7 +49,7 @@ export default function App() {
     <BrowserRouter>
       <InfluencerTrackingBootstrap />
       <Toaster
-        position='bottom-right'
+        position='bottom-left'
         toastOptions={{
           duration: 3000,
           style: {
@@ -59,6 +60,7 @@ export default function App() {
         }}
       />
       <CartModal />
+      <CustomerChatWidget />
       <Routes>
         <Route path='/' element={<LandingPage />} />
         <Route path='/products' element={<ProductsPage />} />
