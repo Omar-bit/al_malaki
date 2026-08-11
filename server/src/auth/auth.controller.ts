@@ -13,9 +13,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
+import { createImageUploadOptions } from '../common/storage/upload-storage';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RequestPasswordResetLinkDto } from './dto/request-password-reset-link.dto';
@@ -29,38 +29,17 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './types/auth-user.type';
 
-const profilePictureStorage = diskStorage({
-  destination: './uploads/profiles',
-  filename: (req, file, cb) => {
-    const randomName = Array(32)
-      .fill(null)
-      .map(() => Math.round(Math.random() * 16).toString(16))
-      .join('');
-    cb(null, `${randomName}${extname(file.originalname)}`);
-  },
-});
-
-const profilePictureFileFilter = (req, file, cb) => {
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
-  if (allowedMimes.includes(file.mimetype)) {
-    cb(null, true);
-    return;
-  }
-
-  cb(
-    new BadRequestException(
-      'Only image files are allowed (jpeg, png, webp, gif)',
-    ),
-    false,
-  );
-};
+// Tight limits on abuse-prone auth flows (brute force, OTP guessing, email
+// bombing). ttl is in milliseconds.
+const STRICT_THROTTLE = { default: { limit: 5, ttl: 60_000 } };
+const LOGIN_THROTTLE = { default: { limit: 10, ttl: 60_000 } };
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register/request-otp')
+  @Throttle(STRICT_THROTTLE)
   @HttpCode(HttpStatus.OK)
   async requestRegisterOtp(
     @Body() requestRegisterOtpDto: RequestRegisterOtpDto,
@@ -69,6 +48,7 @@ export class AuthController {
   }
 
   @Post('password/forgot')
+  @Throttle(STRICT_THROTTLE)
   @HttpCode(HttpStatus.OK)
   async requestPasswordResetLink(
     @Body() requestPasswordResetLinkDto: RequestPasswordResetLinkDto,
@@ -89,12 +69,14 @@ export class AuthController {
   }
 
   @Post('password/reset')
+  @Throttle(LOGIN_THROTTLE)
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
 
   @Post('register')
+  @Throttle(STRICT_THROTTLE)
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
@@ -102,11 +84,7 @@ export class AuthController {
 
   @Post('register/upload-profile-picture')
   @UseInterceptors(
-    FileInterceptor('image', {
-      storage: profilePictureStorage,
-      fileFilter: profilePictureFileFilter,
-      limits: { fileSize: 5 * 1024 * 1024 },
-    }),
+    FileInterceptor('image', createImageUploadOptions('./uploads/profiles')),
   )
   @HttpCode(HttpStatus.CREATED)
   async uploadProfilePicture(
@@ -120,6 +98,7 @@ export class AuthController {
   }
 
   @Post('register/verify-otp')
+  @Throttle(LOGIN_THROTTLE)
   @HttpCode(HttpStatus.OK)
   async verifyRegisterOtp(
     @Body() verifyRegisterOtpDto: VerifyRegisterOtpDto,
@@ -140,6 +119,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle(LOGIN_THROTTLE)
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDto,

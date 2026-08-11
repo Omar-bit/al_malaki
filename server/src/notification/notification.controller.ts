@@ -30,9 +30,11 @@ export class NotificationController {
 
   @Get('unread-count')
   getUnreadCount(@CurrentUser() user: AuthenticatedUser) {
-    return this.notificationService.getUnreadCount(user.userId).then((count) => ({
-      unreadCount: count,
-    }));
+    return this.notificationService
+      .getUnreadCount(user.userId)
+      .then((count) => ({
+        unreadCount: count,
+      }));
   }
 
   @Patch('read-all')

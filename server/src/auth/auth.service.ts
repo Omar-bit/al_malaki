@@ -526,15 +526,14 @@ export class AuthService {
       return null;
     }
 
-    const trackingLink = await this.prismaService.influencerTrackingLink.findFirst(
-      {
+    const trackingLink =
+      await this.prismaService.influencerTrackingLink.findFirst({
         where: {
           code: normalizedCode,
           status: 'ACTIVE',
         },
         select: { id: true },
-      },
-    );
+      });
 
     return trackingLink?.id ?? null;
   }

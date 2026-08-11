@@ -15,8 +15,6 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import {
   ProductService,
   ProductResponse,
@@ -32,42 +30,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../generated/prisma';
-
-const storage = diskStorage({
-  destination: './uploads/products',
-  filename: (req, file, cb) => {
-    const randomName = Array(32)
-      .fill(null)
-      .map(() => Math.round(Math.random() * 16).toString(16))
-      .join('');
-    cb(null, `${randomName}${extname(file.originalname)}`);
-  },
-});
-
-const categoryStorage = diskStorage({
-  destination: './uploads/categories',
-  filename: (req, file, cb) => {
-    const randomName = Array(32)
-      .fill(null)
-      .map(() => Math.round(Math.random() * 16).toString(16))
-      .join('');
-    cb(null, `${randomName}${extname(file.originalname)}`);
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-  if (allowedMimes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(
-      new BadRequestException(
-        'Only image files are allowed (jpeg, png, webp, gif)',
-      ),
-      false,
-    );
-  }
-};
+import { createImageUploadOptions } from '../common/storage/upload-storage';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -118,11 +81,11 @@ export class ProductController {
 
   @Post('products/upload-images')
   @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage,
-      fileFilter,
-      limits: { fileSize: 5 * 1024 * 1024 },
-    }),
+    FilesInterceptor(
+      'images',
+      10,
+      createImageUploadOptions('./uploads/products'),
+    ),
   )
   async uploadProductImages(
     @UploadedFiles() files: Express.Multer.File[],
@@ -154,11 +117,7 @@ export class ProductController {
 
   @Post('categories/upload-image')
   @UseInterceptors(
-    FileInterceptor('image', {
-      storage: categoryStorage,
-      fileFilter,
-      limits: { fileSize: 5 * 1024 * 1024 },
-    }),
+    FileInterceptor('image', createImageUploadOptions('./uploads/categories')),
   )
   async uploadCategoryImage(
     @UploadedFile() file: Express.Multer.File,

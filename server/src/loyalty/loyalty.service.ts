@@ -113,8 +113,7 @@ export class LoyaltyService {
         points: {
           increment: points,
         },
-        totalPointsEarned:
-          points > 0 ? { increment: points } : undefined,
+        totalPointsEarned: points > 0 ? { increment: points } : undefined,
         totalPointsSpent:
           points < 0 ? { increment: Math.abs(points) } : undefined,
       },

@@ -1,9 +1,12 @@
-- TEST: messaging system (customer and admin) figma 
+we got small issue to fix:
+- when admin/vendor clicks on their image/name in the sidebar it should take him to page/popup (u decide) to see/edit their informations including their image (file upload)
+- in the customer space the edit profile is missing image (file upload)
+- the search icon in the header in landing page currently doesn't do nothing implement the search functionnality (it should be premium experience)
+- the export button in admin loyalty control page doen't do its job fix it
 
-- refactore , quality improvement and security and caching
+- TEST: user profile (admin/vendor) & image:file upload (customer)  & search icon in header landing & export button in loyalty control
 
-- dockerize & deploy
-
+- dockerize & deploy(coolify)
 
 
 
@@ -25,4 +28,5 @@ DONE
 - best seller (auto)
 - points system and promo codes application (for each dinar a point ; 10 points = 0.5d)
 - customize pack 
+- messaging system (customer and admin) figma 
     

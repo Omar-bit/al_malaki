@@ -67,16 +67,26 @@ export class ContactController {
   }
 
   @Sse('stream')
-  streamUser(
-    @CurrentUser() user: AuthenticatedUser,
-    @Req() request: Request,
-  ) {
+  streamUser(@CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
     return this.contactService.createUserStream(user.userId, request);
   }
 
   @Get(':id')
-  getContactMessageById(@Param('id') id: string) {
-    return this.contactService.getContactMessageById(id);
+  async getContactMessageById(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    const dbUser = await this.prismaService.user.findUnique({
+      where: { id: user.userId },
+      select: { role: true },
+    });
+    if (!dbUser) {
+      throw new ForbiddenException('User not found');
+    }
+    return this.contactService.getContactMessageById(id, {
+      id: user.userId,
+      role: dbUser.role,
+    });
   }
 
   @Post(':id/replies')

@@ -15,7 +15,10 @@ import { NotificationService } from '../notification/notification.service';
 import { ActivityLogService } from '../activity-log/activity-log.service';
 import { CreateAdminInvitationDto } from './dto/create-admin-invitation.dto';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
-import { SendNotificationToRolesDto, SendNotificationToUsersDto } from './dto/send-notification.dto';
+import {
+  SendNotificationToRolesDto,
+  SendNotificationToUsersDto,
+} from './dto/send-notification.dto';
 import { Role } from '../generated/prisma';
 
 export interface AdminTeamMemberResponse {

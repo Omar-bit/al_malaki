@@ -10,7 +10,6 @@ import {
   Loader2,
   Plus,
   Search,
-  UsersRound,
   X,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';

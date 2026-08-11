@@ -8,6 +8,7 @@ import { ActivityLogService } from '../activity-log/activity-log.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import {
   NotificationType,
+  OrderStatus,
   PaymentMethod,
   Role,
 } from '../generated/prisma';
@@ -46,7 +47,9 @@ export class OrderService {
     const explicitInfluencerTrackingLinkId =
       await this.resolveInfluencerTrackingLinkId(dto.influencerTrackingCode);
     const influencerTrackingLinkId =
-      explicitInfluencerTrackingLinkId ?? user?.influencerTrackingLinkId ?? null;
+      explicitInfluencerTrackingLinkId ??
+      user?.influencerTrackingLinkId ??
+      null;
 
     let subtotal = 0;
     const orderItems = dto.items.map((item) => {
@@ -149,7 +152,10 @@ export class OrderService {
     }
 
     const packDiscount = Math.max(0, Math.min(dto.packDiscount ?? 0, subtotal));
-    const total = Math.max(0, subtotal - promoDiscount - pointsDiscount - packDiscount);
+    const total = Math.max(
+      0,
+      subtotal - promoDiscount - pointsDiscount - packDiscount,
+    );
 
     const order = await this.prismaService.order.create({
       data: {
@@ -180,7 +186,12 @@ export class OrderService {
     if (pointsUsed > 0) {
       const loyalty = await this.prismaService.customerLoyalty.upsert({
         where: { userId },
-        create: { userId, points: 0, totalPointsEarned: 0, totalPointsSpent: 0 },
+        create: {
+          userId,
+          points: 0,
+          totalPointsEarned: 0,
+          totalPointsSpent: 0,
+        },
         update: {
           points: { decrement: pointsUsed },
           totalPointsSpent: { increment: pointsUsed },
@@ -355,7 +366,7 @@ export class OrderService {
 
   async updateOrderStatus(
     orderId: string,
-    status: string,
+    status: OrderStatus,
     actor?: { id: string; email?: string },
   ) {
     const order = await this.prismaService.order.findUnique({
@@ -380,7 +391,7 @@ export class OrderService {
 
     const updatedOrder = await this.prismaService.order.update({
       where: { id: orderId },
-      data: { status: status as any },
+      data: { status },
       include: {
         items: true,
         user: {

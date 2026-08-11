@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -50,6 +51,7 @@ export class OrderController {
   }
 
   @Get('validate-promo')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
   validatePromoCode(
     @CurrentUser() user: AuthenticatedUser,
     @Query('code') code: string,

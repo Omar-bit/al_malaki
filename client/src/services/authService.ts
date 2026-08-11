@@ -13,267 +13,93 @@ import type {
   ValidateResetPasswordTokenPayload,
   ValidateResetPasswordTokenResponse,
   VerifyRegisterOtpPayload,
+  UpdateProfilePayload,
 } from '../types/auth';
+import { api } from './apiClient';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:3000';
-
-type ApiErrorPayload = {
-  message?: string | string[];
-  code?: string;
-};
-
-export class ApiError extends Error {
-  readonly status: number;
-  readonly code?: string;
-
-  constructor(message: string, status: number, code?: string) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.code = code;
-  }
-}
-
-async function parseError(
-  response: Response,
-): Promise<{ message: string; code?: string }> {
-  try {
-    const payload = (await response.json()) as ApiErrorPayload;
-
-    const code =
-      typeof payload.code === 'string' && payload.code.trim().length > 0
-        ? payload.code.trim()
-        : undefined;
-
-    if (Array.isArray(payload.message)) {
-      return {
-        message: payload.message.join(', '),
-        code,
-      };
-    }
-
-    if (typeof payload.message === 'string') {
-      return {
-        message: payload.message,
-        code,
-      };
-    }
-  } catch {
-    // No-op: fallback below when response body is not JSON.
-  }
-
-  return {
-    message: 'Request failed. Please try again.',
-  };
-}
+// Re-exported for backwards compatibility with existing `authService.ApiError`
+// and `import { ApiError } from './authService'` call sites.
+export { ApiError } from './apiClient';
 
 export async function login(credentials: AuthCredentials): Promise<AuthUser> {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(credentials),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  const payload = (await response.json()) as AuthResponse;
+  const payload = await api.post<AuthResponse>('/auth/login', credentials);
   return payload.user;
 }
 
 export async function requestRegisterOtp(
   payload: RequestRegisterOtpPayload,
 ): Promise<RequestRegisterOtpResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/register/request-otp`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as RequestRegisterOtpResponse;
+  return api.post<RequestRegisterOtpResponse>(
+    '/auth/register/request-otp',
+    payload,
+  );
 }
 
 export async function register(
   payload: RegisterPayload,
 ): Promise<RegisterResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as RegisterResponse;
+  return api.post<RegisterResponse>('/auth/register', payload);
 }
 
-export async function uploadProfilePicture(file: File): Promise<{ url: string }> {
+export async function uploadProfilePicture(
+  file: File,
+): Promise<{ url: string }> {
   const formData = new FormData();
   formData.append('image', file);
-
-  const response = await fetch(`${API_BASE_URL}/auth/register/upload-profile-picture`, {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as { url: string };
+  return api.post<{ url: string }>(
+    '/auth/register/upload-profile-picture',
+    formData,
+  );
 }
 
 export async function verifyRegisterOtp(
   payload: VerifyRegisterOtpPayload,
 ): Promise<AuthUser> {
-  const response = await fetch(`${API_BASE_URL}/auth/register/verify-otp`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  const responsePayload = (await response.json()) as AuthResponse;
+  const responsePayload = await api.post<AuthResponse>(
+    '/auth/register/verify-otp',
+    payload,
+  );
   return responsePayload.user;
 }
 
 export async function requestPasswordResetLink(
   payload: RequestPasswordResetLinkPayload,
 ): Promise<RequestPasswordResetLinkResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/password/forgot`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as RequestPasswordResetLinkResponse;
+  return api.post<RequestPasswordResetLinkResponse>(
+    '/auth/password/forgot',
+    payload,
+  );
 }
 
 export async function validateResetPasswordToken(
   payload: ValidateResetPasswordTokenPayload,
 ): Promise<ValidateResetPasswordTokenResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/password/validate-token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ValidateResetPasswordTokenResponse;
+  return api.post<ValidateResetPasswordTokenResponse>(
+    '/auth/password/validate-token',
+    payload,
+  );
 }
 
 export async function resetPassword(
   payload: ResetPasswordPayload,
 ): Promise<ResetPasswordResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/password/reset`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ResetPasswordResponse;
+  return api.post<ResetPasswordResponse>('/auth/password/reset', payload);
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    method: 'GET',
-    credentials: 'include',
+  const payload = await api.get<AuthResponse | null>('/auth/me', {
+    allowStatuses: [401],
   });
-
-  if (response.status === 401) {
-    return null;
-  }
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  const payload = (await response.json()) as AuthResponse;
-  return payload.user;
+  return payload?.user ?? null;
 }
 
 export async function updateProfile(
-  payload: import('../types/auth').UpdateProfilePayload,
-): Promise<import('../types/auth').AuthUser> {
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  const result = (await response.json()) as import('../types/auth').AuthResponse;
+  payload: UpdateProfilePayload,
+): Promise<AuthUser> {
+  const result = await api.patch<AuthResponse>('/auth/me', payload);
   return result.user;
 }
 
 export async function logout(): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
-    method: 'POST',
-    credentials: 'include',
-  });
-
-  if (!response.ok && response.status !== 401) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
+  await api.post<void>('/auth/logout', undefined, { allowStatuses: [401] });
 }

@@ -8,7 +8,7 @@ import {
 import type { LoyaltyCustomer } from '../../types/admin';
 import { formatCurrency } from '../../utils/format';
 import toast from 'react-hot-toast';
-import { Search, Loader2, Eye, ChevronRight, Users } from 'lucide-react';
+import { Search, Loader2, ChevronRight, Users } from 'lucide-react';
 import crown from '../../assets/crown.png';
 export function AdminLoyaltyPage() {
   const [customers, setCustomers] = useState<LoyaltyCustomer[]>([]);
@@ -375,12 +375,12 @@ export function AdminLoyaltyPage() {
                                 >
                                   <ChevronRight className='w-5 h-5' />
                                 </button>
-                                <button
+                                {/* <button
                                   className='p-2 rounded-lg hover:bg-[#D5BD9D]/40 transition text-dark-red'
                                   title='View Profile'
                                 >
                                   <Eye className='w-5 h-5' />
-                                </button>
+                                </button> */}
                               </>
                             )}
                           </div>

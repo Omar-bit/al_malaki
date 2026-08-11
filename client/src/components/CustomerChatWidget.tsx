@@ -187,8 +187,8 @@ export function CustomerChatWidget() {
         );
       } else {
         const created = await contactService.createContactMessage({
-          firstName: user.firstName,
-          lastName: user.lastName,
+          firstName: user.firstName ?? '',
+          lastName: user.lastName ?? '',
           email: user.email,
           phoneNumber: user.phoneNumber ?? '',
           message: body,

@@ -6,10 +6,30 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ActivityLogService } from '../activity-log/activity-log.service';
+import { CacheService } from '../cache/cache.service';
+import { OrderStatus, Prisma } from '../generated/prisma';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+
+type ProductWithCategory = Prisma.ProductGetPayload<{
+  include: { category: true };
+}>;
+
+interface ProductSales {
+  totalSales: number;
+  trend?: string;
+}
+
+const PRODUCT_CACHE_TTL_MS = 60_000;
+
+const CACHE_KEYS = {
+  publicProducts: 'products:public:list',
+  landingProducts: 'products:public:landing',
+  categories: 'categories:list',
+  productSlug: (slug: string) => `product:slug:${slug}`,
+};
 
 const extractFilename = (
   url: string | null | undefined,
@@ -93,106 +113,14 @@ export class ProductService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly activityLogService: ActivityLogService,
+    private readonly cache: CacheService,
   ) {}
 
-  async listProducts(): Promise<ProductResponse[]> {
-    const products = await this.prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { category: true },
-    });
-
-    // Compute per-product sales from order items
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now);
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const sixtyDaysAgo = new Date(now);
-    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-
-    const orderItems = await this.prisma.orderItem.findMany({
-      where: {
-        order: { status: { not: 'CANCELLED' } },
-      },
-      select: {
-        productId: true,
-        quantity: true,
-        createdAt: true,
-      },
-    });
-
-    const productSalesMap: Record<string, number> = {};
-    const recentSalesMap: Record<string, number> = {};
-    const previousSalesMap: Record<string, number> = {};
-
-    for (const item of orderItems) {
-      const pid = item.productId;
-      if (!pid) continue;
-
-      productSalesMap[pid] = (productSalesMap[pid] || 0) + item.quantity;
-
-      if (item.createdAt >= thirtyDaysAgo) {
-        recentSalesMap[pid] = (recentSalesMap[pid] || 0) + item.quantity;
-      } else if (item.createdAt >= sixtyDaysAgo) {
-        previousSalesMap[pid] = (previousSalesMap[pid] || 0) + item.quantity;
-      }
-    }
-
-    return products.map((product) => {
-      const pid = product.id;
-      const totalSales = productSalesMap[pid] || 0;
-      const recent = recentSalesMap[pid] || 0;
-      const previous = previousSalesMap[pid] || 0;
-
-      let trend: string | undefined;
-      if (previous > 0) {
-        const pct = ((recent - previous) / previous) * 100;
-        trend = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
-      } else if (recent > 0) {
-        trend = '+100%';
-      }
-
-      return {
-        id: product.id,
-        name: product.name,
-        category: product.category?.name ?? 'Uncategorized',
-        brand: product.brand ?? undefined,
-        description: product.description ?? undefined,
-        price: product.price,
-        discountPrice: product.discountPrice ?? undefined,
-        images: Array.isArray(product.images)
-          ? (product.images as string[]).map(
-              (img) => getProductUrl(img) as string,
-            )
-          : [],
-        placement: product.placement,
-        collection: product.collection ?? undefined,
-        promoCode: product.promoCode ?? undefined,
-        campaign: product.campaign ?? undefined,
-        status: product.status.toLowerCase() as 'active' | 'hidden',
-        performance:
-          performanceReverseMap[
-            product.performance as 'NEW_ARRIVAL' | 'RECOMMENDED' | 'FEATURED'
-          ],
-        slug: product.slug,
-        metaTitle: product.metaTitle ?? undefined,
-        metaDescription: product.metaDescription ?? undefined,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-        totalSales,
-        trend,
-      };
-    });
-  }
-
-  async getProductBySlug(slug: string): Promise<ProductResponse> {
-    const product = await this.prisma.product.findUnique({
-      where: { slug },
-      include: { category: true },
-    });
-
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
-
+  /** Maps a Prisma product row (with category) to the API response shape. */
+  private mapProduct(
+    product: ProductWithCategory,
+    sales?: ProductSales,
+  ): ProductResponse {
     return {
       id: product.id,
       name: product.name,
@@ -220,12 +148,154 @@ export class ProductService {
       metaDescription: product.metaDescription ?? undefined,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
+      ...(sales ? { totalSales: sales.totalSales, trend: sales.trend } : {}),
     };
   }
 
+  /**
+   * Aggregate per-product sales in the database (three grouped sums) instead of
+   * streaming every order item into memory. Used only by the admin listing.
+   */
+  private async computeProductSales(): Promise<Map<string, ProductSales>> {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const sixtyDaysAgo = new Date(now);
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+    const baseWhere = {
+      order: { status: { not: OrderStatus.CANCELLED } },
+    } satisfies Prisma.OrderItemWhereInput;
+
+    const [totals, recent, previous] = await Promise.all([
+      this.prisma.orderItem.groupBy({
+        by: ['productId'],
+        where: baseWhere,
+        _sum: { quantity: true },
+      }),
+      this.prisma.orderItem.groupBy({
+        by: ['productId'],
+        where: { ...baseWhere, createdAt: { gte: thirtyDaysAgo } },
+        _sum: { quantity: true },
+      }),
+      this.prisma.orderItem.groupBy({
+        by: ['productId'],
+        where: {
+          ...baseWhere,
+          createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
+        },
+        _sum: { quantity: true },
+      }),
+    ]);
+
+    const recentMap = new Map(
+      recent.map((row) => [row.productId, row._sum.quantity ?? 0]),
+    );
+    const previousMap = new Map(
+      previous.map((row) => [row.productId, row._sum.quantity ?? 0]),
+    );
+
+    const result = new Map<string, ProductSales>();
+    for (const row of totals) {
+      if (!row.productId) continue;
+      const recentSales = recentMap.get(row.productId) ?? 0;
+      const previousSales = previousMap.get(row.productId) ?? 0;
+
+      let trend: string | undefined;
+      if (previousSales > 0) {
+        const pct = ((recentSales - previousSales) / previousSales) * 100;
+        trend = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+      } else if (recentSales > 0) {
+        trend = '+100%';
+      }
+
+      result.set(row.productId, {
+        totalSales: row._sum.quantity ?? 0,
+        trend,
+      });
+    }
+    return result;
+  }
+
+  /** Admin listing — includes computed sales/trend, never cached (needs freshness). */
+  async listProducts(): Promise<ProductResponse[]> {
+    const [products, salesMap] = await Promise.all([
+      this.prisma.product.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { category: true },
+      }),
+      this.computeProductSales(),
+    ]);
+
+    return products.map((product) =>
+      this.mapProduct(product, salesMap.get(product.id) ?? { totalSales: 0 }),
+    );
+  }
+
+  /** Public storefront listing — no sales computation, cached. */
+  async listPublicProducts(): Promise<ProductResponse[]> {
+    return this.cache.wrap(
+      CACHE_KEYS.publicProducts,
+      async () => {
+        const products = await this.prisma.product.findMany({
+          orderBy: { createdAt: 'desc' },
+          include: { category: true },
+        });
+        return products.map((product) => this.mapProduct(product));
+      },
+      PRODUCT_CACHE_TTL_MS,
+    );
+  }
+
+  async getProductBySlug(slug: string): Promise<ProductResponse> {
+    return this.cache.wrap(
+      CACHE_KEYS.productSlug(slug),
+      async () => {
+        const product = await this.prisma.product.findUnique({
+          where: { slug },
+          include: { category: true },
+        });
+
+        if (!product) {
+          throw new NotFoundException('Product not found');
+        }
+
+        return this.mapProduct(product);
+      },
+      PRODUCT_CACHE_TTL_MS,
+    );
+  }
+
   async listLandingProducts(): Promise<ProductResponse[]> {
-    return this.listProducts().then((products) =>
-      products.filter((p) => p.placement),
+    return this.cache.wrap(
+      CACHE_KEYS.landingProducts,
+      async () => {
+        const products = await this.prisma.product.findMany({
+          where: { placement: true },
+          orderBy: { createdAt: 'desc' },
+          include: { category: true },
+        });
+        return products.map((product) => this.mapProduct(product));
+      },
+      PRODUCT_CACHE_TTL_MS,
+    );
+  }
+
+  private async invalidateProductCaches(slugs: string[] = []): Promise<void> {
+    await this.cache.del(
+      CACHE_KEYS.publicProducts,
+      CACHE_KEYS.landingProducts,
+      ...slugs.filter(Boolean).map((slug) => CACHE_KEYS.productSlug(slug)),
+    );
+  }
+
+  private async invalidateCategoryCaches(): Promise<void> {
+    // Category names are embedded in product responses, so product lists are
+    // invalidated alongside the category list.
+    await this.cache.del(
+      CACHE_KEYS.categories,
+      CACHE_KEYS.publicProducts,
+      CACHE_KEYS.landingProducts,
     );
   }
 
@@ -293,37 +363,9 @@ export class ProductService {
       });
     }
 
-    return {
-      id: createdProduct.id,
-      name: createdProduct.name,
-      category: createdProduct.category?.name ?? 'Uncategorized',
-      brand: createdProduct.brand ?? undefined,
-      description: createdProduct.description ?? undefined,
-      price: createdProduct.price,
-      discountPrice: createdProduct.discountPrice ?? undefined,
-      images: Array.isArray(createdProduct.images)
-          ? (createdProduct.images as string[]).map(
-              (img) => getProductUrl(img) as string,
-            )
-          : [],
-        placement: createdProduct.placement,
-      collection: createdProduct.collection ?? undefined,
-      promoCode: createdProduct.promoCode ?? undefined,
-      campaign: createdProduct.campaign ?? undefined,
-      status: createdProduct.status.toLowerCase() as 'active' | 'hidden',
-      performance:
-        performanceReverseMap[
-          createdProduct.performance as
-            | 'NEW_ARRIVAL'
-            | 'RECOMMENDED'
-            | 'FEATURED'
-        ],
-      slug: createdProduct.slug,
-      metaTitle: createdProduct.metaTitle ?? undefined,
-      metaDescription: createdProduct.metaDescription ?? undefined,
-      createdAt: createdProduct.createdAt,
-      updatedAt: createdProduct.updatedAt,
-    };
+    await this.invalidateProductCaches([createdProduct.slug]);
+
+    return this.mapProduct(createdProduct);
   }
 
   async updateProduct(
@@ -361,7 +403,7 @@ export class ProductService {
       }
     }
 
-    const updateData: any = {};
+    const updateData: Prisma.ProductUncheckedUpdateInput = {};
     if (dto.name !== undefined) updateData.name = dto.name.trim();
     if (dto.categoryId !== undefined) updateData.categoryId = dto.categoryId;
     if (dto.brand !== undefined) updateData.brand = dto.brand?.trim() || null;
@@ -374,8 +416,7 @@ export class ProductService {
       updateData.images = dto.images
         ? (dto.images.map(extractFilename).filter(Boolean) as string[])
         : [];
-    if (dto.placement !== undefined)
-      updateData.placement = dto.placement;
+    if (dto.placement !== undefined) updateData.placement = dto.placement;
     if (dto.collection !== undefined)
       updateData.collection = dto.collection?.trim() || null;
     if (dto.promoCode !== undefined)
@@ -439,37 +480,12 @@ export class ProductService {
       }
     }
 
-    return {
-      id: updatedProduct.id,
-      name: updatedProduct.name,
-      category: updatedProduct.category?.name ?? 'Uncategorized',
-      brand: updatedProduct.brand ?? undefined,
-      description: updatedProduct.description ?? undefined,
-      price: updatedProduct.price,
-      discountPrice: updatedProduct.discountPrice ?? undefined,
-      images: Array.isArray(updatedProduct.images)
-          ? (updatedProduct.images as string[]).map(
-              (img) => getProductUrl(img) as string,
-            )
-          : [],
-        placement: updatedProduct.placement,
-      collection: updatedProduct.collection ?? undefined,
-      promoCode: updatedProduct.promoCode ?? undefined,
-      campaign: updatedProduct.campaign ?? undefined,
-      status: updatedProduct.status.toLowerCase() as 'active' | 'hidden',
-      performance:
-        performanceReverseMap[
-          updatedProduct.performance as
-            | 'NEW_ARRIVAL'
-            | 'RECOMMENDED'
-            | 'FEATURED'
-        ],
-      slug: updatedProduct.slug,
-      metaTitle: updatedProduct.metaTitle ?? undefined,
-      metaDescription: updatedProduct.metaDescription ?? undefined,
-      createdAt: updatedProduct.createdAt,
-      updatedAt: updatedProduct.updatedAt,
-    };
+    await this.invalidateProductCaches([
+      existingProduct.slug,
+      updatedProduct.slug,
+    ]);
+
+    return this.mapProduct(updatedProduct);
   }
 
   async deleteProduct(
@@ -499,18 +515,26 @@ export class ProductService {
         description: `Deleted product "${existingProduct.name}"`,
       });
     }
+
+    await this.invalidateProductCaches([existingProduct.slug]);
   }
 
   async listCategories(): Promise<CategoryResponse[]> {
-    const categories = await this.prisma.productCategory.findMany({
-      orderBy: { name: 'asc' },
-    });
+    return this.cache.wrap(
+      CACHE_KEYS.categories,
+      async () => {
+        const categories = await this.prisma.productCategory.findMany({
+          orderBy: { name: 'asc' },
+        });
 
-    return categories.map((category) => ({
-      ...category,
-      image: getCategoryUrl(category.image),
-      color: category.color ?? undefined,
-    }));
+        return categories.map((category) => ({
+          ...category,
+          image: getCategoryUrl(category.image),
+          color: category.color ?? undefined,
+        }));
+      },
+      PRODUCT_CACHE_TTL_MS,
+    );
   }
 
   async createCategory(
@@ -551,6 +575,8 @@ export class ProductService {
         description: `Created category "${trimmedName}"`,
       });
     }
+
+    await this.invalidateCategoryCaches();
 
     return {
       ...created,
@@ -609,8 +635,14 @@ export class ProductService {
       if (dto.color !== undefined && dto.color !== existing.color) {
         changes.color = { old: existing.color, new: dto.color };
       }
-      if (dto.image !== undefined && extractFilename(dto.image) !== existing.image) {
-        changes.image = { old: existing.image, new: extractFilename(dto.image) || null };
+      if (
+        dto.image !== undefined &&
+        extractFilename(dto.image) !== existing.image
+      ) {
+        changes.image = {
+          old: existing.image,
+          new: extractFilename(dto.image) || null,
+        };
       }
       if (Object.keys(changes).length > 0) {
         await this.activityLogService.log({
@@ -625,6 +657,8 @@ export class ProductService {
         });
       }
     }
+
+    await this.invalidateCategoryCaches();
 
     return {
       ...updated,
@@ -665,6 +699,8 @@ export class ProductService {
         description: `Deleted category "${existing.name}"`,
       });
     }
+
+    await this.invalidateCategoryCaches();
 
     return { message: 'Category deleted successfully' };
   }

@@ -46,7 +46,10 @@ export class InfluencerTrackingService {
 
     const links = await this.prisma.influencerTrackingLink.findMany({
       where: {
-        status: query.status?.toUpperCase() as 'ACTIVE' | 'DISABLED' | undefined,
+        status: query.status?.toUpperCase() as
+          | 'ACTIVE'
+          | 'DISABLED'
+          | undefined,
         ...(normalizedSearch
           ? {
               OR: [
@@ -208,7 +211,9 @@ export class InfluencerTrackingService {
     const updated = await this.prisma.influencerTrackingLink.update({
       where: { id },
       data: {
-        ...(dto.status && { status: dto.status.toUpperCase() as 'ACTIVE' | 'DISABLED' }),
+        ...(dto.status && {
+          status: dto.status.toUpperCase() as 'ACTIVE' | 'DISABLED',
+        }),
       },
       include: {
         _count: {

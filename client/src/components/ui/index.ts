@@ -8,3 +8,4 @@ export * from './TableHeader';
 export * from './FormField';
 export * from './SelectField';
 export * from './Table';
+export * from './Spinner';

@@ -90,12 +90,13 @@ export class NotificationService {
   }
 
   async markAsRead(userId: string, notificationId: string) {
-    const existingNotification = await this.prismaService.notification.findFirst({
-      where: {
-        id: notificationId,
-        userId,
-      },
-    });
+    const existingNotification =
+      await this.prismaService.notification.findFirst({
+        where: {
+          id: notificationId,
+          userId,
+        },
+      });
 
     if (!existingNotification) {
       throw new NotFoundException('Notification not found');
@@ -201,7 +202,8 @@ export class NotificationService {
   }
 
   createStream(userId: string, request: Request): Observable<MessageEvent> {
-    const userStreams = this.streams.get(userId) ?? new Set<Subject<MessageEvent>>();
+    const userStreams =
+      this.streams.get(userId) ?? new Set<Subject<MessageEvent>>();
     const stream = new Subject<MessageEvent>();
 
     userStreams.add(stream);

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
@@ -11,7 +11,6 @@ import {
   VerifyEmailPage,
   DashboardPage,
   InviteAcceptPage,
-  AdminManagementPage,
   ProductsPage,
   ProductDetailsPage,
   OrderPage,
@@ -20,15 +19,58 @@ import {
   CustomizePackPage,
 } from './pages';
 
-import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
-import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
-import { AdminInfluencerTrackingPage } from './pages/admin/AdminInfluencerTrackingPage';
-import { AdminPromoCodesPage } from './pages/admin/AdminPromoCodesPage';
-import { AdminAddProductPage } from './pages/admin/AdminAddProductPage';
-import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
-import { AdminLoyaltyPage } from './pages/admin/AdminLoyaltyPage';
-import { AdminMessagesPage } from './pages/admin/AdminMessagesPage';
-import { AdminHistoryPage } from './pages/admin/AdminHistoryPage';
+// Admin pages are code-split so customers never download the admin bundle
+// (which pulls in chart.js and the analytics dashboards).
+const AdminManagementPage = lazy(() =>
+  import('./pages/admin/AdminManagementPage').then((m) => ({
+    default: m.AdminManagementPage,
+  })),
+);
+const AdminDashboardPage = lazy(() =>
+  import('./pages/admin/AdminDashboardPage').then((m) => ({
+    default: m.AdminDashboardPage,
+  })),
+);
+const AdminAnalyticsPage = lazy(() =>
+  import('./pages/admin/AdminAnalyticsPage').then((m) => ({
+    default: m.AdminAnalyticsPage,
+  })),
+);
+const AdminInfluencerTrackingPage = lazy(() =>
+  import('./pages/admin/AdminInfluencerTrackingPage').then((m) => ({
+    default: m.AdminInfluencerTrackingPage,
+  })),
+);
+const AdminPromoCodesPage = lazy(() =>
+  import('./pages/admin/AdminPromoCodesPage').then((m) => ({
+    default: m.AdminPromoCodesPage,
+  })),
+);
+const AdminAddProductPage = lazy(() =>
+  import('./pages/admin/AdminAddProductPage').then((m) => ({
+    default: m.AdminAddProductPage,
+  })),
+);
+const AdminOrdersPage = lazy(() =>
+  import('./pages/admin/AdminOrdersPage').then((m) => ({
+    default: m.AdminOrdersPage,
+  })),
+);
+const AdminLoyaltyPage = lazy(() =>
+  import('./pages/admin/AdminLoyaltyPage').then((m) => ({
+    default: m.AdminLoyaltyPage,
+  })),
+);
+const AdminMessagesPage = lazy(() =>
+  import('./pages/admin/AdminMessagesPage').then((m) => ({
+    default: m.AdminMessagesPage,
+  })),
+);
+const AdminHistoryPage = lazy(() =>
+  import('./pages/admin/AdminHistoryPage').then((m) => ({
+    default: m.AdminHistoryPage,
+  })),
+);
 import {
   AdminRoute,
   CartModal,
@@ -36,6 +78,7 @@ import {
   GuestRoute,
   InfluencerTrackingBootstrap,
 } from './components';
+import { FullPageSpinner } from './components/ui/Spinner';
 
 export default function App() {
   const { i18n } = useTranslation();
@@ -61,6 +104,7 @@ export default function App() {
       />
       <CartModal />
       <CustomerChatWidget />
+      <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         <Route path='/' element={<LandingPage />} />
         <Route path='/products' element={<ProductsPage />} />
@@ -101,6 +145,7 @@ export default function App() {
           <Route path='/admin/history' element={<AdminHistoryPage />} />
         </Route>
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

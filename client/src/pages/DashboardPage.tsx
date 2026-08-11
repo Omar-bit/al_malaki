@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { useAuth } from '../contexts';
 import { authService, contactService, orderService } from '../services';
-import type { ContactMessage } from '../types';
 
 import { Hero } from '../components';
 import Button from '../components/ui/Button';
@@ -318,8 +317,6 @@ export function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSendingMsg, setIsSendingMsg] = useState(false);
   const [contactMessage, setContactMessage] = useState('');
-  const [myMessages, setMyMessages] = useState<ContactMessage[]>([]);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   // Personal info form state
   const [profileForm, setProfileForm] = useState({
@@ -341,23 +338,6 @@ export function DashboardPage() {
       birthDate: formatBirthDate(user.birthDate),
     });
     orderService.getMyLoyalty().then((data) => setLoyaltyPoints(data.points)).catch(() => null);
-  }, [user]);
-
-  // Load user's contact messages
-  useEffect(() => {
-    if (!user) return;
-    const loadMessages = async () => {
-      setIsLoadingMessages(true);
-      try {
-        const messages = await contactService.getMyContactMessages();
-        setMyMessages(messages);
-      } catch {
-        toast.error('Erreur lors du chargement des messages.');
-      } finally {
-        setIsLoadingMessages(false);
-      }
-    };
-    loadMessages();
   }, [user]);
 
   // Redirect if not logged in
@@ -401,17 +381,14 @@ export function DashboardPage() {
     setIsSendingMsg(true);
     try {
       await contactService.createContactMessage({
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.firstName ?? '',
+        lastName: user.lastName ?? '',
         email: user.email,
         phoneNumber: user.phoneNumber ?? '',
         message: contactMessage,
       });
       toast.success('Message envoyé ! Nous vous répondrons bientôt.');
       setContactMessage('');
-      // Refresh messages
-      const messages = await contactService.getMyContactMessages();
-      setMyMessages(messages);
     } catch {
       toast.error("Erreur lors de l'envoi du message.");
     } finally {

@@ -16,7 +16,7 @@ export class PublicProductController {
 
   @Get('products')
   async listProducts(): Promise<ProductResponse[]> {
-    return this.productService.listProducts();
+    return this.productService.listPublicProducts();
   }
 
   @Get('products/:slug')

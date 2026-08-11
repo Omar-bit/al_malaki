@@ -16,7 +16,6 @@ import {
   ShoppingCart,
   MessageSquare,
   Ticket,
-  Users,
   Bell,
   LogIn,
   LogOut,

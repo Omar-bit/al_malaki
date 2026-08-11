@@ -5,231 +5,70 @@ import type {
   ProductCategory,
   UpdateCategoryPayload,
 } from '../types/product';
-import { ApiError } from './authService';
+import { api, API_BASE_URL } from './apiClient';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:3000';
-
-type ApiErrorPayload = {
-  message?: string | string[];
-  code?: string;
-};
-
-async function parseError(
-  response: Response,
-): Promise<{ message: string; code?: string }> {
-  try {
-    const payload = (await response.json()) as ApiErrorPayload;
-
-    const code =
-      typeof payload.code === 'string' && payload.code.trim().length > 0
-        ? payload.code.trim()
-        : undefined;
-
-    if (Array.isArray(payload.message)) {
-      return {
-        message: payload.message.join(', '),
-        code,
-      };
-    }
-
-    if (typeof payload.message === 'string') {
-      return {
-        message: payload.message,
-        code,
-      };
-    }
-  } catch {
-    // No-op: fallback when response body is not JSON.
-  }
-
-  return {
-    message: 'Request failed. Please try again.',
-  };
+function toAbsoluteUrl(url: string): string {
+  return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
 }
 
-export async function getProducts(): Promise<ProductAnalyticsProduct[]> {
-  const response = await fetch(`${API_BASE_URL}/admin/products`, {
-    method: 'GET',
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductAnalyticsProduct[];
+export function getProducts(): Promise<ProductAnalyticsProduct[]> {
+  return api.get<ProductAnalyticsProduct[]>('/admin/products');
 }
 
-export async function getCategories(): Promise<ProductCategory[]> {
-  const response = await fetch(`${API_BASE_URL}/admin/categories`, {
-    method: 'GET',
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductCategory[];
+export function getCategories(): Promise<ProductCategory[]> {
+  return api.get<ProductCategory[]>('/admin/categories');
 }
 
-export async function getLandingProducts(): Promise<ProductAnalyticsProduct[]> {
-  const response = await fetch(`${API_BASE_URL}/public/products/landing`, {
-    method: 'GET',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductAnalyticsProduct[];
+export function getLandingProducts(): Promise<ProductAnalyticsProduct[]> {
+  return api.get<ProductAnalyticsProduct[]>('/public/products/landing');
 }
 
-export async function getPublicProducts(): Promise<ProductAnalyticsProduct[]> {
-  const response = await fetch(`${API_BASE_URL}/public/products`, {
-    method: 'GET',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductAnalyticsProduct[];
+export function getPublicProducts(): Promise<ProductAnalyticsProduct[]> {
+  return api.get<ProductAnalyticsProduct[]>('/public/products');
 }
 
-export async function getPublicCategories(): Promise<ProductCategory[]> {
-  const response = await fetch(`${API_BASE_URL}/public/categories`, {
-    method: 'GET',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductCategory[];
+export function getPublicCategories(): Promise<ProductCategory[]> {
+  return api.get<ProductCategory[]>('/public/categories');
 }
 
-export async function getPublicProduct(slug: string): Promise<ProductAnalyticsProduct> {
-  const response = await fetch(`${API_BASE_URL}/public/products/${slug}`, {
-    method: 'GET',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductAnalyticsProduct;
+export function getPublicProduct(
+  slug: string,
+): Promise<ProductAnalyticsProduct> {
+  return api.get<ProductAnalyticsProduct>(`/public/products/${slug}`);
 }
 
-export async function createProduct(
+export function createProduct(
   payload: CreateProductPayload,
 ): Promise<ProductAnalyticsProduct> {
-  const response = await fetch(`${API_BASE_URL}/admin/products`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductAnalyticsProduct;
+  return api.post<ProductAnalyticsProduct>('/admin/products', payload);
 }
 
-export async function updateProduct(
+export function updateProduct(
   id: string,
   payload: Partial<CreateProductPayload>,
 ): Promise<ProductAnalyticsProduct> {
-  const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductAnalyticsProduct;
+  return api.patch<ProductAnalyticsProduct>(`/admin/products/${id}`, payload);
 }
 
-export async function deleteProduct(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
+export function deleteProduct(id: string): Promise<void> {
+  return api.delete(`/admin/products/${id}`);
 }
 
-export async function createCategory(
+export function createCategory(
   payload: CreateCategoryPayload,
 ): Promise<ProductCategory> {
-  const response = await fetch(`${API_BASE_URL}/admin/categories`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductCategory;
+  return api.post<ProductCategory>('/admin/categories', payload);
 }
 
-export async function updateCategory(
+export function updateCategory(
   id: string,
   payload: UpdateCategoryPayload,
 ): Promise<ProductCategory> {
-  const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  return (await response.json()) as ProductCategory;
+  return api.patch<ProductCategory>(`/admin/categories/${id}`, payload);
 }
 
-export async function deleteCategory(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
+export function deleteCategory(id: string): Promise<void> {
+  return api.delete(`/admin/categories/${id}`);
 }
 
 export async function uploadCategoryImage(
@@ -237,55 +76,21 @@ export async function uploadCategoryImage(
 ): Promise<{ url: string }> {
   const formData = new FormData();
   formData.append('image', file);
-
-  const response = await fetch(
-    `${API_BASE_URL}/admin/categories/upload-image`,
-    {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    },
+  const data = await api.post<{ url: string }>(
+    '/admin/categories/upload-image',
+    formData,
   );
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  const data = (await response.json()) as { url: string };
-  return {
-    url: data.url.startsWith('http')
-      ? data.url
-      : `${API_BASE_URL}${data.url}`,
-  };
+  return { url: toAbsoluteUrl(data.url) };
 }
 
 export async function uploadProductImages(
   files: File[],
 ): Promise<{ urls: string[] }> {
   const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('images', file);
-  });
-
-  const response = await fetch(`${API_BASE_URL}/admin/products/upload-images`, {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await parseError(response);
-    throw new ApiError(error.message, response.status, error.code);
-  }
-
-  const data = (await response.json()) as { urls: string[] };
-
-  // Convert relative URLs to absolute URLs
-  return {
-    urls: data.urls.map((url) => {
-      if (url.startsWith('http')) return url;
-      return `${API_BASE_URL}${url}`;
-    }),
-  };
+  files.forEach((file) => formData.append('images', file));
+  const data = await api.post<{ urls: string[] }>(
+    '/admin/products/upload-images',
+    formData,
+  );
+  return { urls: data.urls.map(toAbsoluteUrl) };
 }

@@ -124,7 +124,10 @@ export class ContactService {
     });
   }
 
-  async getContactMessageById(id: string) {
+  async getContactMessageById(
+    id: string,
+    requester: { id: string; role: Role },
+  ) {
     const message = await this.prismaService.contactMessage.findUnique({
       where: { id },
       include: {
@@ -142,6 +145,15 @@ export class ContactService {
 
     if (!message) {
       throw new NotFoundException('Contact message not found');
+    }
+
+    // Only staff or the owner of the conversation may read it.
+    const isStaff =
+      requester.role === Role.ADMIN || requester.role === Role.VENDOR;
+    if (!isStaff && message.userId !== requester.id) {
+      throw new ForbiddenException(
+        'You do not have access to this conversation',
+      );
     }
 
     return message;
@@ -172,9 +184,7 @@ export class ContactService {
 
     const isStaff = author.role === Role.ADMIN || author.role === Role.VENDOR;
     if (!isStaff && author.id !== message.userId) {
-      throw new ForbiddenException(
-        'You cannot reply to this conversation',
-      );
+      throw new ForbiddenException('You cannot reply to this conversation');
     }
 
     const reply = await this.prismaService.contactMessageReply.create({
@@ -358,11 +368,9 @@ export class ContactService {
     );
   }
 
-  createUserStream(
-    userId: string,
-    request: Request,
-  ): Observable<MessageEvent> {
-    const streams = this.userStreams.get(userId) ?? new Set<Subject<MessageEvent>>();
+  createUserStream(userId: string, request: Request): Observable<MessageEvent> {
+    const streams =
+      this.userStreams.get(userId) ?? new Set<Subject<MessageEvent>>();
     const stream = new Subject<MessageEvent>();
     streams.add(stream);
     this.userStreams.set(userId, streams);

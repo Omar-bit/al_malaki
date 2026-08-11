@@ -12,7 +12,6 @@ import type {
   ProductCategory,
 } from '../types/product';
 import toast from 'react-hot-toast';
-import bestSellerImage from '../assets/best_seller_placehoder.jpg';
 import featured1 from '../assets/products/featured1.jpg';
 import featured2 from '../assets/products/featured2.jpg';
 

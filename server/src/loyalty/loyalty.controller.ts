@@ -42,9 +42,14 @@ export class LoyaltyController {
     @Param('userId') userId: string,
     @Body() dto: AdjustPointsDto,
   ) {
-    return this.loyaltyService.adjustPoints(userId, dto.points, dto.description, {
-      id: user.userId,
-      email: user.email,
-    });
+    return this.loyaltyService.adjustPoints(
+      userId,
+      dto.points,
+      dto.description,
+      {
+        id: user.userId,
+        email: user.email,
+      },
+    );
   }
 }
