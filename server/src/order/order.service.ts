@@ -148,7 +148,8 @@ export class OrderService {
       pointsDiscount = pointsUsed * POINTS_REDEMPTION_RATE;
     }
 
-    const total = Math.max(0, subtotal - promoDiscount - pointsDiscount);
+    const packDiscount = Math.max(0, Math.min(dto.packDiscount ?? 0, subtotal));
+    const total = Math.max(0, subtotal - promoDiscount - pointsDiscount - packDiscount);
 
     const order = await this.prismaService.order.create({
       data: {
@@ -164,8 +165,10 @@ export class OrderService {
         postalCode: dto.postalCode,
         subtotal,
         discount: promoDiscount,
+        packDiscount,
         pointsUsed,
         total,
+        giftMessage: dto.giftMessage?.trim() || null,
         promoCodeId,
         influencerTrackingLinkId,
         items: { create: orderItems },

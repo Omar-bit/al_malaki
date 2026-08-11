@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { useAuth } from '../contexts';
-import { authService, contactService } from '../services';
+import { authService, contactService, orderService } from '../services';
 import type { ContactMessage } from '../types';
 
 import { Hero } from '../components';
@@ -328,10 +328,9 @@ export function DashboardPage() {
     birthDate: '',
   });
 
-  // Loyalty points (placeholder — no backend model yet)
-  const loyaltyPoints = 0;
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
   const loyaltyMax = 500;
-  const loyaltyDT = (loyaltyPoints * 0.01).toFixed(2);
+  const loyaltyDT = (loyaltyPoints * 0.05).toFixed(2); // 10 pts = 0.5 DT => 1 pt = 0.05 DT
 
   // Populate form from user
   useEffect(() => {
@@ -341,6 +340,7 @@ export function DashboardPage() {
       email: user.email ?? '',
       birthDate: formatBirthDate(user.birthDate),
     });
+    orderService.getMyLoyalty().then((data) => setLoyaltyPoints(data.points)).catch(() => null);
   }, [user]);
 
   // Load user's contact messages

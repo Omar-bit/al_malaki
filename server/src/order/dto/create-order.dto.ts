@@ -8,6 +8,8 @@ import {
   IsNumber,
   Min,
   IsInt,
+  Max,
+  MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -74,6 +76,17 @@ export class CreateOrderDto {
   @IsInt()
   @Min(0)
   pointsToUse?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100000)
+  packDiscount?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  giftMessage?: string;
 
   @IsArray()
   @ValidateNested({ each: true })

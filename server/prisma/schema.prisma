@@ -251,8 +251,10 @@ model Order {
   postalCode          String
   subtotal            Float
   discount            Float                @default(0)
+  packDiscount        Float                @default(0)
   pointsUsed          Int                  @default(0)
   total               Float
+  giftMessage         String?              @db.Text
   promoCodeId         String?
   promoCode           PromoCode?           @relation(fields: [promoCodeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   items               OrderItem[]

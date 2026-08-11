@@ -1,14 +1,10 @@
-- points system and promo codes application (implementation)
-    for each dinar a point ; 10 points = 0.5d 
+- add qr to prods
 
-- customize pack 
+- vendor dashboard dynamic
 
 - messaging system (customer and admin) figma 
 
 -refactore , quality improvement and security and caching
-
-
-
 
 
 
@@ -28,3 +24,6 @@ DONE
 - add disable to ref link
 - product placement (home on/off)
 - best seller (auto)
+- points system and promo codes application (for each dinar a point ; 10 points = 0.5d)
+- customize pack 
+    

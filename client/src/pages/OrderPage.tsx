@@ -7,6 +7,8 @@ import { orderService } from '../services';
 import { ApiError } from '../services/authService';
 import { getStoredInfluencerTrackingCode } from '../services/influencerTrackingService';
 import type { LoyaltyInfo, PromoValidationResult } from '../types/order';
+import type { PackCartEntry } from '../types/pack';
+import { getPackLabel } from '../types/pack';
 
 type Step = 'shipping' | 'payment';
 type PaymentMethod = 'cash' | 'card';
@@ -53,6 +55,43 @@ function formatTotal(value: number) {
   return `${Math.round(value)} dt`;
 }
 
+function PackSummaryItem({ pack }: { pack: PackCartEntry }) {
+  return (
+    <div className='rounded-4xl border border-dark-red bg-[#FFFFFF]/43 p-4 px-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]'>
+      <div className='flex items-center justify-between mb-2'>
+        <p className='font-abhaya font-semibold text-black text-base'>
+          {getPackLabel(pack.slots)} Box
+          <span className='ml-2 font-abee text-xs text-[#1a7a3a] font-normal'>
+            −{pack.discountPercent}%
+          </span>
+        </p>
+        <p className='font-abee text-sm text-black'>
+          <span className='line-through text-[#959595] mr-1'>{formatTotal(pack.subtotal)}</span>
+          {formatTotal(pack.total)}
+        </p>
+      </div>
+      <div className='flex flex-wrap gap-2'>
+        {pack.selections.map((sel, i) => (
+          <div key={i} className='w-10 h-10 rounded-lg overflow-hidden bg-[#27221f] shrink-0 shadow'>
+            {sel.image ? (
+              <img src={sel.image} alt={sel.name} className='w-full h-full object-cover' />
+            ) : (
+              <div className='w-full h-full flex items-center justify-center font-abee text-[#f8e7cf] text-[8px] text-center'>
+                {sel.name.slice(0, 6)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {pack.giftMessage && (
+        <p className='mt-2 font-bona text-xs italic text-[#6d232f]'>
+          Gift note: “{pack.giftMessage}”
+        </p>
+      )}
+    </div>
+  );
+}
+
 function OrderSummaryItem({ item }: { item: CartItem }) {
   return (
     <div className='flex items-center gap-3 rounded-4xl border border-dark-red bg-[#FFFFFF]/43 p-4 px-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]'>
@@ -86,7 +125,7 @@ function OrderSummaryItem({ item }: { item: CartItem }) {
 export function OrderPage() {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, packs, totalPrice, packDiscount, clearCart } = useCart();
   const [step, setStep] = useState<Step>('shipping');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [shippingForm, setShippingForm] = useState<ShippingFormState>(
@@ -130,7 +169,7 @@ export function OrderPage() {
   const availablePoints = loyalty?.points ?? 0;
   const pointsDiscount = usePoints ? availablePoints * POINTS_REDEMPTION_RATE : 0;
   const pointsToUse = usePoints ? availablePoints : 0;
-  const finalTotal = Math.max(0, subtotal - promoDiscount - pointsDiscount);
+  const finalTotal = Math.max(0, subtotal - packDiscount - promoDiscount - pointsDiscount);
 
   const handleApplyPromo = async () => {
     if (!promoInput.trim()) return;
@@ -158,7 +197,8 @@ export function OrderPage() {
   };
 
   const handleConfirm = async () => {
-    if (items.length === 0) return;
+    const hasItems = items.length > 0 || packs.length > 0;
+    if (!hasItems) return;
 
     if (paymentMethod === 'card') {
       setSubmitError(
@@ -169,6 +209,32 @@ export function OrderPage() {
 
     setIsSubmitting(true);
     setSubmitError(null);
+
+    // Merge regular items and pack selections by productId
+    const quantityMap = new Map<string, number>();
+    for (const item of items) {
+      quantityMap.set(item.id, (quantityMap.get(item.id) ?? 0) + item.quantity);
+    }
+    for (const pack of packs) {
+      for (const sel of pack.selections) {
+        quantityMap.set(sel.productId, (quantityMap.get(sel.productId) ?? 0) + 1);
+      }
+    }
+    const mergedItems = Array.from(quantityMap.entries()).map(([productId, quantity]) => ({
+      productId,
+      quantity,
+    }));
+
+    // Collect gift notes; label them only when there is more than one box.
+    const notes = packs.filter((pack) => pack.giftMessage?.trim());
+    const giftMessage =
+      notes.length === 0
+        ? undefined
+        : notes.length === 1
+          ? notes[0].giftMessage!.trim()
+          : notes
+              .map((pack) => `${getPackLabel(pack.slots)} Box: ${pack.giftMessage!.trim()}`)
+              .join('\n');
 
     try {
       const order = await orderService.createOrder({
@@ -184,10 +250,9 @@ export function OrderPage() {
         influencerTrackingCode: getStoredInfluencerTrackingCode(),
         promoCode: promoApplied?.code,
         pointsToUse: pointsToUse > 0 ? pointsToUse : undefined,
-        items: items.map((item) => ({
-          productId: item.id,
-          quantity: item.quantity,
-        })),
+        packDiscount: packDiscount > 0 ? packDiscount : undefined,
+        giftMessage,
+        items: mergedItems,
       });
 
       clearCart();
@@ -559,14 +624,19 @@ export function OrderPage() {
               </h2>
 
               <div className='mt-3 space-y-2'>
-                {items.length > 0 ? (
-                  items.map((item) => (
-                    <OrderSummaryItem key={item.id} item={item} />
-                  ))
-                ) : (
+                {items.length === 0 && packs.length === 0 ? (
                   <div className='rounded-2xl border border-[#ba8f7b] bg-[#fbf4ea] px-4 py-8 text-center font-bona text-[14px] text-[#6d232f]'>
                     Your cart is empty.
                   </div>
+                ) : (
+                  <>
+                    {items.map((item) => (
+                      <OrderSummaryItem key={item.id} item={item} />
+                    ))}
+                    {packs.map((pack) => (
+                      <PackSummaryItem key={pack.packId} pack={pack} />
+                    ))}
+                  </>
                 )}
               </div>
 
@@ -643,6 +713,12 @@ export function OrderPage() {
                   <span>Initial total</span>
                   <span>{formatTotal(subtotal)}</span>
                 </div>
+                {packDiscount > 0 && (
+                  <div className='flex items-center justify-between py-1.5 text-green-700'>
+                    <span>Bundle discount</span>
+                    <span>-{packDiscount.toFixed(2)} dt</span>
+                  </div>
+                )}
                 {promoDiscount > 0 && (
                   <div className='flex items-center justify-between py-1.5 text-green-700'>
                     <span>Promo discount</span>

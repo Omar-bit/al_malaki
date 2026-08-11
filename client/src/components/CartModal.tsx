@@ -2,17 +2,21 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { getPackLabel } from '../types/pack';
 
 export function CartModal() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     items,
+    packs,
     isCartOpen,
     closeCart,
     removeFromCart,
     updateQuantity,
+    removePack,
     totalPrice,
+    packDiscount,
   } = useCart();
 
   const [promoCode, setPromoCode] = useState('');
@@ -31,8 +35,9 @@ export function CartModal() {
 
   if (!isCartOpen) return null;
 
+  const hasItems = items.length > 0 || packs.length > 0;
   const initialTotal = totalPrice;
-  const totalWithPromo = initialTotal - promoDiscount;
+  const totalWithPromo = initialTotal - packDiscount - promoDiscount;
   const finalTotal = totalWithPromo - pointsDiscount;
 
   return (
@@ -74,7 +79,7 @@ export function CartModal() {
         <div ref={contentRef} className='relative z-10 flex flex-col h-full  '>
           {/* ── Cart Items ── */}
           <div className=' px-5 pt-8  space-y-1 max-h-[55vh]! overflow-y-auto custom-scrollbar'>
-            {items.length === 0 ? (
+            {!hasItems ? (
               <div
                 className='flex flex-col items-center justify-center h-48'
                 style={{ color: '#7a5c3a' }}
@@ -97,7 +102,8 @@ export function CartModal() {
                 </p>
               </div>
             ) : (
-              items.map((item) => (
+              <>
+              {items.map((item) => (
                 <div
                   key={item.id}
                   className='flex items-center gap-4 py-4 relative group'
@@ -195,12 +201,66 @@ export function CartModal() {
                     </svg>
                   </button>
                 </div>
-              ))
+              ))}
+
+              {/* ── Packs ── */}
+              {packs.map((pack) => (
+                <div
+                  key={pack.packId}
+                  className='py-3 relative group'
+                  style={{ borderBottom: '1px solid rgba(120,80,30,0.15)' }}
+                >
+                  <div className='flex items-center justify-between mb-2'>
+                    <span className='font-abhaya font-semibold text-black text-base'>
+                      {getPackLabel(pack.slots)} Box
+                      <span className='ml-2 font-abee text-xs text-[#1a7a3a] font-normal'>
+                        −{pack.discountPercent}%
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => removePack(pack.packId)}
+                      className='w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/10'
+                      style={{ color: '#7a5230' }}
+                      aria-label='Remove pack'
+                    >
+                      <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className='flex flex-wrap gap-2 mb-2'>
+                    {pack.selections.map((sel, i) => (
+                      <div
+                        key={i}
+                        className='w-12 h-12 rounded-lg overflow-hidden bg-[#c8b89a] shrink-0'
+                      >
+                        {sel.image ? (
+                          <img src={sel.image} alt={sel.name} className='w-full h-full object-cover' />
+                        ) : (
+                          <div className='w-full h-full flex items-center justify-center font-abee text-white text-[8px] text-center px-1'>
+                            {sel.name.slice(0, 6)}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {pack.giftMessage && (
+                    <p className='mb-1.5 font-bona text-xs italic text-[#7a5230] line-clamp-2'>
+                      “{pack.giftMessage}”
+                    </p>
+                  )}
+                  <div className='font-abee text-sm text-black'>
+                    <span className='line-through text-[#9a8070] mr-2'>{pack.subtotal.toFixed(0)} dt</span>
+                    <span className='font-bold text-dark-red'>{pack.total.toFixed(2)} dt</span>
+                  </div>
+                </div>
+              ))}
+              </>
             )}
           </div>
 
           {/* ── Bottom Section ── */}
-          {items.length > 0 && (
+          {hasItems && (
             <div className='px-5 py-3 space-y-2'>
               {/* Promo Code */}
               <div className='flex gap-3'>
@@ -244,6 +304,13 @@ export function CartModal() {
                     {initialTotal.toFixed(3)} DT
                   </span>
                 </div>
+
+                {packDiscount > 0 && (
+                  <div className='flex justify-between items-center py-2 text-[#1a7a3a] font-bona text-sm'>
+                    <span>Bundle discount</span>
+                    <span className='font-aboreto'>−{packDiscount.toFixed(3)} DT</span>
+                  </div>
+                )}
 
                 <hr className='border-t border-black' />
 
@@ -290,10 +357,7 @@ export function CartModal() {
                 <button
                   type='button'
                   onClick={() => {
-                    if (items.length === 0) {
-                      return;
-                    }
-
+                    if (!hasItems) return;
                     closeCart();
                     navigate('/checkout');
                   }}

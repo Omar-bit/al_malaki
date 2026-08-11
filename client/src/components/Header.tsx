@@ -17,13 +17,15 @@ const navLinks: NavLink[] = [
   { labelKey: 'home', href: '/' },
   { labelKey: 'about', href: '/#about' },
   { labelKey: 'products', href: '/products' },
-  { labelKey: 'customize', href: '/#customize' },
+  { labelKey: 'customize', href: '/customize-pack' },
 ];
 
 export function Header({
   withBackground = false,
+  topHide = false,
 }: {
   withBackground?: boolean;
+  topHide?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [mobileSearch, setMobileSearch] = useState('');
@@ -118,7 +120,7 @@ export function Header({
   return (
     <header
       className={`fixed top-0 left-0 z-30 w-full transition-transform duration-300 ease-in-out ${
-        isVisible || isOpen ? 'translate-y-0' : '-translate-y-full'
+        isOpen || (isVisible && (!topHide || hasScrolled)) ? 'translate-y-0' : '-translate-y-full'
       } ${
         hasScrolled
           ? 'bg-[#e1d0bc]/58 backdrop-blur-md shadow-sm'

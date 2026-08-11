@@ -34,8 +34,10 @@ export interface Order {
   postalCode: string;
   subtotal: number;
   discount: number;
+  packDiscount: number;
   pointsUsed: number;
   total: number;
+  giftMessage: string | null;
   promoCodeId: string | null;
   items: OrderItem[];
   createdAt: string;
@@ -60,6 +62,8 @@ export interface CreateOrderPayload {
   influencerTrackingCode?: string;
   promoCode?: string;
   pointsToUse?: number;
+  packDiscount?: number;
+  giftMessage?: string;
   items: CreateOrderItemPayload[];
 }
 

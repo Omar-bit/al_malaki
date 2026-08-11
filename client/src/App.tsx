@@ -17,6 +17,7 @@ import {
   OrderPage,
   OrderConfirmationPage,
   NotificationsPage,
+  CustomizePackPage,
 } from './pages';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -62,6 +63,7 @@ export default function App() {
         <Route path='/' element={<LandingPage />} />
         <Route path='/products' element={<ProductsPage />} />
         <Route path='/products/:slug' element={<ProductDetailsPage />} />
+        <Route path='/customize-pack' element={<CustomizePackPage />} />
         <Route path='/checkout' element={<OrderPage />} />
         <Route path='/order' element={<OrderPage />} />
         <Route path='/order-confirmation' element={<OrderConfirmationPage />} />
