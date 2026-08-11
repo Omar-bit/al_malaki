@@ -1,7 +1,5 @@
 - messaging system (customer and admin) figma 
 
-- add some bonus features
-
 - refactore , quality improvement and security and caching
 
 - dockerize & deploy

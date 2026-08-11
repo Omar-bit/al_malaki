@@ -183,15 +183,17 @@ export function AdminMessagesPage() {
           >
             {/* ─── LEFT: Old chats ─── */}
             <aside
-              className={`w-full md:w-[300px] lg:w-[320px] shrink-0 bg-[#F5E6D0] rounded-2xl border border-[#3F060F]/25 shadow-sm p-4 md:p-5 h-[70vh] flex-col ${
+              className={`w-full md:w-[300px] lg:w-[320px] shrink-0 bg-[#EFE0C9]/39 rounded-[30px] border border-dark-red shadow-sm  h-[70vh] flex-col ${
                 selectedChat ? 'hidden md:flex' : 'flex'
               }`}
             >
-              <h2 className='text-lg md:text-xl font-bold text-black mb-4 pl-1'>
-                Old chats
-              </h2>
+              <header className='flex items-center justify-center p-5'>
+                <h2 className='text-lg md:text-2xl font-bold text-black mb-4 pl-1 font-abhaya'>
+                  Old chats
+                </h2>
+              </header>
 
-              <div className='flex-1 overflow-y-auto custom-scrollbar space-y-1 pr-1'>
+              <div className='flex-1 overflow-y-auto custom-scrollbar '>
                 {chats.length === 0 ? (
                   <div className='text-center text-sm text-[#000000]/50 py-10'>
                     No conversations yet.
@@ -203,10 +205,8 @@ export function AdminMessagesPage() {
                       <button
                         key={chat.key}
                         onClick={() => setSelectedKey(chat.key)}
-                        className={`w-full text-left flex items-center gap-3 px-2 py-2 rounded-xl transition-colors ${
-                          isActive
-                            ? 'bg-[#EFD9B8]'
-                            : 'hover:bg-[#EFD9B8]/60'
+                        className={`border-t  w-full border-dark-red w-full text-left flex items-center gap-2 p-4  transition-colors ${
+                          isActive ? 'bg-[#EFD9B8]' : 'hover:bg-[#EFD9B8]/60'
                         }`}
                       >
                         <img
@@ -216,9 +216,9 @@ export function AdminMessagesPage() {
                         />
                         <div className='min-w-0 flex-1'>
                           <div className='flex items-center justify-between gap-2'>
-                            <span className='font-bold text-sm text-black truncate'>
+                            <span className='font-bold  text-black truncate'>
                               {chat.firstName}{' '}
-                              <span className='font-normal text-[11px] text-[#000000]/60'>
+                              <span className='font-normal text-sm text-[#000000] font-aboreto'>
                                 ({chat.phoneNumber})
                               </span>
                             </span>
@@ -228,7 +228,7 @@ export function AdminMessagesPage() {
                               </span>
                             )}
                           </div>
-                          <div className='text-xs text-[#000000]/55 truncate'>
+                          <div className='text-sm text-[#000000] truncate'>
                             {chat.lastMessage.message || 'Have a good day..'}
                           </div>
                         </div>
@@ -241,124 +241,124 @@ export function AdminMessagesPage() {
 
             {/* ─── RIGHT: Chat panel ─── */}
             <section
-              className={`flex-1 bg-[#F5E6D0] rounded-2xl border border-[#3F060F]/25 shadow-sm h-[70vh] flex-col overflow-hidden ${
+              className={`flex-1 bg-[#EFE0C9]/39 rounded-2xl border border-dark-red shadow-sm h-[70vh] flex-col overflow-hidden ${
                 selectedChat ? 'flex' : 'hidden md:flex'
               }`}
             >
               {!selectedChat ? (
                 <div className='flex-1 flex flex-col'>
-                    {/* Title */}
-                    <div className='flex-1 flex items-start justify-center pt-10 md:pt-14'>
-                      <h2 className='text-2xl md:text-4xl font-bold text-black tracking-wide font-bona!'>
-                        NO CHATS FOR NOW
-                      </h2>
-                    </div>
+                  {/* Title */}
+                  <div className='flex-1 flex items-start justify-center pt-10 md:pt-14'>
+                    <h2 className='text-2xl md:text-4xl font-bold text-black tracking-wide font-aboreto!'>
+                      NO CHATS FOR NOW
+                    </h2>
+                  </div>
 
-                    {/* Decorative empty bubbles + input */}
-                    <div className='px-4 md:px-8 pb-6 space-y-3 max-w-2xl w-full mx-auto'>
-                      <div className='flex items-center gap-2'>
-                        <img
-                          src='https://ui-avatars.com/api/?name=A&background=EEE'
-                          alt=''
-                          className='w-8 h-8 rounded-full shrink-0'
-                        />
-                        <div className='flex-1 h-8 rounded-full bg-[#D9D9D9]' />
-                      </div>
-                      <div className='flex items-center gap-2'>
-                        <div className='flex-1 h-8 rounded-full bg-dark-red' />
-                        <img
-                          src='https://ui-avatars.com/api/?name=A&background=EEE'
-                          alt=''
-                          className='w-8 h-8 rounded-full shrink-0'
-                        />
-                      </div>
-                      <div className='relative pt-2'>
-                        <div className='w-full h-9 rounded-full border border-[#3F060F]/30 bg-transparent' />
-                        <div className='absolute right-2 top-1/2 -translate-y-1/2 mt-1 w-7 h-7 rounded-full bg-transparent flex items-center justify-center'>
-                          <Send className='w-4 h-4 text-[#3F060F] -rotate-12' />
-                        </div>
+                  {/* Decorative empty bubbles + input */}
+                  <div className='px-4 md:px-8 pb-6 space-y-3 max-w-2xl w-full mx-auto'>
+                    <div className='flex items-center gap-2'>
+                      <img
+                        src='https://ui-avatars.com/api/?name=A&background=EEE'
+                        alt=''
+                        className='w-8 h-8 rounded-full shrink-0'
+                      />
+                      <div className='flex-1 h-8 rounded-full bg-[#D9D9D9]' />
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <div className='flex-1 h-8 rounded-full bg-dark-red' />
+                      <img
+                        src='https://ui-avatars.com/api/?name=A&background=EEE'
+                        alt=''
+                        className='w-8 h-8 rounded-full shrink-0'
+                      />
+                    </div>
+                    <div className='relative pt-2'>
+                      <div className='w-full h-9 rounded-full border border-dark-red bg-transparent' />
+                      <div className='cursor-pointer absolute bg-[#C6BCBC] right-2 top-1/2 -translate-y-1/2 mt-1 w-7 h-7 rounded-full  flex items-center justify-center'>
+                        <Send className='w-4 h-4 text-black rotate-[10deg] ' />
                       </div>
                     </div>
+                  </div>
                 </div>
               ) : (
                 <div className='flex-1 flex flex-col min-h-0'>
-                    {/* Chat header */}
-                    <div className='flex items-center gap-3 px-4 md:px-6 py-4 border-b border-[#3F060F]/15'>
-                      <button
-                        onClick={() => setSelectedKey(null)}
-                        className='md:hidden p-1 text-black'
-                        aria-label='Back'
-                      >
-                        <ArrowLeft className='w-5 h-5' />
-                      </button>
-                      <img
-                        src={selectedChat.avatar}
-                        alt=''
-                        className='w-10 h-10 rounded-full'
-                      />
-                      <div className='min-w-0'>
-                        <div className='font-bold text-black truncate'>
-                          {selectedChat.firstName} {selectedChat.lastName}
-                        </div>
-                        <div className='text-xs text-[#000000]/60 truncate'>
-                          {selectedChat.phoneNumber} · {selectedChat.email}
-                        </div>
+                  {/* Chat header */}
+                  <div className='flex items-center gap-3 px-4 md:px-6 py-4 border-b border-[#3F060F]/15'>
+                    <button
+                      onClick={() => setSelectedKey(null)}
+                      className='md:hidden p-1 text-black'
+                      aria-label='Back'
+                    >
+                      <ArrowLeft className='w-5 h-5' />
+                    </button>
+                    <img
+                      src={selectedChat.avatar}
+                      alt=''
+                      className='w-10 h-10 rounded-full'
+                    />
+                    <div className='min-w-0'>
+                      <div className='font-bold text-black truncate'>
+                        {selectedChat.firstName} {selectedChat.lastName}
+                      </div>
+                      <div className='text-xs text-[#000000]/60 truncate'>
+                        {selectedChat.phoneNumber} · {selectedChat.email}
                       </div>
                     </div>
+                  </div>
 
-                    {/* Messages */}
-                    <div
-                      ref={scrollRef}
-                      className='flex-1 overflow-y-auto custom-scrollbar px-4 md:px-6 py-4 space-y-3'
-                    >
-                      {selectedChat.messages.map((m) => (
-                        <div
-                          key={m.id}
-                          className='flex items-end gap-2 max-w-[80%]'
-                        >
-                          <img
-                            src={selectedChat.avatar}
-                            alt=''
-                            className='w-7 h-7 rounded-full shrink-0'
-                          />
-                          <div>
-                            <div className='px-4 py-2 rounded-2xl rounded-bl-sm bg-[#D9D9D9] text-black text-sm break-words'>
-                              {m.message}
-                            </div>
-                            <div className='text-[10px] text-[#000000]/50 mt-1 pl-1'>
-                              {formatTime(m.createdAt)}
-                            </div>
+                  {/* Messages */}
+                  <div
+                    ref={scrollRef}
+                    className='flex-1 overflow-y-auto custom-scrollbar px-4 md:px-6 py-4 space-y-3'
+                  >
+                    {selectedChat.messages.map((m) => (
+                      <div
+                        key={m.id}
+                        className='flex items-end gap-2 max-w-[80%]'
+                      >
+                        <img
+                          src={selectedChat.avatar}
+                          alt=''
+                          className='w-7 h-7 rounded-full shrink-0'
+                        />
+                        <div>
+                          <div className='px-4 py-2 rounded-2xl rounded-bl-sm bg-[#D9D9D9] text-black  break-words'>
+                            {m.message}
+                          </div>
+                          <div className='text-sm text-[#000000]/50 mt-1 pl-1 font-aboreto font-semibold'>
+                            {formatTime(m.createdAt)}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
+                  </div>
 
-                    {/* Input */}
-                    <div className='px-4 md:px-6 pb-5 pt-3 border-t border-[#3F060F]/15'>
-                      <form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          handleReply();
-                        }}
-                        className='relative'
+                  {/* Input */}
+                  <div className='px-4 md:px-6 pb-5 pt-3 border-t border-[#3F060F]/15'>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleReply();
+                      }}
+                      className='relative'
+                    >
+                      <input
+                        type='text'
+                        value={draft}
+                        onChange={(e) => setDraft(e.target.value)}
+                        placeholder='Type your reply…'
+                        className='w-full h-11 rounded-full border border-[#3F060F]/30 bg-transparent pl-5 pr-14 text-sm text-black placeholder:text-[#000000]/40 focus:outline-none focus:ring-2 focus:ring-dark-red/30 transition'
+                      />
+                      <button
+                        type='submit'
+                        disabled={!draft.trim()}
+                        className='absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[#3F060F] hover:bg-[#3F060F]/10 disabled:opacity-40 disabled:hover:bg-transparent transition'
+                        aria-label='Send'
                       >
-                        <input
-                          type='text'
-                          value={draft}
-                          onChange={(e) => setDraft(e.target.value)}
-                          placeholder='Type your reply…'
-                          className='w-full h-11 rounded-full border border-[#3F060F]/30 bg-transparent pl-5 pr-14 text-sm text-black placeholder:text-[#000000]/40 focus:outline-none focus:ring-2 focus:ring-dark-red/30 transition'
-                        />
-                        <button
-                          type='submit'
-                          disabled={!draft.trim()}
-                          className='absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[#3F060F] hover:bg-[#3F060F]/10 disabled:opacity-40 disabled:hover:bg-transparent transition'
-                          aria-label='Send'
-                        >
-                          <Send className='w-4 h-4 -rotate-12' />
-                        </button>
-                      </form>
-                    </div>
+                        <Send className='w-4 h-4 -rotate-12' />
+                      </button>
+                    </form>
+                  </div>
                 </div>
               )}
             </section>
