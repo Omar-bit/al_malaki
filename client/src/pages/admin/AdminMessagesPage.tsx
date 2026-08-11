@@ -1,59 +1,67 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
 import { contactService } from '../../services';
 import type { ContactMessage } from '../../types';
 import toast from 'react-hot-toast';
-import { Search, ChevronDown, Loader2, Eye, Check, Bell } from 'lucide-react';
-import {
-  StatCard,
-  TableContainer,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableHeaderCell,
-  Modal,
-} from '../../components/ui';
+import { Loader2, Send, ArrowLeft } from 'lucide-react';
 
-/* ───────────────────────────── custom badge ───────────────────────────── */
+/* ────────────────────────── helpers ────────────────────────── */
 
-function MessageStatusBadge({ status }: { status: string }) {
-  let bg = 'bg-gray-200';
-  let text = 'text-gray-800';
-  let dot = 'bg-gray-500';
-  let label = status;
+type Chat = {
+  key: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  avatar: string;
+  messages: ContactMessage[];
+  lastMessage: ContactMessage;
+  unreadCount: number;
+};
 
-  switch (status) {
-    case 'UNREAD':
-      bg = 'bg-orange-100';
-      text = 'text-orange-800';
-      dot = 'bg-orange-500';
-      label = 'Unread';
-      break;
-    case 'READ':
-      bg = 'bg-blue-100';
-      text = 'text-blue-800';
-      dot = 'bg-blue-500';
-      label = 'Read';
-      break;
-    case 'RESPONDED':
-      bg = 'bg-green-300/60';
-      text = 'text-green-800';
-      dot = 'bg-green-600';
-      label = 'Responded';
-      break;
+function buildChats(messages: ContactMessage[]): Chat[] {
+  const groups = new Map<string, ContactMessage[]>();
+  for (const m of messages) {
+    const key = m.userId || `${m.phoneNumber}|${m.email}`;
+    const list = groups.get(key);
+    if (list) list.push(m);
+    else groups.set(key, [m]);
   }
 
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold ${bg} ${text}`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {label}
-    </span>
+  const chats: Chat[] = [];
+  for (const [key, list] of groups) {
+    list.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+    const last = list[list.length - 1];
+    chats.push({
+      key,
+      firstName: last.firstName,
+      lastName: last.lastName,
+      phoneNumber: last.phoneNumber,
+      email: last.email,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        last.firstName,
+      )}+${encodeURIComponent(last.lastName)}&background=random`,
+      messages: list,
+      lastMessage: last,
+      unreadCount: list.filter((m) => m.status === 'UNREAD').length,
+    });
+  }
+
+  chats.sort(
+    (a, b) =>
+      new Date(b.lastMessage.createdAt).getTime() -
+      new Date(a.lastMessage.createdAt).getTime(),
   );
+  return chats;
+}
+
+function formatTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 /* ══════════════════════════ main page ═══════════════════════════════ */
@@ -61,13 +69,9 @@ function MessageStatusBadge({ status }: { status: string }) {
 export function AdminMessagesPage() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-
-  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(
-    null,
-  );
-  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [draft, setDraft] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -85,76 +89,85 @@ export function AdminMessagesPage() {
     fetchMessages();
   }, [fetchMessages]);
 
-  const handleUpdateStatus = async (messageId: string, newStatus: string) => {
+  const chats = useMemo(() => buildChats(messages), [messages]);
+  const selectedChat = useMemo(
+    () => chats.find((c) => c.key === selectedKey) ?? null,
+    [chats, selectedKey],
+  );
+
+  // Auto-scroll to latest message when chat changes or new message arrives
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [selectedKey, selectedChat?.messages.length]);
+
+  // Mark unread as READ when opening a chat
+  useEffect(() => {
+    if (!selectedChat) return;
+    const unread = selectedChat.messages.filter((m) => m.status === 'UNREAD');
+    if (unread.length === 0) return;
+
+    (async () => {
+      try {
+        const updated = await Promise.all(
+          unread.map((m) =>
+            contactService.updateContactMessageStatus(m.id, { status: 'READ' }),
+          ),
+        );
+        setMessages((prev) =>
+          prev.map((m) => {
+            const found = updated.find((u) => u.id === m.id);
+            return found ?? m;
+          }),
+        );
+      } catch {
+        /* silent */
+      }
+    })();
+  }, [selectedChat]);
+
+  const handleReply = async () => {
+    if (!selectedChat || !draft.trim()) return;
+    const subject = encodeURIComponent('Re: Your message to Al Malaki');
+    const body = encodeURIComponent(draft.trim());
+    window.location.href = `mailto:${selectedChat.email}?subject=${subject}&body=${body}`;
+
     try {
-      setUpdatingStatusId(messageId);
-      const updatedMessage = await contactService.updateContactMessageStatus(
-        messageId,
-        { status: newStatus as any },
+      const pending = selectedChat.messages.filter(
+        (m) => m.status !== 'RESPONDED',
       );
-      setMessages(
-        messages.map((m) => (m.id === messageId ? updatedMessage : m)),
+      const updated = await Promise.all(
+        pending.map((m) =>
+          contactService.updateContactMessageStatus(m.id, {
+            status: 'RESPONDED',
+          }),
+        ),
       );
-      toast.success('Message status updated');
+      setMessages((prev) =>
+        prev.map((m) => {
+          const found = updated.find((u) => u.id === m.id);
+          return found ?? m;
+        }),
+      );
+      toast.success('Reply opened in your mail app');
+      setDraft('');
     } catch (err: any) {
       toast.error(err?.message ?? 'Failed to update status');
-    } finally {
-      setUpdatingStatusId(null);
     }
   };
-
-  const stats = useMemo(() => {
-    let unreadMessages = 0;
-    messages.forEach((m) => {
-      if (m.status === 'UNREAD') {
-        unreadMessages += 1;
-      }
-    });
-    return {
-      totalMessages: messages.length,
-      unreadMessages,
-    };
-  }, [messages]);
-
-  const filteredMessages = useMemo(() => {
-    return messages.filter((m) => {
-      const matchesSearch =
-        m.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.phoneNumber.includes(searchTerm) ||
-        m.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesStatus = statusFilter ? m.status === statusFilter : true;
-      return matchesSearch && matchesStatus;
-    });
-  }, [messages, searchTerm, statusFilter]);
 
   return (
     <AdminLayout>
       <div className='px-4 md:px-8 py-5 w-full font-bona!'>
-        {/* ── Header ── */}
+        {/* Header */}
         <header className='mb-6'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>
-                Contact Messages
-              </h1>
-              <p className='text-sm md:text-base text-[#000000]/68'>
-                View and manage client inquiries.
-              </p>
-            </div>
-            <div className='flex items-center gap-2'>
-              <div className='relative'>
-                <Bell className='w-5 h-5 text-black' />
-                {stats.unreadMessages > 0 && (
-                  <span className='absolute -top-1 -right-1 w-4 h-4 bg-dark-red text-white text-xs rounded-full flex items-center justify-center'>
-                    {stats.unreadMessages}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
+          <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>
+            Contact Messages
+          </h1>
+          <p className='text-sm md:text-base text-[#000000]/68'>
+            View and manage client inquiries.
+          </p>
         </header>
 
         {loading ? (
@@ -165,275 +178,193 @@ export function AdminMessagesPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
-            className='space-y-6 p-0'
+            transition={{ duration: 0.4 }}
+            className='flex flex-col md:flex-row gap-4 md:gap-6'
           >
-            {/* ── Stats Row ── */}
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-15'>
-              <StatCard
-                label='Total messages'
-                value={stats.totalMessages.toLocaleString()}
-                icon={
-                  <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
-                    <svg
-                      width='25'
-                      height='20'
-                      viewBox='0 0 25 20'
-                      fill='none'
-                      xmlns='http://www.w3.org/2000/svg'
+            {/* ─── LEFT: Old chats ─── */}
+            <aside
+              className={`w-full md:w-[300px] lg:w-[320px] shrink-0 bg-[#F5E6D0] rounded-2xl border border-[#3F060F]/25 shadow-sm p-4 md:p-5 h-[70vh] flex-col ${
+                selectedChat ? 'hidden md:flex' : 'flex'
+              }`}
+            >
+              <h2 className='text-lg md:text-xl font-bold text-black mb-4 pl-1'>
+                Old chats
+              </h2>
+
+              <div className='flex-1 overflow-y-auto custom-scrollbar space-y-1 pr-1'>
+                {chats.length === 0 ? (
+                  <div className='text-center text-sm text-[#000000]/50 py-10'>
+                    No conversations yet.
+                  </div>
+                ) : (
+                  chats.map((chat) => {
+                    const isActive = chat.key === selectedKey;
+                    return (
+                      <button
+                        key={chat.key}
+                        onClick={() => setSelectedKey(chat.key)}
+                        className={`w-full text-left flex items-center gap-3 px-2 py-2 rounded-xl transition-colors ${
+                          isActive
+                            ? 'bg-[#EFD9B8]'
+                            : 'hover:bg-[#EFD9B8]/60'
+                        }`}
+                      >
+                        <img
+                          src={chat.avatar}
+                          alt={chat.firstName}
+                          className='w-10 h-10 rounded-full object-cover shrink-0'
+                        />
+                        <div className='min-w-0 flex-1'>
+                          <div className='flex items-center justify-between gap-2'>
+                            <span className='font-bold text-sm text-black truncate'>
+                              {chat.firstName}{' '}
+                              <span className='font-normal text-[11px] text-[#000000]/60'>
+                                ({chat.phoneNumber})
+                              </span>
+                            </span>
+                            {chat.unreadCount > 0 && (
+                              <span className='flex h-5 min-w-[20px] items-center justify-center rounded-full bg-dark-red px-1.5 text-[10px] font-bold text-white'>
+                                {chat.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                          <div className='text-xs text-[#000000]/55 truncate'>
+                            {chat.lastMessage.message || 'Have a good day..'}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </aside>
+
+            {/* ─── RIGHT: Chat panel ─── */}
+            <section
+              className={`flex-1 bg-[#F5E6D0] rounded-2xl border border-[#3F060F]/25 shadow-sm h-[70vh] flex-col overflow-hidden ${
+                selectedChat ? 'flex' : 'hidden md:flex'
+              }`}
+            >
+              {!selectedChat ? (
+                <div className='flex-1 flex flex-col'>
+                    {/* Title */}
+                    <div className='flex-1 flex items-start justify-center pt-10 md:pt-14'>
+                      <h2 className='text-2xl md:text-4xl font-bold text-black tracking-wide font-bona!'>
+                        NO CHATS FOR NOW
+                      </h2>
+                    </div>
+
+                    {/* Decorative empty bubbles + input */}
+                    <div className='px-4 md:px-8 pb-6 space-y-3 max-w-2xl w-full mx-auto'>
+                      <div className='flex items-center gap-2'>
+                        <img
+                          src='https://ui-avatars.com/api/?name=A&background=EEE'
+                          alt=''
+                          className='w-8 h-8 rounded-full shrink-0'
+                        />
+                        <div className='flex-1 h-8 rounded-full bg-[#D9D9D9]' />
+                      </div>
+                      <div className='flex items-center gap-2'>
+                        <div className='flex-1 h-8 rounded-full bg-dark-red' />
+                        <img
+                          src='https://ui-avatars.com/api/?name=A&background=EEE'
+                          alt=''
+                          className='w-8 h-8 rounded-full shrink-0'
+                        />
+                      </div>
+                      <div className='relative pt-2'>
+                        <div className='w-full h-9 rounded-full border border-[#3F060F]/30 bg-transparent' />
+                        <div className='absolute right-2 top-1/2 -translate-y-1/2 mt-1 w-7 h-7 rounded-full bg-transparent flex items-center justify-center'>
+                          <Send className='w-4 h-4 text-[#3F060F] -rotate-12' />
+                        </div>
+                      </div>
+                    </div>
+                </div>
+              ) : (
+                <div className='flex-1 flex flex-col min-h-0'>
+                    {/* Chat header */}
+                    <div className='flex items-center gap-3 px-4 md:px-6 py-4 border-b border-[#3F060F]/15'>
+                      <button
+                        onClick={() => setSelectedKey(null)}
+                        className='md:hidden p-1 text-black'
+                        aria-label='Back'
+                      >
+                        <ArrowLeft className='w-5 h-5' />
+                      </button>
+                      <img
+                        src={selectedChat.avatar}
+                        alt=''
+                        className='w-10 h-10 rounded-full'
+                      />
+                      <div className='min-w-0'>
+                        <div className='font-bold text-black truncate'>
+                          {selectedChat.firstName} {selectedChat.lastName}
+                        </div>
+                        <div className='text-xs text-[#000000]/60 truncate'>
+                          {selectedChat.phoneNumber} · {selectedChat.email}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Messages */}
+                    <div
+                      ref={scrollRef}
+                      className='flex-1 overflow-y-auto custom-scrollbar px-4 md:px-6 py-4 space-y-3'
                     >
-                      <g clipPath='url(#clip0_517_373)'>
-                        <path
-                          d='M12.5012 19.9742C11.3596 19.9742 10.2146 20.0196 9.07304 19.9645C7.49914 19.89 6.20219 18.5459 6.18193 17.0301C6.16504 15.9127 6.16166 14.792 6.18193 13.6746C6.22921 10.7823 8.78596 8.20093 11.7818 7.89324C15.0512 7.55639 18.1044 9.69728 18.7022 12.7969C18.7799 13.1985 18.8035 13.6163 18.8103 14.0244C18.8272 14.9475 18.8204 15.8706 18.817 16.7936C18.8103 18.6787 17.4559 19.9807 15.4868 19.9936C14.4905 20.0001 13.4941 19.9936 12.4978 19.9936C12.5012 19.9904 12.5012 19.9807 12.5012 19.9742ZM12.5147 18.9993C13.5448 18.9993 14.5749 18.9993 15.6051 18.9993C15.6388 18.9993 15.6726 18.9993 15.7064 18.9993C16.696 18.9702 17.5539 18.2738 17.7396 17.341C17.7734 17.1596 17.797 16.975 17.7937 16.7936C17.7734 15.5564 17.8747 14.3062 17.6957 13.0916C17.3141 10.5297 14.8282 8.61226 11.8898 8.88433C9.35337 9.12077 7.22219 11.3588 7.2053 13.8981C7.19855 14.8859 7.20192 15.8738 7.2053 16.8617C7.21206 18.0957 8.14086 18.9961 9.43105 19.0025C10.4544 19.0058 11.4845 18.9993 12.5147 18.9993Z'
-                          fill='black'
-                        />
-                        <path
-                          d='M12.4802 7.27179e-05C14.6756 -0.0128827 16.4792 1.70696 16.4825 3.81546C16.4859 5.90129 14.6959 7.6276 12.514 7.64056C10.3322 7.65351 8.5151 5.91748 8.51172 3.81546C8.50835 1.72639 10.2916 0.0130282 12.4802 7.27179e-05ZM12.4769 6.60412C14.0643 6.61384 15.3849 5.36687 15.4018 3.85109C15.4186 2.30938 14.1318 1.04947 12.5174 1.02679C10.9165 1.00412 9.58913 2.28347 9.58913 3.84461C9.58913 5.33449 10.9131 6.59764 12.4769 6.60412Z'
-                          fill='black'
-                        />
-                      </g>
-                      <defs>
-                        <clipPath id='clip0_517_373'>
-                          <rect width='25' height='20' fill='white' />
-                        </clipPath>
-                      </defs>
-                    </svg>
-                  </div>
-                }
-              />
-              <StatCard
-                label='Unread messages'
-                value={stats.unreadMessages}
-                icon={
-                  <div className=' bg-[#D9D9D9] p-[6px] text-sm rounded-full aspect-square font-semibold text-black'>
-                    <Bell className='w-5 h-5' />
-                  </div>
-                }
-              />
-            </div>
-
-            {/* ── Messages Management Card ── */}
-            <div className='min-h-[50vh] bg-[#D9D9D957] rounded-2xl shadow-sm border border-[#3F060F]/40 p-4 md:p-6'>
-              <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6'>
-                <div>
-                  <div className='flex items-center gap-2 mb-1'>
-                    <h2 className='text-2xl font-bold text-black'>
-                      Messages management
-                    </h2>
-                  </div>
-                  <p className='text-sm text-[#000000]/68'>
-                    Track and manage all client inquiries.
-                  </p>
-                </div>
-              </div>
-
-              <div className='flex flex-col sm:flex-row items-center gap-4 mb-8'>
-                <div className='relative w-full sm:w-2/3'>
-                  <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500' />
-                  <input
-                    type='text'
-                    placeholder='Search messages'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className='w-full rounded-xl border border-[#3F060F]/30 bg-[##D9D9D9]/24 px-10 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
-                  />
-                </div>
-                <div className='relative w-full sm:w-1/3'>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className='w-full appearance-none rounded-xl border border-[#3F060F]/30 bg-[##D9D9D9]/24 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
-                  >
-                    <option value=''>All status</option>
-                    <option value='UNREAD'>Unread</option>
-                    <option value='READ'>Read</option>
-                    <option value='RESPONDED'>Responded</option>
-                  </select>
-                  <ChevronDown className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none' />
-                </div>
-              </div>
-
-              <TableContainer className='bg-transparent shadow-none border-none  min-h-[30vh]'>
-                <Table>
-                  <TableHead className='bg-[#D9D9D980]/50'>
-                    <TableRow>
-                      <TableHeaderCell>
-                        <span className='text-[#000000]/68 font-bold font-bona'>
-                          Client Name
-                        </span>
-                      </TableHeaderCell>
-                      <TableHeaderCell>
-                        <span className='text-[#000000]/68 font-bold font-bona'>
-                          Phone
-                        </span>
-                      </TableHeaderCell>
-                      <TableHeaderCell>
-                        <span className='text-[#000000]/68 font-bold font-bona'>
-                          Message
-                        </span>
-                      </TableHeaderCell>
-                      <TableHeaderCell>
-                        <span className='text-[#000000]/68 font-bold font-bona'>
-                          Date
-                        </span>
-                      </TableHeaderCell>
-                      <TableHeaderCell>
-                        <span className='text-[#000000]/68 font-bold font-bona'>
-                          Status
-                        </span>
-                      </TableHeaderCell>
-                      <TableHeaderCell>
-                        <span className='text-[#000000]/68 font-bold font-bona'>
-                          Actions
-                        </span>
-                      </TableHeaderCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody className='max-h-[20vh] overflow-y-auto'>
-                    {filteredMessages.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={6}
-                          className='text-center py-12 text-[#a68f74]'
+                      {selectedChat.messages.map((m) => (
+                        <div
+                          key={m.id}
+                          className='flex items-end gap-2 max-w-[80%]'
                         >
-                          No messages found.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredMessages.map((message) => (
-                        <TableRow
-                          key={message.id}
-                          className='border-b border-[#000000]/20 hover:bg-[#D5BD9D]/20'
-                        >
-                          <TableCell className='text-black font-bona text-sm'>
-                            {message.firstName} {message.lastName}
-                          </TableCell>
-                          <TableCell className='text-gray-500 font-aboreto text-sm'>
-                            {message.phoneNumber}
-                          </TableCell>
-                          <TableCell className='text-gray-500 font-bona text-sm max-w-xs truncate'>
-                            {message.message}
-                          </TableCell>
-                          <TableCell className='text-gray-500 font-aboreto text-sm'>
-                            {new Date(message.createdAt)
-                              .toISOString()
-                              .slice(0, 10)}
-                          </TableCell>
-                          <TableCell>
-                            <MessageStatusBadge status={message.status} />
-                          </TableCell>
-                          <TableCell>
-                            <div className='flex items-center gap-2 relative'>
-                              <button
-                                onClick={() => {
-                                  setSelectedMessage(message);
-                                  if (message.status === 'UNREAD') {
-                                    handleUpdateStatus(message.id, 'READ');
-                                  }
-                                }}
-                                className='flex items-center gap-1.5 px-2.5 py-1 bg-[#b2b2b2]/40 hover:bg-[#b2b2b2]/60 rounded-md transition-colors text-black text-xs font-bold'
-                              >
-                                <Eye className='w-3.5 h-3.5' />
-                                View
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleUpdateStatus(message.id, 'RESPONDED')
-                                }
-                                disabled={updatingStatusId === message.id}
-                                className='flex items-center gap-1.5 px-2.5 py-1 bg-green-500/40 hover:bg-green-500/60 rounded-md transition-colors text-black text-xs font-bold disabled:opacity-50'
-                              >
-                                {updatingStatusId === message.id ? (
-                                  <Loader2 className='w-3.5 h-3.5 animate-spin' />
-                                ) : (
-                                  <Check className='w-3.5 h-3.5' />
-                                )}
-                                Mark read
-                              </button>
+                          <img
+                            src={selectedChat.avatar}
+                            alt=''
+                            className='w-7 h-7 rounded-full shrink-0'
+                          />
+                          <div>
+                            <div className='px-4 py-2 rounded-2xl rounded-bl-sm bg-[#D9D9D9] text-black text-sm break-words'>
+                              {m.message}
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
+                            <div className='text-[10px] text-[#000000]/50 mt-1 pl-1'>
+                              {formatTime(m.createdAt)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Input */}
+                    <div className='px-4 md:px-6 pb-5 pt-3 border-t border-[#3F060F]/15'>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleReply();
+                        }}
+                        className='relative'
+                      >
+                        <input
+                          type='text'
+                          value={draft}
+                          onChange={(e) => setDraft(e.target.value)}
+                          placeholder='Type your reply…'
+                          className='w-full h-11 rounded-full border border-[#3F060F]/30 bg-transparent pl-5 pr-14 text-sm text-black placeholder:text-[#000000]/40 focus:outline-none focus:ring-2 focus:ring-dark-red/30 transition'
+                        />
+                        <button
+                          type='submit'
+                          disabled={!draft.trim()}
+                          className='absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-[#3F060F] hover:bg-[#3F060F]/10 disabled:opacity-40 disabled:hover:bg-transparent transition'
+                          aria-label='Send'
+                        >
+                          <Send className='w-4 h-4 -rotate-12' />
+                        </button>
+                      </form>
+                    </div>
+                </div>
+              )}
+            </section>
           </motion.div>
         )}
       </div>
-
-      <Modal
-        open={!!selectedMessage}
-        onClose={() => setSelectedMessage(null)}
-        title={`Message from ${selectedMessage?.firstName} ${selectedMessage?.lastName}`}
-      >
-        {selectedMessage && (
-          <div className='font-bona text-black'>
-            <div className='bg-[#f0e6d8] p-4 rounded-xl mb-6'>
-              <h3 className='font-bold text-lg mb-3'>Contact Information</h3>
-              <div className='space-y-2 text-sm'>
-                <div>
-                  <span className='text-gray-600'>Name:</span>{' '}
-                  {selectedMessage.firstName} {selectedMessage.lastName}
-                </div>
-                <div>
-                  <span className='text-gray-600'>Email:</span>{' '}
-                  {selectedMessage.email}
-                </div>
-                <div>
-                  <span className='text-gray-600'>Phone:</span>{' '}
-                  {selectedMessage.phoneNumber}
-                </div>
-                <div>
-                  <span className='text-gray-600'>Date:</span>{' '}
-                  {new Date(selectedMessage.createdAt).toLocaleString()}
-                </div>
-                <div>
-                  <span className='text-gray-600'>Status:</span>{' '}
-                  <MessageStatusBadge status={selectedMessage.status} />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className='font-bold text-lg mb-3'>Message</h3>
-              <div className='bg-white p-4 rounded-xl border border-[#d5bd9d]/50 min-h-[150px]'>
-                <p className='text-gray-800 leading-relaxed'>
-                  {selectedMessage.message}
-                </p>
-              </div>
-            </div>
-
-            <div className='mt-6 pt-4 border-t border-[#d5bd9d]/50'>
-              <h4 className='font-bold text-sm mb-2 text-gray-700'>
-                Update Status
-              </h4>
-              <div className='flex items-center gap-2'>
-                <select
-                  value={selectedMessage.status}
-                  onChange={(e) => {
-                    handleUpdateStatus(selectedMessage.id, e.target.value);
-                    setSelectedMessage({
-                      ...selectedMessage,
-                      status: e.target.value as any,
-                    });
-                  }}
-                  disabled={updatingStatusId === selectedMessage.id}
-                  className='w-full rounded-lg border border-[#d5bd9d] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition disabled:opacity-50'
-                >
-                  <option value='UNREAD'>Unread</option>
-                  <option value='READ'>Read</option>
-                  <option value='RESPONDED'>Responded</option>
-                </select>
-                {updatingStatusId === selectedMessage.id && (
-                  <Loader2 className='w-5 h-5 animate-spin text-dark-red' />
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
     </AdminLayout>
   );
 }
