@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
 import { orderService } from '../../services';
+import { useAdminOrders } from '../../hooks/useAdminOrders';
 import type { Order } from '../../types';
 import { formatCurrency } from '../../utils/format';
 import toast from 'react-hot-toast';
@@ -89,29 +90,12 @@ function OrderStatusBadge({ status }: { status: string }) {
 /* ══════════════════════════ main page ═══════════════════════════════ */
 
 export function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { orders, isLoading, mutate } = useAdminOrders();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
-
-  const fetchOrders = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await orderService.getAllOrders();
-      setOrders(data);
-    } catch (err: any) {
-      toast.error(err?.message ?? 'Failed to load orders');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
 
   const handleExport = () => {
     const csvContent = [
@@ -142,10 +126,14 @@ export function AdminOrdersPage() {
         orderId,
         newStatus,
       );
-      setOrders(orders.map((o) => (o.id === orderId ? updatedOrder : o)));
+      void mutate(
+        (current) => current?.map((o) => (o.id === orderId ? updatedOrder : o)),
+        { revalidate: false },
+      );
       toast.success('Order status updated');
     } catch (err: any) {
       toast.error(err?.message ?? 'Failed to update status');
+      void mutate();
     } finally {
       setUpdatingStatusId(null);
     }
@@ -195,7 +183,7 @@ export function AdminOrdersPage() {
           </p>
         </header>
 
-        {loading ? (
+        {isLoading ? (
           <div className='flex items-center justify-center h-64'>
             <Loader2 className='w-8 h-8 animate-spin text-dark-red' />
           </div>

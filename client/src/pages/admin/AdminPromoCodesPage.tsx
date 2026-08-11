@@ -31,6 +31,7 @@ import {
   TableRow,
   TableCell,
   TableHeaderCell,
+  ToggleSwitch,
 } from '../../components/ui';
 
 /* ───────────────────────────── helpers ───────────────────────────── */
@@ -344,34 +345,12 @@ export function AdminPromoCodesPage() {
                           {user?.role !== 'VENDOR' && (
                             <TableCell>
                               <div className='flex items-center gap-4'>
-                                <button
-                                  onClick={() => handleToggle(promo.id)}
-                                  disabled={togglingId === promo.id}
-                                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-dark-red focus:ring-offset-2 disabled:opacity-50 ${
-                                    promo.status === 'active'
-                                      ? 'bg-green-500'
-                                      : 'bg-gray-300'
-                                  }`}
-                                  title={
-                                    promo.status === 'active'
-                                      ? 'Disable'
-                                      : 'Enable'
-                                  }
-                                >
-                                  {togglingId === promo.id ? (
-                                    <Loader2
-                                      className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-white ${promo.status === 'active' ? 'left-[20px]' : 'left-0.5'}`}
-                                    />
-                                  ) : (
-                                    <span
-                                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                        promo.status === 'active'
-                                          ? 'translate-x-5'
-                                          : 'translate-x-0'
-                                      }`}
-                                    />
-                                  )}
-                                </button>
+                                <ToggleSwitch
+                                  checked={promo.status === 'active'}
+                                  onChange={() => handleToggle(promo.id)}
+                                  loading={togglingId === promo.id}
+                                  title={promo.status === 'active' ? 'Disable' : 'Enable'}
+                                />
 
                                 <button
                                   onClick={() => confirmDelete(promo)}

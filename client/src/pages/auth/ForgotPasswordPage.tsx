@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { authService } from '../services';
-import { validateEmailValue } from '../utils/formValidation';
+import { authService } from '../../services';
+import { validateEmailValue } from '../../utils/formValidation';
 
 export function ForgotPasswordPage() {
   const { t, i18n } = useTranslation();

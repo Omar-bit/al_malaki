@@ -12,46 +12,7 @@ import type {
   ContactMessage,
   ContactStreamEvent,
 } from '../types/contact';
-
-type TimelineItem =
-  | { kind: 'message'; id: string; createdAt: string; text: string }
-  | {
-      kind: 'reply';
-      id: string;
-      createdAt: string;
-      text: string;
-      fromStaff: boolean;
-    };
-
-function buildTimeline(messages: ContactMessage[]): TimelineItem[] {
-  const items: TimelineItem[] = [];
-  for (const m of messages) {
-    items.push({
-      kind: 'message',
-      id: m.id,
-      createdAt: m.createdAt,
-      text: m.message,
-    });
-    for (const r of m.replies ?? []) {
-      items.push({
-        kind: 'reply',
-        id: r.id,
-        createdAt: r.createdAt,
-        text: r.body,
-        fromStaff: r.authorRole !== 'CUSTOMER',
-      });
-    }
-  }
-  items.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
-  return items;
-}
-
-function formatTime(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
+import { buildTimeline, formatChatTime } from '../utils/chat';
 
 export function CustomerChatWidget() {
   const { user } = useAuth();
@@ -272,7 +233,7 @@ export function CustomerChatWidget() {
                           fromMe ? 'text-right pr-1' : 'pl-1'
                         }`}
                       >
-                        {formatTime(item.createdAt)}
+                        {formatChatTime(item.createdAt)}
                       </div>
                     </div>
                   </div>

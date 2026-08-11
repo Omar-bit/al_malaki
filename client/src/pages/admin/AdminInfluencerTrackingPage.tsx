@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
@@ -15,10 +15,7 @@ import {
 import { AdminLayout } from '../../components/AdminLayout';
 import { useAuth } from '../../contexts';
 import { influencerTrackingService } from '../../services';
-import type {
-  CreateInfluencerTrackingPayload,
-  InfluencerTrackingItem,
-} from '../../types';
+import type { CreateInfluencerTrackingPayload } from '../../types';
 import {
   Table,
   TableBody,
@@ -27,7 +24,9 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
+  ToggleSwitch,
 } from '../../components/ui';
+import { useAdminInfluencer } from '../../hooks/useAdminInfluencer';
 import { formatCurrency } from '../../utils/format';
 
 const INITIAL_FORM: CreateInfluencerTrackingPayload = {
@@ -39,8 +38,6 @@ const INITIAL_FORM: CreateInfluencerTrackingPayload = {
 
 export function AdminInfluencerTrackingPage() {
   const { user } = useAuth();
-  const [items, setItems] = useState<InfluencerTrackingItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'active' | 'disabled'
@@ -59,29 +56,14 @@ export function AdminInfluencerTrackingPage() {
     useState<CreateInfluencerTrackingPayload>(INITIAL_FORM);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  const loadItems = useCallback(async () => {
-    try {
-      const result = await influencerTrackingService.getInfluencerTrackingLinks(
-        {
-          search: search || undefined,
-          status: statusFilter === 'all' ? undefined : statusFilter,
-          sortBy,
-          sortOrder,
-        },
-      );
-      setItems(result);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load influencer performance.');
-    } finally {
-      setLoading(false);
-    }
-  }, [search, sortBy, sortOrder, statusFilter]);
-
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
+  const { items, isLoading, mutate } = useAdminInfluencer({
+    search: search || undefined,
+    status: statusFilter === 'all' ? undefined : statusFilter,
+    sortBy,
+    sortOrder,
+  });
 
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -103,8 +85,7 @@ export function AdminInfluencerTrackingPage() {
       toast.success('Tracking link created successfully.');
       setForm(INITIAL_FORM);
       setIsCreateModalOpen(false);
-      setLoading(true);
-      await loadItems();
+      void mutate();
     } catch (error) {
       console.error(error);
       toast.error(
@@ -118,7 +99,6 @@ export function AdminInfluencerTrackingPage() {
   };
 
   const handleSort = (column: typeof sortBy) => {
-    setLoading(true);
     setSortBy((prev) => {
       if (prev === column) {
         setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
@@ -237,7 +217,6 @@ export function AdminInfluencerTrackingPage() {
                   type='search'
                   value={search}
                   onChange={(event) => {
-                    setLoading(true);
                     setSearch(event.target.value);
                   }}
                   placeholder='Search influencers'
@@ -250,7 +229,6 @@ export function AdminInfluencerTrackingPage() {
                 <select
                   value={statusFilter}
                   onChange={(event) => {
-                    setLoading(true);
                     setStatusFilter(
                       event.target.value as 'all' | 'active' | 'disabled',
                     );
@@ -268,7 +246,6 @@ export function AdminInfluencerTrackingPage() {
                 <select
                   value={`${sortBy}:${sortOrder}`}
                   onChange={(event) => {
-                    setLoading(true);
                     const [nextSortBy, nextSortOrder] =
                       event.target.value.split(':') as [
                         typeof sortBy,
@@ -400,7 +377,7 @@ export function AdminInfluencerTrackingPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {loading ? (
+                  {isLoading ? (
                     <TableRow>
                       <TableCell colSpan={8} className='py-14 text-center'>
                         <div className='flex items-center justify-center gap-3 text-[#6D5A46]'>
@@ -493,49 +470,38 @@ export function AdminInfluencerTrackingPage() {
                           {item.conversionRate.toFixed(1)}%
                         </TableCell>
                         <TableCell className='align-top'>
-                          <button
-                            type='button'
-                            role='switch'
-                            aria-checked={item.status === 'active'}
-                            onClick={async () => {
+                          <ToggleSwitch
+                            checked={item.status === 'active'}
+                            loading={togglingId === item.id}
+                            activeColor='bg-dark-red'
+                            onChange={async () => {
+                              setTogglingId(item.id);
                               const nextStatus =
-                                item.status === 'active'
-                                  ? 'disabled'
-                                  : 'active';
+                                item.status === 'active' ? 'disabled' : 'active';
                               try {
                                 await influencerTrackingService.updateInfluencerTrackingLink(
                                   item.id,
                                   { status: nextStatus },
                                 );
-                                setItems((current) =>
-                                  current.map((i) =>
-                                    i.id === item.id
-                                      ? { ...i, status: nextStatus }
-                                      : i,
-                                  ),
+                                void mutate(
+                                  (current) =>
+                                    current?.map((i) =>
+                                      i.id === item.id
+                                        ? { ...i, status: nextStatus }
+                                        : i,
+                                    ),
+                                  { revalidate: false },
                                 );
                                 toast.success(
                                   `Link ${nextStatus === 'active' ? 'enabled' : 'disabled'} for ${item.influencerName}`,
                                 );
-                              } catch (error) {
-                                console.error(error);
+                              } catch {
                                 toast.error('Failed to update link status.');
+                              } finally {
+                                setTogglingId(null);
                               }
                             }}
-                            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-                              item.status === 'active'
-                                ? 'bg-dark-red'
-                                : 'bg-gray-300'
-                            }`}
-                          >
-                            <span
-                              className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                                item.status === 'active'
-                                  ? 'translate-x-[22px]'
-                                  : 'translate-x-[2px]'
-                              }`}
-                            />
-                          </button>
+                          />
                         </TableCell>
                       </TableRow>
                     ))

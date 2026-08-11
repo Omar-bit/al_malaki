@@ -9,6 +9,7 @@ import { getStoredInfluencerTrackingCode } from '../services/influencerTrackingS
 import type { LoyaltyInfo, PromoValidationResult } from '../types/order';
 import type { PackCartEntry } from '../types/pack';
 import { getPackLabel } from '../types/pack';
+import { POINTS_REDEMPTION_RATE } from '../constants';
 
 type Step = 'shipping' | 'payment';
 type PaymentMethod = 'cash' | 'card';
@@ -48,8 +49,6 @@ const INITIAL_PAYMENT_FORM: PaymentFormState = {
   expiry: '',
   cvc: '',
 };
-
-const POINTS_REDEMPTION_RATE = 0.05; // 10 pts = 0.5 DT => 1 pt = 0.05 DT
 
 function formatTotal(value: number) {
   return `${Math.round(value)} dt`;

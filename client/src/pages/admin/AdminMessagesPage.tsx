@@ -9,15 +9,7 @@ import type {
 import toast from 'react-hot-toast';
 import { Loader2, Send, ArrowLeft } from 'lucide-react';
 
-type ChatItem =
-  | { kind: 'message'; id: string; createdAt: string; text: string }
-  | {
-      kind: 'reply';
-      id: string;
-      createdAt: string;
-      text: string;
-      fromStaff: boolean;
-    };
+import { buildTimeline, formatChatTime } from '../../utils/chat';
 
 /* ────────────────────────── helpers ────────────────────────── */
 
@@ -85,35 +77,6 @@ function buildChats(messages: ContactMessage[]): Chat[] {
   return chats;
 }
 
-function formatTime(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function buildTimeline(messages: ContactMessage[]): ChatItem[] {
-  const items: ChatItem[] = [];
-  for (const m of messages) {
-    items.push({
-      kind: 'message',
-      id: m.id,
-      createdAt: m.createdAt,
-      text: m.message,
-    });
-    for (const r of m.replies ?? []) {
-      items.push({
-        kind: 'reply',
-        id: r.id,
-        createdAt: r.createdAt,
-        text: r.body,
-        fromStaff: r.authorRole !== 'CUSTOMER',
-      });
-    }
-  }
-  items.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
-  return items;
-}
 
 /* ══════════════════════════ main page ═══════════════════════════════ */
 
@@ -416,7 +379,7 @@ export function AdminMessagesPage() {
                               {item.text}
                             </div>
                             <div className='text-sm text-[#000000]/50 mt-1 pr-1 text-right font-aboreto font-semibold'>
-                              {formatTime(item.createdAt)}
+                              {formatChatTime(item.createdAt)}
                             </div>
                           </div>
                         </div>
@@ -437,7 +400,7 @@ export function AdminMessagesPage() {
                               {item.text}
                             </div>
                             <div className='text-sm text-[#000000]/50 mt-1 pl-1 font-aboreto font-semibold'>
-                              {formatTime(item.createdAt)}
+                              {formatChatTime(item.createdAt)}
                             </div>
                           </div>
                         </div>

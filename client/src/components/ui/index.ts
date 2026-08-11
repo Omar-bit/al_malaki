@@ -9,3 +9,5 @@ export * from './FormField';
 export * from './SelectField';
 export * from './Table';
 export * from './Spinner';
+export * from './PasswordInput';
+export * from './ToggleSwitch';

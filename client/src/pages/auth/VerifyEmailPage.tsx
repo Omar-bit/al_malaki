@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import OtpInput from 'react-otp-input';
 import toast from 'react-hot-toast';
-import { authService } from '../services';
-import { validateEmailValue, validateOtpValue } from '../utils/formValidation';
+import { authService } from '../../services';
+import { validateEmailValue, validateOtpValue } from '../../utils/formValidation';
 
 type VerifyEmailLocationState = {
   otpExpiresInSeconds?: number;

@@ -1,49 +1,30 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AdminLayout } from '../../components/AdminLayout';
-import {
-  getLoyaltyCustomers,
-  adjustCustomerPoints,
-} from '../../services/adminService';
+import { adjustCustomerPoints } from '../../services/adminService';
 import type { LoyaltyCustomer } from '../../types/admin';
 import { formatCurrency } from '../../utils/format';
+import { useAdminLoyalty } from '../../hooks/useAdminLoyalty';
 import toast from 'react-hot-toast';
 import { Search, Loader2, ChevronRight, Users } from 'lucide-react';
 import crown from '../../assets/crown.png';
 export function AdminLoyaltyPage() {
-  const [customers, setCustomers] = useState<LoyaltyCustomer[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState<string | undefined>(undefined);
+  const { customers, isLoading, mutate } = useAdminLoyalty(appliedSearch);
   const [adjustingCustomerId, setAdjustingCustomerId] = useState<string | null>(
     null,
   );
   const [adjustPoints, setAdjustPoints] = useState<number>(0);
   const [adjustDescription, setAdjustDescription] = useState('');
 
-  const fetchCustomers = useCallback(async (search?: string) => {
-    try {
-      setLoading(true);
-      const data = await getLoyaltyCustomers(search);
-      setCustomers(data);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to load customers');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Get top clients sorted by points descending and take top 3
   const topClients = [...customers]
     .sort((a, b) => b.points - a.points)
     .slice(0, 3);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchCustomers(searchQuery);
+    setAppliedSearch(searchQuery || undefined);
   };
 
   const handleAdjustPoints = async (customer: LoyaltyCustomer) => {
@@ -54,14 +35,12 @@ export function AdminLoyaltyPage() {
 
     try {
       setAdjustingCustomerId(customer.userId);
-      const updated = await adjustCustomerPoints(
+      await adjustCustomerPoints(
         customer.userId,
         adjustPoints,
         adjustDescription,
       );
-      setCustomers((prev) =>
-        prev.map((c) => (c.userId === updated.userId ? updated : c)),
-      );
+      void mutate();
       setAdjustPoints(0);
       setAdjustDescription('');
       setAdjustingCustomerId(null);
@@ -134,7 +113,7 @@ export function AdminLoyaltyPage() {
               </div>
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <div className='flex items-center justify-center py-8'>
                 <Loader2 className='w-8 h-8 animate-spin text-dark-red' />
               </div>
@@ -194,10 +173,7 @@ export function AdminLoyaltyPage() {
                       <div className='text-right'>
                         <p className='text-xs text-[#000000]/68'>Total spent</p>
                         <p className='font-aboreto text-lg text-black'>
-                          {formatCurrency(customer.totalSpent, 'TND').replace(
-                            '$',
-                            '',
-                          )}
+                          {formatCurrency(customer.totalSpent, 'TND', true)}
                         </p>
                       </div>
                     </div>
@@ -262,7 +238,7 @@ export function AdminLoyaltyPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {loading ? (
+                  {isLoading ? (
                     <tr>
                       <td colSpan={5} className='px-6 py-12 text-center'>
                         <Loader2 className='w-8 h-8 animate-spin mx-auto text-dark-red' />
@@ -327,10 +303,7 @@ export function AdminLoyaltyPage() {
                           </span>
                         </td>
                         <td className='px-6 py-4 text-black font-aboreto'>
-                          {formatCurrency(customer.totalSpent, 'USD').replace(
-                            '$',
-                            '',
-                          )}
+                          {formatCurrency(customer.totalSpent, 'TND', true)}
                         </td>
                         <td className='px-6 py-4'>
                           <div className='flex items-center gap-2'>

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Header } from '../components/Header';
 import { useAuth } from '../contexts';
+import { useRequireAuth } from '../hooks/useRequireAuth';
+import { POINTS_REDEMPTION_RATE } from '../constants';
 import { authService, contactService, orderService } from '../services';
 
 import { Hero } from '../components';
@@ -312,6 +314,7 @@ function RewardModal({ onClose }: { onClose: () => void }) {
 export function DashboardPage() {
   const { user, isLoading, setUser } = useAuth();
   const navigate = useNavigate();
+  useRequireAuth();
 
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -327,7 +330,7 @@ export function DashboardPage() {
 
   const [loyaltyPoints, setLoyaltyPoints] = useState(0);
   const loyaltyMax = 500;
-  const loyaltyDT = (loyaltyPoints * 0.05).toFixed(2); // 10 pts = 0.5 DT => 1 pt = 0.05 DT
+  const loyaltyDT = (loyaltyPoints * POINTS_REDEMPTION_RATE).toFixed(2);
 
   // Populate form from user
   useEffect(() => {
@@ -340,12 +343,6 @@ export function DashboardPage() {
     orderService.getMyLoyalty().then((data) => setLoyaltyPoints(data.points)).catch(() => null);
   }, [user]);
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/login', { replace: true });
-    }
-  }, [isLoading, user, navigate]);
 
   const handleSaveProfile = async () => {
     if (!profileForm.fullName.trim()) {

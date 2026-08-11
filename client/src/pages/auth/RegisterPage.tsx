@@ -4,17 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Header } from '../components/Header';
-import { authService } from '../services';
-import { getStoredInfluencerTrackingCode } from '../services/influencerTrackingService';
+import { Header } from '../../components/Header';
+import { authService } from '../../services';
+import { getStoredInfluencerTrackingCode } from '../../services/influencerTrackingService';
 import {
   validateBirthDateValue,
   validateEmailValue,
   validateNameValue,
   validatePasswordValue,
   validatePhoneValue,
-} from '../utils/formValidation';
-import authModel from '../assets/auth-model.jpg';
+} from '../../utils/formValidation';
+import { PasswordInput } from '../../components/ui';
+import authModel from '../../assets/auth-model.jpg';
 
 export function RegisterPage() {
   const { t, i18n } = useTranslation();
@@ -31,9 +32,6 @@ export function RegisterPage() {
     useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
-    useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasPasswordMismatch =
@@ -410,148 +408,29 @@ export function RegisterPage() {
                 />
               </div>
 
-              <div>
-                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
-                  {t('register.password')}
-                </label>
-                <div className='relative'>
-                  <input
-                    type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder={t('register.password_placeholder')}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    autoComplete='new-password'
-                    required
-                    minLength={8}
-                    maxLength={64}
-                    className={`w-full rounded-full border border-dark-red bg-transparent py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red ${isRtl ? 'pl-12 pr-4 md:pl-14 md:pr-6' : 'pr-12 pl-4 md:pr-14 md:pl-6'}`}
-                  />
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setIsPasswordVisible((currentValue) => !currentValue)
-                    }
-                    aria-label={
-                      isPasswordVisible
-                        ? t('register.hide_password')
-                        : t('register.show_password')
-                    }
-                    title={
-                      isPasswordVisible
-                        ? t('register.hide_password')
-                        : t('register.show_password')
-                    }
-                    className={`absolute top-1/2 -translate-y-1/2 text-dark-red/70 hover:text-dark-red transition-colors ${isRtl ? 'left-4' : 'right-4'}`}
-                  >
-                    {isPasswordVisible ? (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M3 3l18 18m-2.4-2.4A10.5 10.5 0 0 1 12 20C6.5 20 3.2 15.9 2 12c.6-1.9 1.6-3.6 2.9-5m3.1-2.4A10.8 10.8 0 0 1 12 4c5.5 0 8.8 4.1 10 8-0.6 1.9-1.6 3.6-2.9 5M15 12a3 3 0 0 1-4.5 2.6'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M2 12s3.3-8 10-8 10 8 10 8-3.3 8-10 8S2 12 2 12z'
-                        />
-                        <circle cx='12' cy='12' r='3' />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+              <PasswordInput
+                label={t('register.password')}
+                value={password}
+                onChange={setPassword}
+                placeholder={t('register.password_placeholder')}
+                autoComplete='new-password'
+                minLength={8}
+                maxLength={64}
+                labelClassName='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'
+              />
 
               <div>
-                <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
-                  {t('register.confirm_password')}
-                </label>
-                <div className='relative'>
-                  <input
-                    type={isConfirmPasswordVisible ? 'text' : 'password'}
-                    placeholder={t('register.confirm_password_placeholder')}
-                    value={confirmPassword}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
-                    autoComplete='new-password'
-                    required
-                    minLength={8}
-                    maxLength={64}
-                    className={`w-full rounded-full border bg-transparent py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 ${hasPasswordMismatch ? 'border-red-500 focus:ring-red-500' : 'border-dark-red focus:ring-dark-red'} ${isRtl ? 'pl-12 pr-4 md:pl-14 md:pr-6' : 'pr-12 pl-4 md:pr-14 md:pl-6'}`}
-                  />
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setIsConfirmPasswordVisible(
-                        (currentValue) => !currentValue,
-                      )
-                    }
-                    aria-label={
-                      isConfirmPasswordVisible
-                        ? t('register.hide_password')
-                        : t('register.show_password')
-                    }
-                    title={
-                      isConfirmPasswordVisible
-                        ? t('register.hide_password')
-                        : t('register.show_password')
-                    }
-                    className={`absolute top-1/2 -translate-y-1/2 text-dark-red/70 hover:text-dark-red transition-colors ${isRtl ? 'left-4' : 'right-4'}`}
-                  >
-                    {isConfirmPasswordVisible ? (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M3 3l18 18m-2.4-2.4A10.5 10.5 0 0 1 12 20C6.5 20 3.2 15.9 2 12c.6-1.9 1.6-3.6 2.9-5m3.1-2.4A10.8 10.8 0 0 1 12 4c5.5 0 8.8 4.1 10 8-0.6 1.9-1.6 3.6-2.9 5M15 12a3 3 0 0 1-4.5 2.6'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M2 12s3.3-8 10-8 10 8 10 8-3.3 8-10 8S2 12 2 12z'
-                        />
-                        <circle cx='12' cy='12' r='3' />
-                      </svg>
-                    )}
-                  </button>
-                </div>
+                <PasswordInput
+                  label={t('register.confirm_password')}
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  placeholder={t('register.confirm_password_placeholder')}
+                  autoComplete='new-password'
+                  minLength={8}
+                  maxLength={64}
+                  hasError={hasPasswordMismatch}
+                  labelClassName='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'
+                />
                 {hasPasswordMismatch ? (
                   <p className='mt-2 text-sm text-red-600'>
                     {t('register.password_mismatch')}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -476,33 +477,17 @@ export function CustomizePackPage() {
   const [giftMessage, setGiftMessage] = useState('');
   const [showGiftNote, setShowGiftNote] = useState(false);
 
-  const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasLoadError, setHasLoadError] = useState(false);
+  const { data: rawProducts, isLoading, error: hasLoadError } = useSWR(
+    'public:products',
+    getPublicProducts,
+  );
+  const products = (rawProducts ?? []).filter((p) => p.status === 'active');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [draft, setDraft] = useState<PackDraft | null>(() => loadDraft());
   const [justAdded, setJustAdded] = useState(false);
 
-  /* ── data ── */
-  useEffect(() => {
-    let cancelled = false;
-    getPublicProducts()
-      .then((data) => {
-        if (cancelled) return;
-        setProducts(data.filter((p) => p.status === 'active'));
-        setIsLoading(false);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setHasLoadError(true);
-        setIsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   /* ── persist the in-progress box ── */
   useEffect(() => {

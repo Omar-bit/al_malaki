@@ -1,14 +1,9 @@
 export { LandingPage } from './LandingPage';
-export { LoginPage } from './LoginPage';
-export { ForgotPasswordPage } from './ForgotPasswordPage';
-export { ResetPasswordPage } from './ResetPasswordPage';
-export { RegisterPage } from './RegisterPage';
-export { VerifyEmailPage } from './VerifyEmailPage';
 export { DashboardPage } from './DashboardPage';
-export { InviteAcceptPage } from './InviteAcceptPage';
 export { ProductsPage } from './ProductsPage';
 export { ProductDetailsPage } from './ProductDetailsPage';
 export { OrderPage } from './OrderPage';
 export { OrderConfirmationPage } from './OrderConfirmationPage';
 export { NotificationsPage } from './NotificationsPage';
 export { CustomizePackPage } from './CustomizePackPage';
+export * from './auth';

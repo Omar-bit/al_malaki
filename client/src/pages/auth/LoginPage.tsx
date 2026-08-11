@@ -4,14 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Header } from '../components/Header';
-import { authService } from '../services';
-import { useAuth } from '../contexts';
+import { Header } from '../../components/Header';
+import { authService } from '../../services';
+import { useAuth } from '../../contexts';
 import {
   validateEmailValue,
   validatePasswordValue,
-} from '../utils/formValidation';
-import authModel from '../assets/auth-model.jpg';
+} from '../../utils/formValidation';
+import { PasswordInput } from '../../components/ui';
+import authModel from '../../assets/auth-model.jpg';
 
 export function LoginPage() {
   const { t, i18n } = useTranslation();
@@ -19,7 +20,6 @@ export function LoginPage() {
   const isRtl = i18n.language === 'ar';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { setUser } = useAuth();
 
@@ -207,77 +207,15 @@ export function LoginPage() {
                 />
               </div>
 
-              <div>
-                <label className='mb-2 block text-[1.85rem] !font-bold text-dark-red font-(--font-abhaya) md:text-xl'>
-                  {t('login.password')}
-                </label>
-                <div className='relative'>
-                  <input
-                    type={isPasswordVisible ? 'text' : 'password'}
-                    placeholder={t('login.password_placeholder')}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    autoComplete='current-password'
-                    required
-                    minLength={8}
-                    maxLength={64}
-                    className={`w-full rounded-full border border-dark-red bg-transparent py-[0.92rem] font-(--font-abhaya) text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red ${isRtl ? 'pl-12 pr-4 md:pl-14 md:pr-6' : 'pr-12 pl-4 md:pr-14 md:pl-6'}`}
-                  />
-
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setIsPasswordVisible((currentValue) => !currentValue)
-                    }
-                    aria-label={
-                      isPasswordVisible
-                        ? t('login.hide_password')
-                        : t('login.show_password')
-                    }
-                    title={
-                      isPasswordVisible
-                        ? t('login.hide_password')
-                        : t('login.show_password')
-                    }
-                    className={`absolute top-1/2 -translate-y-1/2 text-dark-red/70 hover:text-dark-red transition-colors ${isRtl ? 'left-4' : 'right-4'}`}
-                  >
-                    {isPasswordVisible ? (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M3 3l18 18m-2.4-2.4A10.5 10.5 0 0 1 12 20C6.5 20 3.2 15.9 2 12c.6-1.9 1.6-3.6 2.9-5m3.1-2.4A10.8 10.8 0 0 1 12 4c5.5 0 8.8 4.1 10 8-0.6 1.9-1.6 3.6-2.9 5M15 12a3 3 0 0 1-4.5 2.6'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M2 12s3.3-8 10-8 10 8 10 8-3.3 8-10 8S2 12 2 12z'
-                        />
-                        <circle cx='12' cy='12' r='3' />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+              <PasswordInput
+                label={t('login.password')}
+                value={password}
+                onChange={setPassword}
+                placeholder={t('login.password_placeholder')}
+                autoComplete='current-password'
+                minLength={8}
+                maxLength={64}
+              />
 
               <div className='flex justify-center pt-3'>
                 <button

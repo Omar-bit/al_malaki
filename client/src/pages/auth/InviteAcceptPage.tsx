@@ -3,12 +3,12 @@ import type { FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { adminService } from '../services';
+import { adminService } from '../../services';
 import {
   validateNameValue,
   validatePasswordValue,
   validatePhoneValue,
-} from '../utils/formValidation';
+} from '../../utils/formValidation';
 
 export function InviteAcceptPage() {
   const navigate = useNavigate();

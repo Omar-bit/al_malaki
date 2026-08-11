@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Header } from '../components/Header';
-import { authService } from '../services';
-import { validatePasswordValue } from '../utils/formValidation';
-import authModel from '../assets/auth-model.jpg';
+import { Header } from '../../components/Header';
+import { authService } from '../../services';
+import { validatePasswordValue } from '../../utils/formValidation';
+import { PasswordInput } from '../../components/ui';
+import authModel from '../../assets/auth-model.jpg';
 
 export function ResetPasswordPage() {
   const { t, i18n } = useTranslation();
@@ -22,9 +23,6 @@ export function ResetPasswordPage() {
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
-    useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTokenValid, setIsTokenValid] = useState(false);
   const [isValidatingToken, setIsValidatingToken] = useState(true);
@@ -214,141 +212,27 @@ export function ResetPasswordPage() {
               dir={isRtl ? 'rtl' : 'ltr'}
               onSubmit={handleSubmit}
             >
-              <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
-                  {t('reset_password.new_password')}
-                </label>
-                <div className='relative'>
-                  <input
-                    type={isNewPasswordVisible ? 'text' : 'password'}
-                    placeholder={t('reset_password.new_password_placeholder')}
-                    value={newPassword}
-                    onChange={(event) => setNewPassword(event.target.value)}
-                    autoComplete='new-password'
-                    required
-                    minLength={8}
-                    maxLength={64}
-                    className={`w-full py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
-                  />
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setIsNewPasswordVisible((currentValue) => !currentValue)
-                    }
-                    className={`absolute top-1/2 -translate-y-1/2 text-dark-red/70 hover:text-dark-red transition-colors ${isRtl ? 'left-4' : 'right-4'}`}
-                    aria-label={
-                      isNewPasswordVisible
-                        ? t('reset_password.hide_password')
-                        : t('reset_password.show_password')
-                    }
-                  >
-                    {isNewPasswordVisible ? (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M3 3l18 18m-2.4-2.4A10.5 10.5 0 0 1 12 20C6.5 20 3.2 15.9 2 12c.6-1.9 1.6-3.6 2.9-5m3.1-2.4A10.8 10.8 0 0 1 12 4c5.5 0 8.8 4.1 10 8-0.6 1.9-1.6 3.6-2.9 5M15 12a3 3 0 0 1-4.5 2.6'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M2 12s3.3-8 10-8 10 8 10 8-3.3 8-10 8S2 12 2 12z'
-                        />
-                        <circle cx='12' cy='12' r='3' />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+              <PasswordInput
+                label={t('reset_password.new_password')}
+                value={newPassword}
+                onChange={setNewPassword}
+                placeholder={t('reset_password.new_password_placeholder')}
+                autoComplete='new-password'
+                minLength={8}
+                maxLength={64}
+                labelClassName='block text-xl font-bold text-dark-red font-abhaya mb-2'
+              />
 
-              <div>
-                <label className='block text-xl font-bold text-dark-red font-abhaya mb-2'>
-                  {t('reset_password.confirm_password')}
-                </label>
-                <div className='relative'>
-                  <input
-                    type={isConfirmPasswordVisible ? 'text' : 'password'}
-                    placeholder={t(
-                      'reset_password.confirm_password_placeholder',
-                    )}
-                    value={confirmPassword}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
-                    autoComplete='new-password'
-                    required
-                    minLength={8}
-                    maxLength={64}
-                    className={`w-full py-3 font-abhaya rounded-full border border-dark-red bg-transparent text-dark-red placeholder:text-dark-red/50 focus:outline-none focus:ring-2 focus:ring-dark-red transition-all ${isRtl ? 'pl-14 pr-6' : 'pr-14 pl-6'}`}
-                  />
-                  <button
-                    type='button'
-                    onClick={() =>
-                      setIsConfirmPasswordVisible(
-                        (currentValue) => !currentValue,
-                      )
-                    }
-                    className={`absolute top-1/2 -translate-y-1/2 text-dark-red/70 hover:text-dark-red transition-colors ${isRtl ? 'left-4' : 'right-4'}`}
-                    aria-label={
-                      isConfirmPasswordVisible
-                        ? t('reset_password.hide_password')
-                        : t('reset_password.show_password')
-                    }
-                  >
-                    {isConfirmPasswordVisible ? (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M3 3l18 18m-2.4-2.4A10.5 10.5 0 0 1 12 20C6.5 20 3.2 15.9 2 12c.6-1.9 1.6-3.6 2.9-5m3.1-2.4A10.8 10.8 0 0 1 12 4c5.5 0 8.8 4.1 10 8-0.6 1.9-1.6 3.6-2.9 5M15 12a3 3 0 0 1-4.5 2.6'
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns='http://www.w3.org/2000/svg'
-                        viewBox='0 0 24 24'
-                        fill='none'
-                        stroke='currentColor'
-                        strokeWidth='1.8'
-                        className='h-5 w-5'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M2 12s3.3-8 10-8 10 8 10 8-3.3 8-10 8S2 12 2 12z'
-                        />
-                        <circle cx='12' cy='12' r='3' />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+              <PasswordInput
+                label={t('reset_password.confirm_password')}
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                placeholder={t('reset_password.confirm_password_placeholder')}
+                autoComplete='new-password'
+                minLength={8}
+                maxLength={64}
+                labelClassName='block text-xl font-bold text-dark-red font-abhaya mb-2'
+              />
 
               <div className='pt-2 flex justify-center'>
                 <button

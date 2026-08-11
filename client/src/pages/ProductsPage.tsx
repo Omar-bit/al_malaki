@@ -1,17 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Header, Footer, ProductCard } from '../components';
 import { FilterBar } from '../components/ui/FilterBar';
-import {
-  getPublicProducts,
-  getPublicCategories,
-} from '../services/productService';
-import type {
-  ProductAnalyticsProduct,
-  ProductCategory,
-} from '../types/product';
-import toast from 'react-hot-toast';
+import { usePublicProducts } from '../hooks/usePublicProducts';
 import featured1 from '../assets/products/featured1.jpg';
 import featured2 from '../assets/products/featured2.jpg';
 
@@ -21,33 +13,12 @@ export function ProductsPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
-  const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
-  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const { products: allProducts, categories, isLoading } = usePublicProducts();
+  const products = allProducts.filter((p) => p.status === 'active');
+
   const [activeCategory, setActiveCategory] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setIsLoading(true);
-        const [fetchedProducts, fetchedCategories] = await Promise.all([
-          getPublicProducts(),
-          getPublicCategories(),
-        ]);
-
-        setProducts(fetchedProducts.filter((p) => p.status === 'active'));
-        setCategories(fetchedCategories);
-      } catch {
-        toast.error('Failed to load products');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
 
   const categoryOptions = categories.map((c) => ({
     value: c.name,
