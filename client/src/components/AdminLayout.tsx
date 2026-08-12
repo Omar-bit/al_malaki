@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import crown from '../assets/crown.png';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -18,10 +18,14 @@ import {
   Bell,
   History,
   ChevronLeft,
+  Camera,
+  Loader2,
 } from 'lucide-react';
 import { authService } from '../services';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useNotifications } from '../contexts';
+import { avatarUrl } from '../utils/url';
+import toast from 'react-hot-toast';
 
 const sidebarMenu = [
   {
@@ -101,6 +105,188 @@ const sidebarMenu = [
   },
 ];
 
+// ── Profile Modal ─────────────────────────────────────────────────────────────
+
+function AdminProfileModal({ onClose }: { onClose: () => void }) {
+  const { user, setUser } = useAuth();
+  const [firstName, setFirstName] = useState(user?.firstName ?? '');
+  const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const avatarSrc = avatarUrl(
+    user?.profilePicture,
+    user?.firstName,
+    user?.lastName,
+  );
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === overlayRef.current) onClose();
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const { url } = await authService.uploadProfilePicture(file);
+      const updated = await authService.updateProfile({ profilePicture: url });
+      setUser(updated);
+      toast.success('Profile picture updated');
+    } catch {
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSave = async () => {
+    if (!firstName.trim()) {
+      toast.error('First name is required');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const updated = await authService.updateProfile({
+        firstName: firstName.trim(),
+        lastName: lastName.trim() || undefined,
+      });
+      setUser(updated);
+      toast.success('Profile saved');
+      onClose();
+    } catch {
+      toast.error('Failed to save profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlayClick}
+      className='fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4'
+    >
+      <div className='relative w-full max-w-md rounded-2xl bg-[#fdf8f0] shadow-2xl p-8'>
+        <button
+          onClick={onClose}
+          className='absolute top-4 right-4 text-[#6d5a46] hover:text-dark-red transition'
+          aria-label='Close'
+        >
+          <X className='w-5 h-5' />
+        </button>
+
+        <h2 className='text-xl font-bold text-black font-bona mb-6'>
+          My Profile
+        </h2>
+
+        {/* Avatar */}
+        <div className='flex justify-center mb-6'>
+          <div className='relative'>
+            <img
+              src={avatarSrc}
+              alt='Profile'
+              className='w-24 h-24 rounded-full object-cover border-2 border-dark-red'
+            />
+            <button
+              type='button'
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className='absolute bottom-0 right-0 w-8 h-8 rounded-full bg-dark-red text-white flex items-center justify-center shadow hover:bg-dark-red/80 transition disabled:opacity-60'
+              aria-label='Change photo'
+            >
+              {isUploading ? (
+                <Loader2 className='w-4 h-4 animate-spin' />
+              ) : (
+                <Camera className='w-4 h-4' />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='image/*'
+              className='hidden'
+              onChange={handleImageChange}
+            />
+          </div>
+        </div>
+
+        {/* Role badge */}
+        <div className='flex justify-center mb-6'>
+          <div className='bg-dark-red text-white text-xs px-4 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm'>
+            <img className='w-4' src={crown} alt='crown' />
+            <span className='tracking-wide'>
+              {user?.role === 'ADMIN'
+                ? 'Super Admin'
+                : user?.role === 'VENDOR'
+                  ? 'Vendor'
+                  : 'Admin'}
+            </span>
+          </div>
+        </div>
+
+        {/* Fields */}
+        <div className='space-y-4'>
+          <div>
+            <label className='block text-sm font-bona text-[#3f060f] mb-1'>
+              First name
+            </label>
+            <input
+              type='text'
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className='w-full rounded-lg border border-[#d4bfa8] bg-white px-3 py-2 text-sm font-bona text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
+            />
+          </div>
+          <div>
+            <label className='block text-sm font-bona text-[#3f060f] mb-1'>
+              Last name
+            </label>
+            <input
+              type='text'
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className='w-full rounded-lg border border-[#d4bfa8] bg-white px-3 py-2 text-sm font-bona text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
+            />
+          </div>
+          <div>
+            <label className='block text-sm font-bona text-[#3f060f] mb-1'>
+              Email
+            </label>
+            <input
+              type='email'
+              value={user?.email ?? ''}
+              readOnly
+              className='w-full rounded-lg border border-[#d4bfa8] bg-[#f0e8dc] px-3 py-2 text-sm font-bona text-[#3f060f] outline-none cursor-not-allowed opacity-70'
+            />
+          </div>
+        </div>
+
+        <div className='mt-6 flex gap-3'>
+          <button
+            onClick={onClose}
+            className='flex-1 rounded-xl border border-[#d4bfa8] py-2 text-sm font-bona text-[#6d5a46] hover:bg-[#f0e8dc] transition'
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className='flex-1 rounded-xl bg-dark-red py-2 text-sm font-bona text-white hover:bg-dark-red/90 transition disabled:opacity-60'
+          >
+            {isSaving ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Layout ────────────────────────────────────────────────────────────────────
+
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
@@ -112,6 +298,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     return saved ? JSON.parse(saved) : false;
   });
   const [shouldShowAside, setShouldShowAside] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('adminSidebarCollapsed', JSON.stringify(isCollapsed));
@@ -120,7 +307,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   // Close sidebar on route change on mobile
   useEffect(() => {
     setIsSidebarOpen(false);
-
     setShouldShowAside(location.pathname !== '/admin/management');
   }, [location.pathname]);
 
@@ -134,6 +320,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       navigate('/login', { replace: true });
     }
   };
+
+  const avatarSrc = avatarUrl(
+    user?.profilePicture,
+    user?.firstName || 'Super',
+    user?.lastName || 'Admin',
+  );
 
   return (
     <div className='flex h-screen bg-[#EFE0C9] font-bona! overflow-hidden'>
@@ -161,28 +353,41 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           >
             <X className='w-5 h-5' />
           </button>
+
           {user?.role === 'ADMIN' && (
             <div className={`flex items-center gap-3 mb-5 ${isCollapsed ? 'md:px-1' : 'px-6'}`}>
               <Link
                 to='/admin/management'
                 className={`text-base tracking-widest flex items-center gap-2 text-[#000000AD]! ${isCollapsed ? 'md:justify-center md:gap-0 w-full' : ''}`}
               >
-                <span>&larr;</span> <span className={isCollapsed ? 'md:hidden' : ''}>Admin Management</span>
+                <span>&larr;</span>{' '}
+                <span className={isCollapsed ? 'md:hidden' : ''}>Admin Management</span>
               </Link>
             </div>
           )}
-          <div className={`mb-5 flex items-center gap-4 gap-y-2 border-b pb-4 border-[#00000082] ${isCollapsed ? 'md:px-1 md:justify-center' : 'px-6'}`}>
-            <img
-              src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
-              alt={user?.firstName || 'Admin'}
-              className='w-14 h-14 rounded-full '
-            />
+
+          {/* Clickable user area → profile modal */}
+          <button
+            type='button'
+            onClick={() => setIsProfileOpen(true)}
+            className={`mb-5 flex items-center gap-4 gap-y-2 border-b pb-4 border-[#00000082] w-full text-left hover:bg-[#D5BD9D]/30 transition rounded-sm ${isCollapsed ? 'md:px-1 md:justify-center' : 'px-6'}`}
+          >
+            <div className='relative shrink-0'>
+              <img
+                src={avatarSrc}
+                alt={user?.firstName || 'Admin'}
+                className='w-14 h-14 rounded-full object-cover'
+              />
+              <span className='absolute bottom-0 right-0 w-4 h-4 rounded-full bg-dark-red border-2 border-[#EFE0C9] flex items-center justify-center'>
+                <Camera className='w-2.5 h-2.5 text-white' />
+              </span>
+            </div>
             <div className={`${isCollapsed ? 'md:hidden' : ''}`}>
               <h2 className='text-base font-bold text-black tracking-wide capitalize font-bona! leading-tight'>
                 {user ? `${user.firstName} ${user.lastName}` : 'User'}
               </h2>
               <div className='bg-dark-red text-white text-xs px-4 py-1.25 rounded-md flex mt-1 items-center gap-1 shadow-sm'>
-                <img className='w-5 ' src={crown} alt='crown' />
+                <img className='w-5' src={crown} alt='crown' />
                 <span className='text-xs font-thin tracking-wide'>
                   {user?.role === 'ADMIN'
                     ? 'Super Admin'
@@ -193,6 +398,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               </div>
               <Link
                 to='/notifications'
+                onClick={(e) => e.stopPropagation()}
                 className='mt-2 inline-flex items-center gap-2 rounded-full border border-[#3F060F]/15 bg-[#fcecd8] px-3 py-1.5 text-xs font-semibold text-[#3f060f] transition hover:bg-[#f5dfc4]'
               >
                 <Bell className='h-4 w-4' />
@@ -204,14 +410,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 )}
               </Link>
             </div>
-          </div>
+          </button>
 
           <nav className='flex-1 overflow-y-auto px-4 custom-scrollbar space-y-3'>
             {sidebarMenu
               .filter((section) => section.items.length > 0)
               .map((section, idx) => (
                 <div key={idx}>
-                  <h3 className={`text-[12px] font-normal font-bona! text-[#000000AD] tracking-widest px-2 mb-2 uppercase ${isCollapsed ? 'md:hidden' : ''}`}>
+                  <h3
+                    className={`text-[12px] font-normal font-bona! text-[#000000AD] tracking-widest px-2 mb-2 uppercase ${isCollapsed ? 'md:hidden' : ''}`}
+                  >
                     {section.category}
                   </h3>
                   <ul className='space-y-1'>
@@ -227,8 +435,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                         >
                           <item.icon className='w-5 h-5 shrink-0' />
                           <span className={`text-md ${isCollapsed ? 'md:hidden' : ''}`}>
-                            {item.path === '/admin/dashboard' &&
-                            user?.role === 'VENDOR'
+                            {item.path === '/admin/dashboard' && user?.role === 'VENDOR'
                               ? 'My Dashboard'
                               : item.label}
                           </span>
@@ -245,7 +452,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               onClick={() => setIsCollapsed(!isCollapsed)}
               className={`hidden md:flex items-center gap-3 px-3 py-2 w-full text-left text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200 ${isCollapsed ? 'md:justify-center md:px-0 md:gap-0' : ''}`}
             >
-              <ChevronLeft className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+              <ChevronLeft
+                className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
+              />
               <span className={`text-md ${isCollapsed ? 'md:hidden' : ''}`}>
                 {isCollapsed ? 'Expand' : 'Collapse'}
               </span>
@@ -289,11 +498,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </Link>
-            <img
-              src={`https://ui-avatars.com/api/?name=${user?.firstName || 'Super'}+${user?.lastName || 'Admin'}&background=random`}
-              alt={user?.firstName || 'Admin'}
-              className='w-8 h-8 rounded-full shadow-sm'
-            />
+            <button
+              type='button'
+              onClick={() => setIsProfileOpen(true)}
+              className='relative'
+              aria-label='My profile'
+            >
+              <img
+                src={avatarSrc}
+                alt={user?.firstName || 'Admin'}
+                className='w-8 h-8 rounded-full shadow-sm object-cover'
+              />
+            </button>
           </div>
         </header>
 
@@ -307,6 +523,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      {isProfileOpen && <AdminProfileModal onClose={() => setIsProfileOpen(false)} />}
     </div>
   );
 }

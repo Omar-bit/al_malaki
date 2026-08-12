@@ -1,8 +1,9 @@
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Logo } from './Logo';
+import { SearchOverlay } from './SearchOverlay';
 import { useCart } from '../contexts/CartContext';
 import { useAuth, useNotifications } from '../contexts';
 import cartIcon from '../assets/cart.svg';
@@ -28,7 +29,7 @@ export function Header({
   topHide?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [mobileSearch, setMobileSearch] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [hasScrolled, setHasScrolled] = useState(false);
   const lastScrollYRef = useRef(0);
@@ -83,10 +84,9 @@ export function Header({
     i18n.changeLanguage(nextLang);
   };
 
-  const handleMobileSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const openSearch = () => {
     setIsOpen(false);
-    navigate('/products');
+    setIsSearchOpen(true);
   };
 
   const isLinkActive = (link: NavLink) => {
@@ -213,7 +213,7 @@ export function Header({
             type='button'
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Search'
-            onClick={() => navigate('/products')}
+            onClick={openSearch}
           >
             <img className='h-7 w-auto' src={scoopIcon} alt='Search' />
           </button>
@@ -253,10 +253,10 @@ export function Header({
         <div className='hidden md:flex items-center gap-7'>
           <button
             className='text-dark-red transition-colors hover:text-gold relative'
-            aria-label='Scoop'
-            // onClick={openCart}
+            aria-label='Search'
+            onClick={openSearch}
           >
-            <img className='size-6' src={scoopIcon} alt='scoop' />
+            <img className='size-6' src={scoopIcon} alt='Search' />
           </button>
           {user && (
             <Link
@@ -301,6 +301,12 @@ export function Header({
         </div>
       </nav>
 
+      {/* Premium search overlay (all viewports) */}
+      <SearchOverlay
+        open={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+
       {/* Mobile Menu Overlay */}
       {isOpen && (
         <div className='absolute left-0 top-0 z-40 w-full border-t border-[#d2c2b5] bg-[white] shadow-md md:hidden'>
@@ -317,26 +323,15 @@ export function Header({
               <Logo className='w-[108px] max-w-none !-mt-2' />
             </button>
 
-            <form
-              className='flex h-[34px] w-full max-w-[282px] items-center border border-[#ccbcb0] bg-transparent'
-              onSubmit={handleMobileSearchSubmit}
+            <button
+              type='button'
+              onClick={openSearch}
+              className='flex h-[34px] w-full max-w-[282px] items-center justify-between border border-[#ccbcb0] bg-transparent px-4 text-[14px] font-bona text-[#8c7878]'
+              aria-label='Search products'
             >
-              <input
-                type='search'
-                value={mobileSearch}
-                onChange={(event) => setMobileSearch(event.target.value)}
-                placeholder='Search products...'
-                className='h-full w-full border-0 bg-transparent px-4 text-[14px] font-bona text-[#8c7878] outline-none placeholder:text-[#8c7878]'
-                aria-label='Search products'
-              />
-              <button
-                type='submit'
-                className='flex h-full w-12 items-center justify-center text-dark-red'
-                aria-label='Search'
-              >
-                <img className='h-5 w-5' src={scoopIcon} alt='Search' />
-              </button>
-            </form>
+              <span>Search products...</span>
+              <img className='h-5 w-5' src={scoopIcon} alt='Search' />
+            </button>
           </div>
 
           <ul className='flex flex-col'>

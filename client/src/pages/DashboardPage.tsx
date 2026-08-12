@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Camera, Loader2 } from 'lucide-react';
 import { Header } from '../components/Header';
 import { useAuth } from '../contexts';
 import { useRequireAuth } from '../hooks/useRequireAuth';
 import { POINTS_REDEMPTION_RATE } from '../constants';
+import { avatarUrl } from '../utils/url';
 import { authService, contactService, orderService } from '../services';
 
 import { Hero } from '../components';
@@ -318,8 +320,10 @@ export function DashboardPage() {
 
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isSendingMsg, setIsSendingMsg] = useState(false);
   const [contactMessage, setContactMessage] = useState('');
+  const avatarFileRef = useRef<HTMLInputElement>(null);
 
   // Personal info form state
   const [profileForm, setProfileForm] = useState({
@@ -366,6 +370,23 @@ export function DashboardPage() {
       toast.error('Erreur lors de la sauvegarde.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingAvatar(true);
+    try {
+      const { url } = await authService.uploadProfilePicture(file);
+      const updated = await authService.updateProfile({ profilePicture: url });
+      setUser(updated);
+      toast.success('Photo de profil mise à jour !');
+    } catch {
+      toast.error("Erreur lors du téléchargement de l'image.");
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarFileRef.current) avatarFileRef.current.value = '';
     }
   };
 
@@ -467,6 +488,41 @@ export function DashboardPage() {
               <p className='font-bona text-base font-semibold text-black mb-4'>
                 Informations personnelles
               </p>
+
+              {/* Avatar */}
+              <div className='flex justify-center mb-5'>
+                <div className='relative'>
+                  <img
+                    src={avatarUrl(
+                      user.profilePicture,
+                      user.firstName,
+                      user.lastName,
+                    )}
+                    alt='Photo de profil'
+                    className='w-20 h-20 rounded-full object-cover border-2 border-dark-red'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => avatarFileRef.current?.click()}
+                    disabled={isUploadingAvatar}
+                    className='absolute bottom-0 right-0 w-7 h-7 rounded-full bg-dark-red text-white flex items-center justify-center shadow hover:bg-dark-red/80 transition disabled:opacity-60'
+                    aria-label='Changer la photo'
+                  >
+                    {isUploadingAvatar ? (
+                      <Loader2 className='w-3.5 h-3.5 animate-spin' />
+                    ) : (
+                      <Camera className='w-3.5 h-3.5' />
+                    )}
+                  </button>
+                  <input
+                    ref={avatarFileRef}
+                    type='file'
+                    accept='image/*'
+                    className='hidden'
+                    onChange={handleAvatarChange}
+                  />
+                </div>
+              </div>
 
               <div className='space-y-3'>
                 {/* Full name */}

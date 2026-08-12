@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Header, Footer, ProductCard } from '../components';
 import { FilterBar } from '../components/ui/FilterBar';
 import { usePublicProducts } from '../hooks/usePublicProducts';
@@ -12,12 +12,18 @@ const INITIAL_DISPLAY_COUNT = 6;
 export function ProductsPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const { products: allProducts, categories, isLoading } = usePublicProducts();
   const products = allProducts.filter((p) => p.status === 'active');
 
   const [activeCategory, setActiveCategory] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
+
+  useEffect(() => {
+    const q = searchParams.get('q') ?? '';
+    setSearchQuery(q);
+  }, [searchParams]);
   const [showAll, setShowAll] = useState(false);
 
   const categoryOptions = categories.map((c) => ({

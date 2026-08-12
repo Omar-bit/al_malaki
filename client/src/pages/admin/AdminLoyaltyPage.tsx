@@ -27,6 +27,33 @@ export function AdminLoyaltyPage() {
     setAppliedSearch(searchQuery || undefined);
   };
 
+  const handleExport = () => {
+    const headers = ['Name', 'Email', 'Matricule', 'Points', 'Total Spent (TND)'];
+    const rows = customers.map((c) => [
+      `${c.user.firstName} ${c.user.lastName}`,
+      c.user.email,
+      c.userId,
+      c.points,
+      formatCurrency(c.totalSpent, 'TND', true),
+    ]);
+    const escape = (v: string | number) => {
+      const s = String(v);
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? `"${s.replace(/"/g, '""')}"`
+        : s;
+    };
+    const csv = [headers, ...rows]
+      .map((row) => row.map(escape).join(','))
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `loyalty-customers-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleAdjustPoints = async (customer: LoyaltyCustomer) => {
     if (adjustPoints === 0) {
       toast.error('Please enter a non-zero point amount');
@@ -198,8 +225,12 @@ export function AdminLoyaltyPage() {
                   Manage points balance and view client profiles.
                 </p>
               </div>
-              <button className='bg-[#000000]/46 text-white px-6 py-2 rounded-xl font-semibold hover:bg-[#6D5A46]/80 transition'>
-                Export
+              <button
+                onClick={handleExport}
+                disabled={customers.length === 0}
+                className='bg-[#000000]/46 text-white px-6 py-2 rounded-xl font-semibold hover:bg-[#6D5A46]/80 transition disabled:opacity-40 disabled:cursor-not-allowed'
+              >
+                Export CSV
               </button>
             </div>
 

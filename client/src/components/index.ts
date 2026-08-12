@@ -1,4 +1,5 @@
 export { Header } from './Header';
+export { SearchOverlay } from './SearchOverlay';
 export { Logo } from './Logo';
 export { Hero } from './Hero';
 export { Products } from './Products';

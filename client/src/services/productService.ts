@@ -5,11 +5,8 @@ import type {
   ProductCategory,
   UpdateCategoryPayload,
 } from '../types/product';
-import { api, API_BASE_URL } from './apiClient';
-
-function toAbsoluteUrl(url: string): string {
-  return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-}
+import { api } from './apiClient';
+import { resolveAssetUrl } from '../utils/url';
 
 export function getProducts(): Promise<ProductAnalyticsProduct[]> {
   return api.get<ProductAnalyticsProduct[]>('/admin/products');
@@ -80,7 +77,7 @@ export async function uploadCategoryImage(
     '/admin/categories/upload-image',
     formData,
   );
-  return { url: toAbsoluteUrl(data.url) };
+  return { url: resolveAssetUrl(data.url) };
 }
 
 export async function uploadProductImages(
@@ -92,5 +89,5 @@ export async function uploadProductImages(
     '/admin/products/upload-images',
     formData,
   );
-  return { urls: data.urls.map(toAbsoluteUrl) };
+  return { urls: data.urls.map((url) => resolveAssetUrl(url)) };
 }

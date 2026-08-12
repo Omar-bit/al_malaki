@@ -407,6 +407,7 @@ export class AuthService {
       lastName?: string;
       phoneNumber?: string;
       birthDate?: string;
+      profilePicture?: string;
     },
   ): Promise<AuthenticatedUserResponse> {
     const user = await this.prismaService.user.findUnique({
@@ -430,6 +431,9 @@ export class AuthService {
     }
     if (data.birthDate !== undefined) {
       updateData.birthDate = this.normalizeBirthDate(data.birthDate);
+    }
+    if (data.profilePicture !== undefined) {
+      updateData.profilePicture = data.profilePicture;
     }
 
     const updated = await this.prismaService.user.update({

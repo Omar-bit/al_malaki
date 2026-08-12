@@ -42,4 +42,12 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsDateString()
   birthDate?: string;
+
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  profilePicture?: string;
 }

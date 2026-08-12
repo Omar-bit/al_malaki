@@ -80,6 +80,7 @@ export interface UpdateProfilePayload {
   lastName?: string;
   phoneNumber?: string;
   birthDate?: string;
+  profilePicture?: string;
 }
 
 export interface UpdateProfileResponse {
