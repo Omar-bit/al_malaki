@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+test
+uploads
+src/generated
+.env
+.env.*
+!.env.example
+*.log
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md

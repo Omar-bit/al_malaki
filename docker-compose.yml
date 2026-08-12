@@ -1,0 +1,111 @@
+# Production stack for AL MALAKI (Coolify / any Docker host).
+#
+# Only the `frontend` service is meant to be publicly exposed: it serves the SPA
+# and reverse-proxies /api to the backend, so everything shares one origin.
+# In Coolify, attach your domain to the frontend service (container port 80).
+
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-al_malaki}
+      MARIADB_USER: ${DB_USER:-malaki}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is required}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Behind the nginx (and Coolify) proxy: read client IP / protocol from
+      # X-Forwarded-* headers so rate limiting and secure cookies work.
+      TRUST_PROXY: "true"
+
+      DATABASE_URL: mysql://${DB_USER:-malaki}:${DB_PASSWORD}@db:3306/${DB_NAME:-al_malaki}?allowPublicKeyRetrieval=true
+      REDIS_URL: redis://redis:6379
+      CACHE_DEFAULT_TTL_MS: ${CACHE_DEFAULT_TTL_MS:-60000}
+
+      # Single-origin deploy: the SPA calls the API same-origin, so CORS is not
+      # exercised, but set this to your real domain for correctness.
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN}
+
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET is required}
+      JWT_ACCESS_EXPIRES_IN_SECONDS: ${JWT_ACCESS_EXPIRES_IN_SECONDS:-604800}
+      JWT_COOKIE_MAX_AGE_MS: ${JWT_COOKIE_MAX_AGE_MS:-604800000}
+
+      # Same-origin behind TLS: Lax + Secure.
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+
+      REGISTER_OTP_TTL_IN_SECONDS: ${REGISTER_OTP_TTL_IN_SECONDS:-300}
+      REGISTER_OTP_MAX_ATTEMPTS: ${REGISTER_OTP_MAX_ATTEMPTS:-5}
+
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM}
+      REGISTER_OTP_EMAIL_FROM: ${REGISTER_OTP_EMAIL_FROM}
+      REGISTER_OTP_EMAIL_SUBJECT: ${REGISTER_OTP_EMAIL_SUBJECT:-Your AL MALAKI verification code}
+      REGISTER_OTP_BRAND_NAME: ${REGISTER_OTP_BRAND_NAME:-AL MALAKI}
+
+      ADMIN_INVITE_TTL_HOURS: ${ADMIN_INVITE_TTL_HOURS:-48}
+      ADMIN_INVITE_URL_BASE: ${ADMIN_INVITE_URL_BASE}
+      ADMIN_INVITE_EMAIL_SUBJECT: ${ADMIN_INVITE_EMAIL_SUBJECT:-You're invited to AL MALAKI}
+      ADMIN_INVITE_BRAND_NAME: ${ADMIN_INVITE_BRAND_NAME:-AL MALAKI}
+
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD}
+      DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-Super}
+      DEFAULT_ADMIN_LAST_NAME: ${DEFAULT_ADMIN_LAST_NAME:-Admin}
+      DEFAULT_ADMIN_PHONE_NUMBER: ${DEFAULT_ADMIN_PHONE_NUMBER}
+    volumes:
+      - uploads_data:/app/uploads
+
+  frontend:
+    build:
+      context: ./client
+      args:
+        # Baked into the SPA at build time; must match the nginx proxy prefix.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      # Coolify maps your domain to this container port. For a plain Docker host,
+      # change the left side to the host port you want (e.g. "8080:80").
+      - "80"
+
+volumes:
+  db_data:
+  redis_data:
+  uploads_data:
