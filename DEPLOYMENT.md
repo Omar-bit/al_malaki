@@ -2,7 +2,7 @@
 
 The app is containerized as a single-origin stack: the **frontend** (nginx) serves
 the React SPA and reverse-proxies `/api/*` to the **backend** (NestJS), which talks
-to **MariaDB** and **Redis**. Only the frontend is exposed publicly.
+to **MySQL** and **Redis**. Only the frontend is exposed publicly.
 
 ```
               ┌──────────── frontend (nginx :80) ─────────────┐
@@ -11,14 +11,14 @@ to **MariaDB** and **Redis**. Only the frontend is exposed publicly.
    TLS proxy) │  /api/uploads → backend static uploads         │
               └───────────────────┬───────────────────────────┘
                                    │
-                     backend (NestJS :3000) ──▶ db (MariaDB), redis
+                     backend (NestJS :3000) ──▶ db (MySQL), redis
 ```
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `docker-compose.yml` | Full stack: db, redis, backend, frontend |
+| `docker-compose.yml` | Full stack: db (MySQL 8), redis, backend, frontend |
 | `server/Dockerfile` | Multi-stage NestJS build; runs `prisma migrate deploy` on start |
 | `server/docker-entrypoint.sh` | Applies DB migrations, then boots the server |
 | `client/Dockerfile` | Vite build → nginx |
@@ -56,7 +56,7 @@ mapping (e.g. `"8080:80"` under `frontend.ports`) if you want a fixed local port
   separate domain, set the `VITE_API_BASE_URL` build arg to that URL and configure
   `CLIENT_ORIGIN` + `COOKIE_SAMESITE=none`.
 - **External managed database?** Drop the `db` service dependency and point
-  `DATABASE_URL` at your managed MySQL/MariaDB instead of the compose default.
+  `DATABASE_URL` at your managed MySQL instead of the compose default.
 - **Uploads under 15 MB** — the nginx `client_max_body_size` cap. Raise it in
   `client/nginx.conf` if you need larger image uploads.
 ```

@@ -1,4 +1,4 @@
-- dockerize & deploy(coolify)
+- test: dockerize & deploy(coolify)
 
 
 
