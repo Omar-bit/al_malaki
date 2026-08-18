@@ -114,12 +114,15 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to='/about' className='text-white font-abhaya text-lg'>
+                <Link to='/#about' className='text-white font-abhaya text-lg'>
                   {t('footer.about')}
                 </Link>
               </li>
               <li>
-                <Link to='/contact' className='text-white font-abhaya text-lg'>
+                <Link
+                  to='/dashboard'
+                  className='text-white font-abhaya text-lg'
+                >
                   {t('footer.contact')}
                 </Link>
               </li>
@@ -279,7 +282,7 @@ export function Footer() {
               <ul className='flex flex-col space-y-2'>
                 <li>
                   <Link
-                    to='/profile'
+                    to='/dashboard'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
                     {t('footer.myAccount')}
@@ -287,7 +290,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    to='/track-order'
+                    to='/dashboard'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
                     {t('footer.trackOrder')}
@@ -295,7 +298,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    to='/rewards'
+                    to='/dashboard'
                     className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
                   >
                     {t('footer.rewards')}

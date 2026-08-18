@@ -14,6 +14,40 @@ type NavLink = {
   href: string;
 };
 
+const flagIcons: Record<string, JSX.Element> = {
+  en: (
+    <svg viewBox='0 0 24 16' className='h-3 w-4 shrink-0' aria-hidden='true'>
+      <rect width='24' height='16' fill='#B22234' />
+      {[1, 3, 5, 7, 9, 11].map((i) => (
+        <rect key={i} y={i * (16 / 13)} width='24' height={16 / 13} fill='#fff' />
+      ))}
+      <rect width='10' height={16 * (7 / 13)} fill='#3C3B6E' />
+    </svg>
+  ),
+  fr: (
+    <svg viewBox='0 0 24 16' className='h-3 w-4 shrink-0' aria-hidden='true'>
+      <rect width='24' height='16' fill='#fff' />
+      <rect width='8' height='16' fill='#0055A4' />
+      <rect x='16' width='8' height='16' fill='#EF4135' />
+    </svg>
+  ),
+  ar: (
+    <svg viewBox='0 0 24 16' className='h-3 w-4 shrink-0' aria-hidden='true'>
+      <rect width='24' height='16' fill='#006C35' />
+      <g stroke='#fff' strokeWidth='0.8' strokeLinecap='round' fill='none'>
+        <path d='M4 7.4c1.1-1.5 2.2 1.5 3.3 0s2.2-1.5 3.3 0 2.2 1.5 3.3 0 2.2-1.2 3.1-.2' />
+        <path d='M6.2 4.6v2.6M10.6 4.2v3M15 4.6v2.6' strokeWidth='0.7' />
+      </g>
+      <g fill='#fff'>
+        <polygon points='3.4,11.5 17.2,10.8 17.2,12.2' />
+        <rect x='17.1' y='9.7' width='0.9' height='3.6' rx='0.3' />
+        <rect x='18' y='11' width='1.9' height='1' rx='0.4' />
+        <circle cx='20.4' cy='11.5' r='0.8' />
+      </g>
+    </svg>
+  ),
+};
+
 const navLinks: NavLink[] = [
   { labelKey: 'home', href: '/' },
   { labelKey: 'about', href: '/#about' },
@@ -79,10 +113,36 @@ export function Header({
     };
   }, [isOpen]);
 
-  const toggleLanguage = () => {
-    const nextLang = { en: 'fr', fr: 'ar', ar: 'en' }[i18n.language] || 'en';
-    i18n.changeLanguage(nextLang);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+
+  const languages: { code: string; label: string }[] = [
+    { code: 'en', label: 'En' },
+    { code: 'fr', label: 'Fr' },
+    { code: 'ar', label: 'Ar' },
+  ];
+
+  const selectLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+    setIsLangOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        langMenuRef.current &&
+        !langMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsLangOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const openSearch = () => {
     setIsOpen(false);
@@ -301,13 +361,47 @@ export function Header({
             <img className='size-6' src={profile} alt='Account' />
           </Link>
 
-          <button
-            data-tour='lang-toggle'
-            onClick={toggleLanguage}
-            className='text-dark-red font-abee text-[20px] leading-[1.182] transition-colors hover:text-gold sm:text-[24px] cursor-pointer'
-          >
-            {t('header.lang')}
-          </button>
+          <div data-tour='lang-toggle' className='relative' ref={langMenuRef}>
+            <button
+              type='button'
+              onClick={() => setIsLangOpen((prev) => !prev)}
+              className='text-dark-red font-abee text-[20px] leading-[1.182] transition-colors hover:text-gold sm:text-[24px] cursor-pointer'
+              aria-haspopup='listbox'
+              aria-expanded={isLangOpen}
+            >
+              <span className='inline-flex items-center gap-1.5'>
+                {/* {flagIcons[i18n.language] ?? flagIcons.en} */}
+                {languages.find((lang) => lang.code === i18n.language)
+                  ?.label ?? 'En'}
+              </span>
+            </button>
+
+            {isLangOpen && (
+              <ul
+                role='listbox'
+                className='absolute right-0 top-full z-50 mt-2 min-w-[64px] rounded-md border border-[#d2c2b5] bg-white py-1 shadow-md'
+              >
+                {languages.map((lang) => (
+                  <li key={lang.code}>
+                    <button
+                      type='button'
+                      role='option'
+                      aria-selected={i18n.language === lang.code}
+                      onClick={() => selectLanguage(lang.code)}
+                      className={`flex w-full items-center gap-1.5 px-4 py-1.5 text-left font-abee text-[18px] transition-colors hover:bg-[#f3eadc] hover:text-gold ${
+                        i18n.language === lang.code
+                          ? 'text-gold'
+                          : 'text-dark-red'
+                      }`}
+                    >
+                      {flagIcons[lang.code]}
+                      {lang.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </nav>
 
