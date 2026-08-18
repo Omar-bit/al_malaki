@@ -77,6 +77,7 @@ import {
   CustomerChatWidget,
   GuestRoute,
   InfluencerTrackingBootstrap,
+  ProductTour,
 } from './components';
 import { FullPageSpinner } from './components/ui/Spinner';
 
@@ -104,6 +105,7 @@ export default function App() {
       />
       <CartModal />
       <CustomerChatWidget />
+      <ProductTour />
       <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         <Route path='/' element={<LandingPage />} />

@@ -134,6 +134,7 @@ export function Header({
       >
         <div className='flex items-center gap-3 md:hidden'>
           <button
+            data-tour='mobile-menu'
             className='flex h-9 w-9 items-center justify-center text-dark-red transition-colors hover:text-gold'
             onClick={() => setIsOpen(!isOpen)}
             aria-label='Toggle menu'
@@ -170,6 +171,7 @@ export function Header({
           </button>
 
           <Link
+            data-tour='mobile-account'
             to={accountPath}
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
@@ -178,12 +180,14 @@ export function Header({
           </Link>
         </div>
 
-        <Logo
-          className='hidden md:block w-30!'
-          onClick={() => {
-            navigate('/');
-          }}
-        />
+        <span data-tour='logo' className='hidden md:block'>
+          <Logo
+            className='w-30!'
+            onClick={() => {
+              navigate('/');
+            }}
+          />
+        </span>
 
         <button
           type='button'
@@ -210,6 +214,7 @@ export function Header({
             </Link>
           )}
           <button
+            data-tour='mobile-search'
             type='button'
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Search'
@@ -218,6 +223,7 @@ export function Header({
             <img className='h-7 w-auto' src={scoopIcon} alt='Search' />
           </button>
           <button
+            data-tour='mobile-cart'
             className='relative text-dark-red transition-colors hover:text-gold'
             aria-label='Cart'
             onClick={openCart}
@@ -232,7 +238,7 @@ export function Header({
         </div>
 
         {/* Desktop Navigation */}
-        <ul className='hidden md:flex items-center gap-x-14'>
+        <ul data-tour='nav-links' className='hidden md:flex items-center gap-x-14'>
           {navLinks.map((link) => (
             <li key={link.labelKey}>
               <a
@@ -252,6 +258,7 @@ export function Header({
         {/* Desktop Icons */}
         <div className='hidden md:flex items-center gap-7'>
           <button
+            data-tour='search'
             className='text-dark-red transition-colors hover:text-gold relative'
             aria-label='Search'
             onClick={openSearch}
@@ -273,6 +280,7 @@ export function Header({
             </Link>
           )}
           <button
+            data-tour='cart'
             className='text-dark-red transition-colors hover:text-gold relative'
             aria-label='Cart'
             onClick={openCart}
@@ -285,6 +293,7 @@ export function Header({
             )}
           </button>
           <Link
+            data-tour='account'
             to={accountPath}
             className='text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
@@ -293,6 +302,7 @@ export function Header({
           </Link>
 
           <button
+            data-tour='lang-toggle'
             onClick={toggleLanguage}
             className='text-dark-red font-abee text-[20px] leading-[1.182] transition-colors hover:text-gold sm:text-[24px] cursor-pointer'
           >

@@ -2,12 +2,8 @@
 
 
 
-
-
-
-
 BLOCKED
-- online payment docs
+- online payment (docs)
 
 
 DONE
@@ -21,4 +17,5 @@ DONE
 - points system and promo codes application (for each dinar a point ; 10 points = 0.5d)
 - customize pack 
 - messaging system (customer and admin) figma 
-    
+- global search
+- admin profile

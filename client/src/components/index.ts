@@ -15,4 +15,5 @@ export { CartModal } from './CartModal';
 export { InfluencerTrackingBootstrap } from './InfluencerTrackingBootstrap';
 export { ProductQRCode } from './ProductQRCode';
 export { CustomerChatWidget } from './CustomerChatWidget';
+export { ProductTour } from './ProductTour';
 
