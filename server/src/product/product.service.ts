@@ -39,6 +39,12 @@ const extractFilename = (
   return parts[parts.length - 1];
 };
 
+/**
+ * Build the public URL for an uploaded image. `API_URL` is the base the browser
+ * should use: `/api` in the single-origin production deploy (where nginx serves
+ * these paths straight off the uploads volume), or the API origin in local
+ * development.
+ */
 const getCategoryUrl = (
   filename: string | null | undefined,
 ): string | undefined => {

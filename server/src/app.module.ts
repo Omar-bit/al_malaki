@@ -19,6 +19,19 @@ import { ContactModule } from './contact/contact.module';
 import { NotificationModule } from './notification/notification.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { InfluencerTrackingModule } from './influencer-tracking/influencer-tracking.module';
+import { RealtimeModule } from './realtime/realtime.module';
+import { RedisThrottlerStorage } from './common/throttler/redis-throttler.storage';
+
+/**
+ * In production nginx serves `/uploads` straight off the shared volume, so the
+ * Node process never spends a worker on static file I/O. Set
+ * `SERVE_UPLOADS_FROM_APP=true` to re-enable in-app serving (local dev, or a
+ * deployment without the nginx frontend).
+ */
+const shouldServeUploadsFromApp =
+  process.env.SERVE_UPLOADS_FROM_APP === 'true' ||
+  (process.env.SERVE_UPLOADS_FROM_APP === undefined &&
+    process.env.NODE_ENV !== 'production');
 
 @Module({
   imports: [
@@ -28,16 +41,25 @@ import { InfluencerTrackingModule } from './influencer-tracking/influencer-track
     }),
     // Global baseline rate limit: 120 requests / minute / IP. Sensitive auth
     // routes tighten this further with per-route @Throttle decorators.
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60_000,
-        limit: 120,
-      },
-    ]),
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'uploads'),
-      serveRoot: '/uploads',
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60_000,
+          limit: 120,
+        },
+      ],
+      // Counters live in Redis so the limit is enforced across all workers.
+      storage: new RedisThrottlerStorage(),
     }),
+    ...(shouldServeUploadsFromApp
+      ? [
+          ServeStaticModule.forRoot({
+            rootPath: join(process.cwd(), 'uploads'),
+            serveRoot: '/uploads',
+          }),
+        ]
+      : []),
+    RealtimeModule,
     CacheModule,
     PrismaModule,
     AuthModule,

@@ -3,6 +3,7 @@ import {
   Injectable,
   MessageEvent,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { merge, Observable, of, Subject } from 'rxjs';
@@ -16,6 +17,7 @@ import {
   Role,
 } from '../generated/prisma';
 import { NotificationService } from '../notification/notification.service';
+import { RealtimeBusService } from '../realtime/realtime-bus.service';
 
 type ContactStreamPayload =
   | { kind: 'connected' }
@@ -36,12 +38,20 @@ type ContactStreamPayload =
       status: 'UNREAD' | 'READ' | 'RESPONDED';
     };
 
+/** Envelope broadcast across workers so every SSE subscriber is reachable. */
+interface ContactStreamEvent {
+  payload: ContactStreamPayload;
+  target: { customerId?: string };
+}
+
+const CONTACT_STREAM_CHANNEL = 'contact';
+
 const messageWithReplies = {
   replies: { orderBy: { createdAt: 'asc' as const } },
 } as const;
 
 @Injectable()
-export class ContactService {
+export class ContactService implements OnModuleInit {
   private readonly adminStreams = new Set<Subject<MessageEvent>>();
   private readonly userStreams = new Map<string, Set<Subject<MessageEvent>>>();
 
@@ -49,7 +59,15 @@ export class ContactService {
     private readonly prismaService: PrismaService,
     private readonly notificationService: NotificationService,
     private readonly activityLogService: ActivityLogService,
+    private readonly realtimeBus: RealtimeBusService,
   ) {}
+
+  onModuleInit() {
+    this.realtimeBus.subscribe(CONTACT_STREAM_CHANNEL, (event) => {
+      const { payload, target } = event as ContactStreamEvent;
+      this.deliverToLocalStreams(payload, target);
+    });
+  }
 
   async createContactMessage(userId: string, dto: CreateContactMessageDto) {
     const message = await this.prismaService.contactMessage.create({
@@ -390,6 +408,16 @@ export class ContactService {
   }
 
   private broadcast(
+    payload: ContactStreamPayload,
+    target: { customerId?: string },
+  ) {
+    void this.realtimeBus.publish(CONTACT_STREAM_CHANNEL, {
+      payload,
+      target,
+    } satisfies ContactStreamEvent);
+  }
+
+  private deliverToLocalStreams(
     payload: ContactStreamPayload,
     target: { customerId?: string },
   ) {

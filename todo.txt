@@ -7,16 +7,8 @@ BLOCKED
 
 
 DONE
-- driver
-- add qr to prods
-- notifications navigable
-- notification sound of new orders
-- categorize notifications by type
-- add disable to ref link
-- product placement (home on/off)
-- best seller (auto)
-- points system and promo codes application (for each dinar a point ; 10 points = 0.5d)
-- customize pack 
-- messaging system (customer and admin) figma 
-- global search
-- admin profile
+
+
+month day reverse
+customize pack 3d
+export pending orders to PDF with the specefic template (wait haboub to send the template)

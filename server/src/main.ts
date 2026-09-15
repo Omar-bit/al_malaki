@@ -6,6 +6,7 @@ import express from 'express';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { isLeaderProcess, runClustered } from './cluster/cluster';
 import { PrismaService } from './prisma/prisma.service';
 
 async function bootstrap() {
@@ -18,7 +19,11 @@ async function bootstrap() {
     app.getHttpAdapter().getInstance().set('trust proxy', 1);
   }
 
-  await seedDefaultAdmin(app.get(PrismaService));
+  // Every worker boots the same app, but seeding must happen exactly once —
+  // concurrent seeds would race on the same admin row.
+  if (isLeaderProcess()) {
+    await seedDefaultAdmin(app.get(PrismaService));
+  }
 
   // Security headers. Keep cross-origin resource policy permissive so that
   // uploaded images under /uploads remain loadable from the frontend origin.
@@ -52,9 +57,12 @@ async function bootstrap() {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  // Let Redis connections and other shutdown hooks close cleanly on SIGTERM.
+  app.enableShutdownHooks();
+
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  logger.log(`Application is running on port ${port}`);
+  logger.log(`Worker ${process.pid} listening on port ${port}`);
 }
 
 async function seedDefaultAdmin(prisma: PrismaService) {
@@ -103,4 +111,4 @@ async function seedDefaultAdmin(prisma: PrismaService) {
   logger.log(`Default admin account created: ${email}`);
 }
 
-bootstrap();
+void runClustered(bootstrap);

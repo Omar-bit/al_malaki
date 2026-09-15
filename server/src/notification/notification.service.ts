@@ -3,6 +3,7 @@ import {
   Logger,
   MessageEvent,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { merge, Observable, of, Subject } from 'rxjs';
@@ -14,6 +15,7 @@ import {
 } from '../generated/prisma';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { RealtimeBusService } from '../realtime/realtime-bus.service';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 
 type NotificationStreamPayload =
@@ -36,6 +38,14 @@ type NotificationStreamPayload =
       unreadCount: number;
     };
 
+/** Envelope broadcast across workers so every SSE subscriber is reachable. */
+interface NotificationStreamEvent {
+  userId: string;
+  payload: NotificationStreamPayload;
+}
+
+const NOTIFICATION_STREAM_CHANNEL = 'notifications';
+
 interface CreateNotificationInput {
   userId: string;
   type: NotificationType;
@@ -54,14 +64,22 @@ interface CreateNotificationsForRolesInput {
 }
 
 @Injectable()
-export class NotificationService {
+export class NotificationService implements OnModuleInit {
   private readonly logger = new Logger(NotificationService.name);
   private readonly streams = new Map<string, Set<Subject<MessageEvent>>>();
 
   constructor(
     private readonly prismaService: PrismaService,
     private readonly mailService: MailService,
+    private readonly realtimeBus: RealtimeBusService,
   ) {}
+
+  onModuleInit() {
+    this.realtimeBus.subscribe(NOTIFICATION_STREAM_CHANNEL, (event) => {
+      const { userId, payload } = event as NotificationStreamEvent;
+      this.deliverToLocalStreams(userId, payload);
+    });
+  }
 
   async listForUser(userId: string, filters: ListNotificationsDto) {
     const where: Prisma.NotificationWhereInput = {
@@ -235,6 +253,16 @@ export class NotificationService {
   }
 
   private async emitToUser(userId: string, payload: NotificationStreamPayload) {
+    await this.realtimeBus.publish(NOTIFICATION_STREAM_CHANNEL, {
+      userId,
+      payload,
+    } satisfies NotificationStreamEvent);
+  }
+
+  private deliverToLocalStreams(
+    userId: string,
+    payload: NotificationStreamPayload,
+  ) {
     const userStreams = this.streams.get(userId);
 
     if (!userStreams || userStreams.size === 0) {

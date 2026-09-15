@@ -31,6 +31,15 @@ export const envValidationSchema = Joi.object({
     otherwise: Joi.string().optional(),
   }),
 
+  // Number of HTTP worker processes. Empty is treated as unset (compose passes
+  // through an empty string when the variable is not provided), in which case
+  // the app uses every core available to the container.
+  WEB_CONCURRENCY: Joi.number().integer().min(1).empty('').optional(),
+
+  // When false, nginx serves /uploads off the shared volume instead of Node.
+  // Defaults to false in production, true otherwise.
+  SERVE_UPLOADS_FROM_APP: Joi.string().valid('true', 'false').optional(),
+
   REDIS_URL: Joi.string()
     .uri({ scheme: ['redis', 'rediss'] })
     .optional(),
