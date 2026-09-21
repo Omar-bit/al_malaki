@@ -204,6 +204,7 @@ export function Products() {
               <Button
                 backgroundVariant='honeyPattern'
                 classNames='mx-auto flex mt-5 px-16 !rounded-[30px]'
+                onClick={() => navigate(`/products/${product.slug}`)}
               >
                 <span className='text-dark-red font-abhaya  font-bold text-[18px]'>
                   {t('products.button')}
