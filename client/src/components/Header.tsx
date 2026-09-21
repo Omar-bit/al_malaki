@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
@@ -14,7 +14,7 @@ type NavLink = {
   href: string;
 };
 
-const flagIcons: Record<string, JSX.Element> = {
+const flagIcons: Record<string, ReactElement> = {
   en: (
     <svg viewBox='0 0 24 16' className='h-3 w-4 shrink-0' aria-hidden='true'>
       <rect width='24' height='16' fill='#B22234' />
