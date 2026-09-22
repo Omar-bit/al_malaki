@@ -47,7 +47,7 @@ export function About() {
             type='button'
             className={`px-13 tracking-wide py-4 cursor-pointer rounded-[41px] border border-[#e4d8c8] ${i18n.language === 'en' ? 'font-[var(--font-abhaya)]' : 'font-taviraj'} text-2xl leading-[1.02] font-extrabold text-dark-red shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]`}
             style={{
-              backgroundImage: 'url(/honey_pattern.png)',
+              backgroundImage: 'url(/honey-pattern.webp)',
               backgroundSize: 'cover',
             }}
           >

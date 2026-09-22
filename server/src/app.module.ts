@@ -55,6 +55,13 @@ const shouldServeUploadsFromApp =
           ServeStaticModule.forRoot({
             rootPath: join(process.cwd(), 'uploads'),
             serveRoot: '/uploads',
+            // Upload filenames are server-generated UUIDs and are never reused,
+            // so a stored file is immutable and browsers never need to
+            // revalidate it.
+            serveStaticOptions: {
+              maxAge: '1y',
+              immutable: true,
+            },
           }),
         ]
       : []),

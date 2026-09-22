@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import crown from './../../assets/crown.svg';
+const crown = '/crown.webp';
 const LINE_SIZES: { [key: string]: string } = {
   thin: 'h-[1px]',
   medium: 'h-[2px]',

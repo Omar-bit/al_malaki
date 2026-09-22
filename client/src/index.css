@@ -52,7 +52,7 @@
 }
 
 .auth-page {
-  background: url('/src/assets/gradient-bg.png') no-repeat center fixed;
+  background: url('/gradient-bg.webp') no-repeat center fixed;
   background-size: cover;
 }
 
@@ -80,12 +80,12 @@
 }
 
 .admin-management-container {
-  background: url('/src/assets/gemini-generated-bg.png') no-repeat center fixed;
+  background: url('/admin-bg.webp') no-repeat center fixed;
   background-size: cover;
 }
 
 .bg-honeyPattern {
-  background: url('./assets/honey_pattern.png') fixed !important ;
+  background: url('/honey-pattern.webp') fixed !important ;
 
   /* background-size: contain; */
   background-size: 400px 400px !important;
@@ -110,14 +110,14 @@
   animation: cart-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .cart-container {
-  background: url('/src/assets/honey-pattern.png') no-repeat center fixed;
+  background: url('/honey-pattern.webp') no-repeat center fixed;
   background-size: cover;
   /* background-position: center; */
 }
 
 .products-hero {
   background-color: #f7eee1;
-  background: url('/public/images/products_hero.jpg') no-repeat center fixed;
+  background: url('/images/products-hero.webp') no-repeat center fixed;
   background-size: 100% 155%;
   background-position: 50% 30%;
   background-attachment: fixed;

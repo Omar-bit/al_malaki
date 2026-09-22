@@ -15,7 +15,7 @@ import {
   validatePhoneValue,
 } from '../../utils/formValidation';
 import { PasswordInput } from '../../components/ui';
-import authModel from '../../assets/auth-model.jpg';
+import authModel from '../../assets/auth-model.webp';
 
 export function RegisterPage() {
   const { t, i18n } = useTranslation();
@@ -482,7 +482,7 @@ export function RegisterPage() {
                   disabled={isSubmitting || isUploadingProfilePicture}
                   className='rounded-full bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] px-14 py-3 font-serif text-base font-bold text-dark-red shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 md:px-12 md:text-base'
                   style={{
-                    backgroundImage: 'url(/honey_pattern.png)',
+                    backgroundImage: 'url(/honey-pattern.webp)',
                     backgroundSize: 'cover',
                   }}
                 >

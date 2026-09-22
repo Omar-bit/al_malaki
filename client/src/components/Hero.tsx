@@ -16,7 +16,7 @@ export function Hero({
       className='relative min-h-screen w-full overflow-hidden bg-cover bg-no-repeat'
       style={{
         backgroundImage:
-          width < 768 ? 'url(/hero-bg-mobile.jpg)' : 'url(/hero-bg.jpg)',
+          width < 768 ? 'url(/hero-bg-mobile.webp)' : 'url(/hero-bg.webp)',
         backgroundSize: width < 768 ? '200% 100%' : '100% auto',
         backgroundPosition: width < 768 ? '100% 50%' : 'center center',
       }}
