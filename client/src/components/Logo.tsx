@@ -1,4 +1,4 @@
-const logo = '/logo.webp';
+import logo from './../assets/logo.svg';
 export function Logo({
   onClick,
   className,

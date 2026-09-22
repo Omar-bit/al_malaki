@@ -8,7 +8,7 @@ import { Header } from '../../components/Header';
 import { authService } from '../../services';
 import { validatePasswordValue } from '../../utils/formValidation';
 import { PasswordInput } from '../../components/ui';
-import authModel from '../../assets/auth-model.webp';
+import authModel from '../../assets/auth-model.jpg';
 
 export function ResetPasswordPage() {
   const { t, i18n } = useTranslation();
@@ -240,7 +240,7 @@ export function ResetPasswordPage() {
                   disabled={isSubmitting}
                   className='px-12 py-3 rounded-full font-serif font-bold text-dark-red bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] hover:scale-105 transition-transform shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100'
                   style={{
-                    backgroundImage: 'url(/honey-pattern.webp)',
+                    backgroundImage: 'url(/honey_pattern.png)',
                     backgroundSize: 'cover',
                   }}
                 >

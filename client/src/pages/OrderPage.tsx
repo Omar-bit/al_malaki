@@ -612,7 +612,7 @@ export function OrderPage() {
             <div
               className='absolute inset-0 opacity-60'
               style={{
-                backgroundImage: "url('/honey-pattern.webp')",
+                backgroundImage: "url('/src/assets/honey-pattern.png')",
                 backgroundRepeat: 'repeat',
                 backgroundSize: '360px auto',
               }}

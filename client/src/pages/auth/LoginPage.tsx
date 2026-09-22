@@ -12,7 +12,7 @@ import {
   validatePasswordValue,
 } from '../../utils/formValidation';
 import { PasswordInput } from '../../components/ui';
-import authModel from '../../assets/auth-model.webp';
+import authModel from '../../assets/auth-model.jpg';
 
 export function LoginPage() {
   const { t, i18n } = useTranslation();
@@ -223,7 +223,7 @@ export function LoginPage() {
                   disabled={isSubmitting}
                   className='rounded-full bg-[#EEDCC1] bg-gradient-to-r from-[#e3caa2] to-[#eedcc1] px-14 py-3 font-serif text-base font-bold text-dark-red shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 md:px-12 md:text-base'
                   style={{
-                    backgroundImage: 'url(/honey-pattern.webp)',
+                    backgroundImage: 'url(/honey_pattern.png)',
                     backgroundSize: 'cover',
                   }}
                 >

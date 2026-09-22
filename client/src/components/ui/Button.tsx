@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 type TBackgroundVariant = 'honeyPattern' | 'redPattern';
 
 const bgStyles = {
-  honeyPattern: 'url(/honey-pattern.webp)',
+  honeyPattern: 'url(/honey_pattern.png)',
   redPattern: 'redPattern',
 };
 export default function Button({
