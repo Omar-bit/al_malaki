@@ -23,10 +23,9 @@ import { RealtimeModule } from './realtime/realtime.module';
 import { RedisThrottlerStorage } from './common/throttler/redis-throttler.storage';
 
 /**
- * In production nginx serves `/uploads` straight off the shared volume, so the
- * Node process never spends a worker on static file I/O. Set
- * `SERVE_UPLOADS_FROM_APP=true` to re-enable in-app serving (local dev, or a
- * deployment without the nginx frontend).
+ * Serves uploaded images from the app itself. Set `SERVE_UPLOADS_FROM_APP=false`
+ * where a reverse proxy serves `/uploads` off the same volume instead, so the
+ * Node process never spends a worker on static file I/O.
  */
 const shouldServeUploadsFromApp =
   process.env.SERVE_UPLOADS_FROM_APP === 'true' ||
