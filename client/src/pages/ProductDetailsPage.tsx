@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Footer, ProductQRCode } from '../components';
+import { ProductQRCode } from '../components';
 import { ArrowLeft } from 'lucide-react';
 import { getPublicProduct } from '../services/productService';
 import { useCart } from '../contexts/CartContext';
