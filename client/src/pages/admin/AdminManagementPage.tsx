@@ -13,6 +13,7 @@ import type {
 import { validateEmailValue } from '../../utils/formValidation';
 import { formatDate } from '../../utils/format';
 import { Logo } from '../../components';
+import { Link } from 'react-router-dom';
 
 const roleBadgeMap: Record<TeamRole, string> = {
   ADMIN: 'Super admin',
@@ -144,7 +145,9 @@ export function AdminManagementPage() {
       <div className='min-h-full admin-management-container p-6 '>
         <div className='mx-auto '>
           <header className='text-center mb-5'>
-            <Logo className='block mx-auto w-40!' />
+            <Link className='' to='/' onClick={(e) => e.stopPropagation()}>
+              <Logo className='block mx-auto w-40! cursor-pointer! hover:opacity-80 ' />
+            </Link>
             <h1 className='text-xl md:text-4xl font-bona font-bold text-dark-red mt-2'>
               Admin management
             </h1>

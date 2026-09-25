@@ -81,7 +81,7 @@ const PhoneIcon = ({ className }: { className?: string }) => (
 export function Footer() {
   const { t } = useTranslation();
   return (
-    <footer className='w-full bg-dark-red pt-10 md:pt-16'>
+    <footer className='w-full bg-dark-red pt-5  border-t-100 border-t-cream  '>
       {/* 
         -----------------------------------------------------
         MOBILE VIEW 
@@ -227,20 +227,20 @@ export function Footer() {
         <div className='grid grid-cols-1 md:grid-cols-3 gap-10 pb-8'>
           {/* Column 1: Logo */}
           <div className='flex flex-col items-start justify-start'>
-            <Logo className='w-36 mb-2' />
+            <Logo className='w-40 mb-2' />
           </div>
 
           {/* Column 2: Quick Links */}
           <div className='flex flex-col w-auto  items-start md:items-center '>
             <div>
-              <h3 className='text-gold font-bold font-italic text-2xl mb-5 tracking-wide'>
+              <h3 className='text-gold font-bold font-augent! text-2xl mb-5 tracking-wide'>
                 {t('footer.quickLinks')}
               </h3>
-              <ul className='flex flex-col  space-y-2 '>
+              <ul className='flex flex-col  space-y-4  '>
                 <li>
                   <Link
                     to='/'
-                    className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
+                    className='text-white hover:text-gold transition-colors font-abee text-base text-md!'
                   >
                     {t('footer.home')}
                   </Link>
@@ -248,7 +248,7 @@ export function Footer() {
                 <li>
                   <Link
                     to='/products'
-                    className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
+                    className='text-white hover:text-gold transition-colors font-abee text-base text-md!'
                   >
                     {t('footer.shop')}
                   </Link>
@@ -256,7 +256,7 @@ export function Footer() {
                 <li>
                   <Link
                     to='/about'
-                    className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
+                    className='text-white hover:text-gold transition-colors font-abee text-base text-md!'
                   >
                     {t('footer.about')}
                   </Link>
@@ -264,7 +264,7 @@ export function Footer() {
                 <li>
                   <Link
                     to='/contact'
-                    className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
+                    className='text-white hover:text-gold transition-colors font-abee text-base text-md!'
                   >
                     {t('footer.contact')}
                   </Link>
@@ -276,14 +276,14 @@ export function Footer() {
           {/* Column 3: Customer Area */}
           <div className='flex flex-col items-start md:items-center'>
             <div>
-              <h3 className='text-gold font-bold font-italic text-2xl mb-5 tracking-wide'>
+              <h3 className='text-gold font-bold font-augent! text-2xl mb-5 tracking-wide'>
                 {t('footer.customerArea')}
               </h3>
-              <ul className='flex flex-col space-y-2'>
+              <ul className='flex flex-col space-y-4'>
                 <li>
                   <Link
                     to='/dashboard'
-                    className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
+                    className='text-white hover:text-gold transition-colors font-abee text-base text-md!'
                   >
                     {t('footer.myAccount')}
                   </Link>
@@ -291,7 +291,7 @@ export function Footer() {
                 <li>
                   <Link
                     to='/dashboard'
-                    className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
+                    className='text-white hover:text-gold transition-colors font-abee text-base text-md!'
                   >
                     {t('footer.trackOrder')}
                   </Link>
@@ -299,7 +299,7 @@ export function Footer() {
                 <li>
                   <Link
                     to='/dashboard'
-                    className='text-white hover:text-gold transition-colors font-abhaya text-base text-lg'
+                    className='text-white hover:text-gold transition-colors font-abee text-base text-md!'
                   >
                     {t('footer.rewards')}
                   </Link>
@@ -312,9 +312,9 @@ export function Footer() {
         {/* Info bar: Location | Phone | Socials */}
         <div className='flex flex-col sm:flex-row items-center justify-between  py-4 '>
           {/* Location */}
-          <div className='flex items-center gap-2 text-white text-sm font-abhaya '>
-            <MapPin className='size-6 text-white' />
-            <span className='font-abee tracking-widest '>
+          <div className='flex items-center gap-2 text-white text-sm font-abhaya -ml-12'>
+            <MapPin className='size-6 text-gray-400' />
+            <span className='font-abee tracking-widest text-gray-400'>
               {t('footer.soon')}
             </span>
           </div>
@@ -322,14 +322,14 @@ export function Footer() {
           {/* Phone */}
           <a
             href='tel:+21697530057'
-            className='flex items-center gap-2 text-white hover:text-gold transition-colors text-sm font-abhaya ml-30'
+            className='flex items-center gap-2 text-white hover:text-gold transition-colors text-md font-abhaya ml-30'
           >
             <PhoneIcon className='size-6 ' />
             <span className='font-abee tracking-widest '>+216 97 530 057</span>
           </a>
 
           {/* Social icons */}
-          <div className='flex items-center justify-center gap-13 '>
+          <div className='flex items-center justify-center gap-7 '>
             <a
               href='https://instagram.com/al.malaki_'
               target='_blank'
@@ -363,10 +363,10 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <Seperator lineColor='white' lineSize='thin' crownSize='medium' />
+      <Seperator lineColor='white' lineSize='thin' crownSize='small' />
 
       {/* Copyright */}
-      <p className='text-center text-white text-md font-abee font-light pb-4 '>
+      <p className='text-center text-gray-400 text-sm font-abee font-bold pb-4 '>
         {t('footer.rights')}
       </p>
     </footer>

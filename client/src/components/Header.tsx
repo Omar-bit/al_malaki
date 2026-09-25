@@ -19,7 +19,13 @@ const flagIcons: Record<string, ReactElement> = {
     <svg viewBox='0 0 24 16' className='h-3 w-4 shrink-0' aria-hidden='true'>
       <rect width='24' height='16' fill='#B22234' />
       {[1, 3, 5, 7, 9, 11].map((i) => (
-        <rect key={i} y={i * (16 / 13)} width='24' height={16 / 13} fill='#fff' />
+        <rect
+          key={i}
+          y={i * (16 / 13)}
+          width='24'
+          height={16 / 13}
+          fill='#fff'
+        />
       ))}
       <rect width='10' height={16 * (7 / 13)} fill='#3C3B6E' />
     </svg>
@@ -180,7 +186,9 @@ export function Header({
   return (
     <header
       className={`fixed top-0 left-0 z-30 w-full transition-transform duration-300 ease-in-out ${
-        isOpen || (isVisible && (!topHide || hasScrolled)) ? 'translate-y-0' : '-translate-y-full'
+        isOpen || (isVisible && (!topHide || hasScrolled))
+          ? 'translate-y-0'
+          : '-translate-y-full'
       } ${
         hasScrolled
           ? 'bg-[#e1d0bc]/58 backdrop-blur-md shadow-sm'
@@ -298,7 +306,10 @@ export function Header({
         </div>
 
         {/* Desktop Navigation */}
-        <ul data-tour='nav-links' className='hidden md:flex items-center gap-x-14'>
+        <ul
+          data-tour='nav-links'
+          className='hidden md:flex items-center gap-x-16'
+        >
           {navLinks.map((link) => (
             <li key={link.labelKey}>
               <a
@@ -316,7 +327,7 @@ export function Header({
         </ul>
 
         {/* Desktop Icons */}
-        <div className='hidden md:flex items-center gap-7'>
+        <div className='hidden md:flex items-center gap-7 '>
           <button
             data-tour='search'
             className='text-dark-red transition-colors hover:text-gold relative'
@@ -371,8 +382,8 @@ export function Header({
             >
               <span className='inline-flex items-center gap-1.5'>
                 {/* {flagIcons[i18n.language] ?? flagIcons.en} */}
-                {languages.find((lang) => lang.code === i18n.language)
-                  ?.label ?? 'En'}
+                {languages.find((lang) => lang.code === i18n.language)?.label ??
+                  'En'}
               </span>
             </button>
 

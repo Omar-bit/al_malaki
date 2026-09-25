@@ -84,7 +84,7 @@ export function ProductDetailsPage() {
               </p>
 
               <div className='flex items-center gap-10 mb-5 text-black!'>
-                <span className='text-2xl text-black font-bold font-aboreto stroke-1'>
+                <span className='text-2xl text-black font-extrabold font-aboreto stroke-1'>
                   {product.price.toFixed(2)} DT
                 </span>
                 <span className='text-xl font-bold font-aboreto uppercase tracking-wider'>
@@ -129,7 +129,7 @@ export function ProductDetailsPage() {
                   setQuantity(1);
                   openCart();
                 }}
-                className='w-fit px-20 py-4 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold text-dark-red hover:opacity-90 transition-opacity shadow-md mb-5'
+                className='w-fit px-12 py-3 rounded-[41px] bg-honeyPattern bg-[#e6d7c2] font-abhaya text-2xl font-extrabold! text-dark-red hover:opacity-90 transition-opacity shadow-md mb-5'
               >
                 Add to cart
               </button>
@@ -176,7 +176,7 @@ export function ProductDetailsPage() {
         )}
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

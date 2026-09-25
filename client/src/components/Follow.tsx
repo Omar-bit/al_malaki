@@ -12,7 +12,7 @@ export function Follow() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className='h-auto py-10 md:py-0 md:h-[450px] w-full md:w-[70%] lg:w-[35%] rounded-[66px] bg-[#efe0c9] px-6 text-center shadow-[0_14px_10.8px_rgba(0,0,0,0.25)] flex flex-col justify-center'
+          className='h-auto space-y-4 py-10 md:py-0 md:h-[450px] w-full md:w-[70%] lg:w-[35%] rounded-[66px] bg-[#efe0c9] px-6 text-center shadow-[0_14px_10.8px_rgba(0,0,0,0.25)] flex flex-col justify-center'
         >
           <motion.p
             initial={{ opacity: 0, scale: 0.9 }}

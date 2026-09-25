@@ -33,10 +33,10 @@ export default function Seperator({
       className='relative flex items-center justify-center '
     >
       <div
-        className={`absolute left-0 ${seperatorSize} w-[45%] ${seperatorColor}`}
+        className={`absolute left-0 ${seperatorSize} w-[47%] ${seperatorColor}`}
       ></div>
       <div
-        className={`absolute right-0 ${seperatorSize} w-[45%] ${seperatorColor}`}
+        className={`absolute right-0 ${seperatorSize} w-[47%] ${seperatorColor}`}
       ></div>
       <img src={crown} alt='crown' className={`z-10 ${crownDimension} `} />
     </motion.div>

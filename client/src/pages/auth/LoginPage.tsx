@@ -187,12 +187,12 @@ export function LoginPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className='mx-auto w-full max-w-[290px] space-y-6 md:max-w-md'
+              className='mx-auto w-full max-w-[290px] space-y-6 md:w-[80%]'
               dir={isRtl ? 'rtl' : 'ltr'}
               onSubmit={handleSubmit}
             >
               <div>
-                <label className='mb-2 block text-[1.85rem] !font-bold text-dark-red font-(--font-abhaya) md:text-xl'>
+                <label className='mb-2 ml-2 block text-[1.85rem] !font-bold text-dark-red font-(--font-abhaya) md:text-xl'>
                   {t('login.email')}
                 </label>
                 <input

@@ -18,7 +18,9 @@ export function ProductsPage() {
   const products = allProducts.filter((p) => p.status === 'active');
 
   const [activeCategory, setActiveCategory] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get('q') ?? '',
+  );
 
   useEffect(() => {
     const q = searchParams.get('q') ?? '';
@@ -38,7 +40,6 @@ export function ProductsPage() {
       products[0],
     [products],
   );
-
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -95,7 +96,7 @@ export function ProductsPage() {
       {/* ── Best Seller Section ───────────────────────────────────── */}
       {bestSeller && (
         <section
-          className='bg-white px-10 md:px-16 py-14 md:py-16 min-h-screen'
+          className='bg-slate-100 px-10 md:px-16 py-14 md:py-16 '
           onClick={() => navigate(`/products/${bestSeller.slug}`)}
         >
           <div className='max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 cursor-pointer'>
@@ -187,7 +188,7 @@ export function ProductsPage() {
 
       {/* ── Featured Section ──────────────────────────────────────── */}
 
-      <section className='bg-white  w-full  px-5 md:px-16  md:py-16 min-h-screen'>
+      <section className='bg-slate-100  w-full  px-5 md:px-16  md:py-16 min-h-screen'>
         <div className=' mx-auto flex flex-col items-center md:flex-row md:items-end gap-10 md:px-30 '>
           {/* Left: title + bio */}
           <div className='flex-1 '>

@@ -103,158 +103,176 @@ export function CartModal() {
               </div>
             ) : (
               <>
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className='flex items-center gap-4 py-4 relative group'
-                  style={{ borderBottom: '1px solid rgba(120,80,30,0.15)' }}
-                >
-                  {/* Product Image */}
+                {items.map((item) => (
                   <div
-                    className='shrink-0 overflow-hidden'
-                    style={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: 8,
-                      background: '#c8b89a',
-                    }}
+                    key={item.id}
+                    className='flex items-center gap-4 py-4 relative group'
+                    style={{ borderBottom: '1px solid rgba(120,80,30,0.15)' }}
                   >
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className='w-full h-full object-cover'
-                      />
-                    ) : (
-                      <div
-                        className='w-full h-full flex items-center justify-center font-abee text-xs'
-                        style={{ color: '#fff' }}
-                      >
-                        No img
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Product Info */}
-                  <div className='flex-1 min-w-0'>
-                    {/* Name */}
-                    <h4 className='font-abhaya font-semibold text-black text-xl leading-tight mb-2'>
-                      {item.name}
-                    </h4>
-
-                    {/* Quantity controls — bordered, no fill */}
-                    <div className='flex items-center w-fit mb-2 border-dark-red border bg-[#F8E5C6] '>
-                      <button
-                        onClick={() => {
-                          if (item.quantity <= 1) removeFromCart(item.id);
-                          else updateQuantity(item.id, item.quantity - 1);
-                        }}
-                        className='size-7 flex items-center justify-center font-abhaya text-2xl font-semibold hover:bg-black/5 transition-colors text-black'
-                      >
-                        -
-                      </button>
-                      <div
-                        className='flex items-center justify-center font-abhaya text-black text-xl font-semibold border-r border-l border-dark-red px-3'
-                        style={{ minWidth: 32 }}
-                      >
-                        {item.quantity}
-                      </div>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                        className='size-7 flex items-center justify-center font-abhaya text-xl font-semibold hover:bg-black/5 transition-colors text-black'
-                      >
-                        +
-                      </button>
+                    {/* Product Image */}
+                    <div
+                      className='shrink-0 overflow-hidden'
+                      style={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 8,
+                        background: '#c8b89a',
+                      }}
+                    >
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className='w-full h-full object-cover'
+                        />
+                      ) : (
+                        <div
+                          className='w-full h-full flex items-center justify-center font-abee text-xs'
+                          style={{ color: '#fff' }}
+                        >
+                          No img
+                        </div>
+                      )}
                     </div>
 
-                    {/* Price */}
-                    <p className='font-abhaya  text-lg font-semibold text-black'>
-                      {t('cart.price', 'Price')} :{' '}
-                      <span className='font-normal'>
-                        {' '}
-                        {(item.price * item.quantity).toFixed(0)} dt
-                      </span>
-                    </p>
-                  </div>
+                    {/* Product Info */}
+                    <div className='flex-1 min-w-0'>
+                      {/* Name */}
+                      <h4 className='font-abhaya font-semibold text-black text-xl leading-tight mb-2'>
+                        {item.name}
+                      </h4>
 
-                  {/* Remove (hover) */}
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className='absolute top-2 right-1 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/10'
-                    aria-label='Remove item'
-                    style={{ color: '#7a5230' }}
-                  >
-                    <svg
-                      className='w-3 h-3'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M6 18L18 6M6 6l12 12'
-                      />
-                    </svg>
-                  </button>
-                </div>
-              ))}
+                      {/* Quantity controls — bordered, no fill */}
+                      <div className='flex items-center w-fit mb-2 border-dark-red border bg-[#F8E5C6] '>
+                        <button
+                          onClick={() => {
+                            if (item.quantity <= 1) removeFromCart(item.id);
+                            else updateQuantity(item.id, item.quantity - 1);
+                          }}
+                          className='size-7 flex items-center justify-center font-abhaya text-2xl font-semibold hover:bg-black/5 transition-colors text-black'
+                        >
+                          -
+                        </button>
+                        <div
+                          className='flex items-center justify-center font-abhaya text-black text-xl font-semibold border-r border-l border-dark-red px-3'
+                          style={{ minWidth: 32 }}
+                        >
+                          {item.quantity}
+                        </div>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          className='size-7 flex items-center justify-center font-abhaya text-xl font-semibold hover:bg-black/5 transition-colors text-black'
+                        >
+                          +
+                        </button>
+                      </div>
 
-              {/* ── Packs ── */}
-              {packs.map((pack) => (
-                <div
-                  key={pack.packId}
-                  className='py-3 relative group'
-                  style={{ borderBottom: '1px solid rgba(120,80,30,0.15)' }}
-                >
-                  <div className='flex items-center justify-between mb-2'>
-                    <span className='font-abhaya font-semibold text-black text-base'>
-                      {getPackLabel(pack.slots)} Box
-                      <span className='ml-2 font-abee text-xs text-[#1a7a3a] font-normal'>
-                        −{pack.discountPercent}%
-                      </span>
-                    </span>
+                      {/* Price */}
+                      <p className='font-abhaya  text-lg  text-black'>
+                        {t('cart.price', 'Price')} :{' '}
+                        <span className=''>
+                          {' '}
+                          {(item.price * item.quantity).toFixed(0)} dt
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Remove (hover) */}
                     <button
-                      onClick={() => removePack(pack.packId)}
-                      className='w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/10'
+                      onClick={() => removeFromCart(item.id)}
+                      className='absolute top-2 right-1 w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/10'
+                      aria-label='Remove item'
                       style={{ color: '#7a5230' }}
-                      aria-label='Remove pack'
                     >
-                      <svg className='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
+                      <svg
+                        className='w-3 h-3'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M6 18L18 6M6 6l12 12'
+                        />
                       </svg>
                     </button>
                   </div>
-                  <div className='flex flex-wrap gap-2 mb-2'>
-                    {pack.selections.map((sel, i) => (
-                      <div
-                        key={i}
-                        className='w-12 h-12 rounded-lg overflow-hidden bg-[#c8b89a] shrink-0'
+                ))}
+
+                {/* ── Packs ── */}
+                {packs.map((pack) => (
+                  <div
+                    key={pack.packId}
+                    className='py-3 relative group'
+                    style={{ borderBottom: '1px solid rgba(120,80,30,0.15)' }}
+                  >
+                    <div className='flex items-center justify-between mb-2'>
+                      <span className='font-abhaya font-semibold text-black text-base'>
+                        {getPackLabel(pack.slots)} Box
+                        <span className='ml-2 font-abee text-xs text-[#1a7a3a] font-normal'>
+                          −{pack.discountPercent}%
+                        </span>
+                      </span>
+                      <button
+                        onClick={() => removePack(pack.packId)}
+                        className='w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/10'
+                        style={{ color: '#7a5230' }}
+                        aria-label='Remove pack'
                       >
-                        {sel.image ? (
-                          <img src={sel.image} alt={sel.name} className='w-full h-full object-cover' />
-                        ) : (
-                          <div className='w-full h-full flex items-center justify-center font-abee text-white text-[8px] text-center px-1'>
-                            {sel.name.slice(0, 6)}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                        <svg
+                          className='w-3 h-3'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M6 18L18 6M6 6l12 12'
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className='flex flex-wrap gap-2 mb-2'>
+                      {pack.selections.map((sel, i) => (
+                        <div
+                          key={i}
+                          className='w-12 h-12 rounded-lg overflow-hidden bg-[#c8b89a] shrink-0'
+                        >
+                          {sel.image ? (
+                            <img
+                              src={sel.image}
+                              alt={sel.name}
+                              className='w-full h-full object-cover'
+                            />
+                          ) : (
+                            <div className='w-full h-full flex items-center justify-center font-abee text-white text-[8px] text-center px-1'>
+                              {sel.name.slice(0, 6)}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {pack.giftMessage && (
+                      <p className='mb-1.5 font-bona text-xs italic text-[#7a5230] line-clamp-2'>
+                        “{pack.giftMessage}”
+                      </p>
+                    )}
+                    <div className='font-abee text-sm text-black'>
+                      <span className='line-through text-[#9a8070] mr-2'>
+                        {pack.subtotal.toFixed(0)} dt
+                      </span>
+                      <span className='font-bold text-dark-red'>
+                        {pack.total.toFixed(2)} dt
+                      </span>
+                    </div>
                   </div>
-                  {pack.giftMessage && (
-                    <p className='mb-1.5 font-bona text-xs italic text-[#7a5230] line-clamp-2'>
-                      “{pack.giftMessage}”
-                    </p>
-                  )}
-                  <div className='font-abee text-sm text-black'>
-                    <span className='line-through text-[#9a8070] mr-2'>{pack.subtotal.toFixed(0)} dt</span>
-                    <span className='font-bold text-dark-red'>{pack.total.toFixed(2)} dt</span>
-                  </div>
-                </div>
-              ))}
+                ))}
               </>
             )}
           </div>
@@ -308,7 +326,9 @@ export function CartModal() {
                 {packDiscount > 0 && (
                   <div className='flex justify-between items-center py-2 text-[#1a7a3a] font-bona text-sm'>
                     <span>Bundle discount</span>
-                    <span className='font-aboreto'>−{packDiscount.toFixed(3)} DT</span>
+                    <span className='font-aboreto'>
+                      −{packDiscount.toFixed(3)} DT
+                    </span>
                   </div>
                 )}
 

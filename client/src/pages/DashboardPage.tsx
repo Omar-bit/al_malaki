@@ -88,7 +88,9 @@ function RewardModal({
             </div>
             <button
               onClick={() => {
-                navigator.clipboard.writeText(card.promoCode ?? '').catch(() => {});
+                navigator.clipboard
+                  .writeText(card.promoCode ?? '')
+                  .catch(() => {});
                 toast.success(t('reward.promo_copied_toast'));
               }}
               className='shrink-0 rounded-md bg-[#EFE0C9]/68 px-4 py-2 font-bona text-sm font-semibold text-[#3f060f] hover:bg-[#eedcca] transition-colors'
@@ -228,7 +230,10 @@ export function DashboardPage() {
       email: user.email ?? '',
       birthDate: formatBirthDate(user.birthDate),
     });
-    orderService.getMyLoyalty().then((data) => setLoyaltyPoints(data.points)).catch(() => null);
+    orderService
+      .getMyLoyalty()
+      .then((data) => setLoyaltyPoints(data.points))
+      .catch(() => null);
   }, [user]);
 
   // Track whether this week's reward has already been claimed
@@ -248,7 +253,10 @@ export function DashboardPage() {
       return;
     }
     if (user) {
-      localStorage.setItem(getRewardClaimedKey(user.id, rewardPeriodKey), 'true');
+      localStorage.setItem(
+        getRewardClaimedKey(user.id, rewardPeriodKey),
+        'true',
+      );
       setHasClaimedReward(true);
     }
     setShowRewardModal(true);
@@ -549,7 +557,7 @@ export function DashboardPage() {
                   // id='dashboard-save-btn'
                   onClick={handleSaveProfile}
                   disabled={isSaving}
-                  classNames='text-dark-red! text-lg px-17 rounded-4xl! transition-colors disabled:opacity-60'
+                  classNames='text-dark-red! font-extrabold! !font-bona !text-2xl px-17 rounded-4xl! transition-colors disabled:opacity-60'
                 >
                   {isSaving ? t('dashboard.saving') : t('dashboard.save')}
                 </Button>
@@ -567,15 +575,15 @@ export function DashboardPage() {
             </h3>
             <hr className='border-[#8F8B8B] my-5' />
 
-            <div className='text-center mb-5'>
+            <div className='text-center mb-10 pt-5 space-y-5'>
               <p className='font-bona text-xl text-white'>{displayName}</p>
-              <p className='font-bona text-xl text-white'>
+              <p className='font-bona text-xl text-white font-bold'>
                 {t('dashboard.matricule')}&nbsp;: {maskMatricule(user.id)}
               </p>
             </div>
 
             {/* Points balance */}
-            <div className='w-[80%] mx-auto rounded-3xl bg-[#FEF7ED] px-4 py-3 mb-3'>
+            <div className='w-[80%] mx-auto rounded-3xl bg-[#FEF7ED] px-4 py-3 mb-10'>
               <p className='font-bona text-base  tracking-widest text-black uppercase mb-1'>
                 {t('dashboard.points_balance')}
               </p>
@@ -601,11 +609,11 @@ export function DashboardPage() {
             </div>
 
             {/* Fine print */}
-            <ul className='space-y-1 list-disc mt-5 mx-auto block w-[80%] mr-0'>
-              <li className='font-bona text-base text-white leading-snug  tracking-wider'>
+            <ul className='space-y-5 list-disc mt-10 mx-auto block w-[80%] mr-0'>
+              <li className='font-bona text-base text-gray-400 leading-snug  tracking-wider'>
                 {t('dashboard.points_cap_note', { max: loyaltyMax })}
               </li>
-              <li className='font-bona text-base text-white leading-snug  tracking-wider'>
+              <li className='font-bona text-base text-gray-400 leading-snug  tracking-wider'>
                 {t('dashboard.points_earn_note')}
               </li>
             </ul>
@@ -673,7 +681,7 @@ export function DashboardPage() {
       </main>
       <button
         onClick={handleLogout}
-        className='flex items-center gap-3 px-3 py-2 w-full text-2xl text-center! justify-center text-[#6D5A46] hover:bg-[#D5BD9D] hover:text-dark-red rounded-xl transition-all duration-200'
+        className='flex items-center gap-3 mx-auto text-2xl text-center! justify-center hover:text-gold font-bold hover:text-shadow-xl hover:text-shadow-gray-700  text-dark-red rounded-xl transition-all duration-200'
       >
         {t('dashboard.logout')}
       </button>

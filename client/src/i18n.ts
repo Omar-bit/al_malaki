@@ -17,7 +17,7 @@ const resources = {
         al_malaki: 'AL MALAKI',
       },
       products: {
-        title: 'Products',
+        title: 'Categories',
         name: 'Name of product',
         button: 'Show details',
         seeMore: 'See more',
@@ -215,7 +215,8 @@ const resources = {
         points_balance: 'Points balance',
         dt_equivalent: 'Dinar equivalent',
         points_cap_note: 'Total points cannot exceed {{max}} points',
-        points_earn_note: '10% of every purchase is converted into loyalty points',
+        points_earn_note:
+          '10% of every purchase is converted into loyalty points',
         contact_title: 'Contact us for personalized advice',
         contact_placeholder: 'Write your message ...',
         contact_hint:
@@ -282,7 +283,8 @@ const resources = {
         account_title: 'Your account',
         account_desc: 'Track your orders, loyalty points, and profile here.',
         lang_title: 'Change language',
-        lang_desc: 'Switch between English, French, and Arabic whenever you like.',
+        lang_desc:
+          'Switch between English, French, and Arabic whenever you like.',
         mobile_menu_title: 'Welcome to Al Malaki',
         mobile_menu_desc: 'Tap here to open the menu and browse the site.',
       },
@@ -352,7 +354,7 @@ const resources = {
         al_malaki: 'AL MALAKI',
       },
       products: {
-        title: 'منتجاتنا',
+        title: 'التصنيفات',
         name: 'اسم المنتج',
         button: 'عرض التفاصيل',
         seeMore: 'عرض المزيد',
@@ -601,9 +603,11 @@ const resources = {
         done: 'تم',
         start_aria: 'بدء الجولة التعريفية',
         logo_title: 'مرحباً بكم في المالكي',
-        logo_desc: 'هذا هو شعارنا — انقر عليه في أي وقت للعودة إلى الصفحة الرئيسية.',
+        logo_desc:
+          'هذا هو شعارنا — انقر عليه في أي وقت للعودة إلى الصفحة الرئيسية.',
         nav_title: 'استكشف الموقع',
-        nav_desc: 'تصفح الرئيسية، من نحن، المنتجات، وأنشئ باقتك المخصصة من هنا.',
+        nav_desc:
+          'تصفح الرئيسية، من نحن، المنتجات، وأنشئ باقتك المخصصة من هنا.',
         search_title: 'ابحث عن المنتجات بسرعة',
         search_desc: 'ابحث في كتالوجنا عن منتج العسل الذي تبحث عنه.',
         cart_title: 'سلة التسوق الخاصة بك',
@@ -674,7 +678,7 @@ const resources = {
       header: {
         home: 'Accueil',
         about: 'À propos',
-        products: 'Produits',
+        products: 'Categories',
         customize: 'Pack personnalisé',
         lang: 'Ar',
       },
@@ -810,7 +814,8 @@ const resources = {
         otp_sent: 'Un nouveau code OTP a été envoyé',
         otp_expiry_notice: 'Le code expire dans environ {{minutes}} minutes',
         success: 'Votre compte est maintenant actif. Bienvenue !',
-        generic_error: 'Impossible de vérifier le code OTP. Veuillez réessayer.',
+        generic_error:
+          'Impossible de vérifier le code OTP. Veuillez réessayer.',
       },
       forgot_password: {
         title: 'Mot de passe oublié',
@@ -831,7 +836,8 @@ const resources = {
       },
       reset_password: {
         title: 'Créer un nouveau mot de passe',
-        subtitle: 'Définissez un nouveau mot de passe sécurisé pour votre compte',
+        subtitle:
+          'Définissez un nouveau mot de passe sécurisé pour votre compte',
         remember_password: 'Vous vous souvenez de votre mot de passe ?',
         login_link: 'Retour à la connexion',
         validating_link: 'Validation du lien de réinitialisation...',
@@ -843,7 +849,8 @@ const resources = {
           'Le mot de passe doit contenir au maximum 64 caractères',
         confirm_password: 'Confirmer le mot de passe',
         confirm_password_placeholder: 'Confirmez votre nouveau mot de passe',
-        confirm_password_required: 'Veuillez confirmer votre nouveau mot de passe',
+        confirm_password_required:
+          'Veuillez confirmer votre nouveau mot de passe',
         password_too_short:
           'Le mot de passe doit contenir au moins 8 caractères',
         password_mismatch: 'Les mots de passe ne correspondent pas',
@@ -851,7 +858,8 @@ const resources = {
         hide_password: 'Masquer le mot de passe',
         submit: 'Réinitialiser le mot de passe',
         loading: 'Réinitialisation en cours...',
-        success: 'Mot de passe réinitialisé avec succès. Veuillez vous connecter',
+        success:
+          'Mot de passe réinitialisé avec succès. Veuillez vous connecter',
         generic_error:
           'Impossible de réinitialiser le mot de passe. Veuillez réessayer.',
       },
@@ -878,7 +886,8 @@ const resources = {
         matricule: 'Matricule',
         points_balance: 'Solde de points',
         dt_equivalent: 'Équivalent en dinars',
-        points_cap_note: 'Le total des points ne peut pas dépasser {{max}} points',
+        points_cap_note:
+          'Le total des points ne peut pas dépasser {{max}} points',
         points_earn_note:
           '10% de chaque achat est converti en points de fidélité',
         contact_title: 'Contactez-nous pour des conseils personnalisés',
@@ -912,7 +921,8 @@ const resources = {
           'Félicitations : Vous avez débloqué un cadeau spécial',
         banner_locked: 'Récompense surprise verrouillée',
         banner_locked_sub: 'Gagnez encore {{count}} points pour la débloquer',
-        banner_claimed_sub: 'Revenez la semaine prochaine pour une nouvelle surprise',
+        banner_claimed_sub:
+          'Revenez la semaine prochaine pour une nouvelle surprise',
         locked_toast:
           'Encore {{count}} points avant de débloquer votre récompense surprise !',
         modal_title: 'Vous avez débloqué une récompense surprise !',
@@ -947,12 +957,14 @@ const resources = {
         cart_desc:
           'Les articles ajoutés restent ici — ouvrez-le à tout moment pour les consulter ou commander.',
         account_title: 'Votre compte',
-        account_desc: 'Suivez vos commandes, vos points de fidélité et votre profil ici.',
+        account_desc:
+          'Suivez vos commandes, vos points de fidélité et votre profil ici.',
         lang_title: 'Changer de langue',
         lang_desc:
           'Passez de l’anglais au français ou à l’arabe quand vous le souhaitez.',
         mobile_menu_title: 'Bienvenue chez Al Malaki',
-        mobile_menu_desc: 'Appuyez ici pour ouvrir le menu et parcourir le site.',
+        mobile_menu_desc:
+          'Appuyez ici pour ouvrir le menu et parcourir le site.',
       },
       customize_pack: {
         craft_your_own: 'Créez le vôtre',

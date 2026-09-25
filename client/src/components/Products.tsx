@@ -172,6 +172,17 @@ export function Products() {
                   }`}
                 />
               ))}
+              {products.map((product, index) => (
+                <button
+                  key={product.id}
+                  type='button'
+                  onClick={() => setActiveIndex(index)}
+                  aria-label={`Show product ${index + 1}`}
+                  className={`h-2 w-2 rounded-full transition-colors ${
+                    index === activeIndex ? 'bg-[#6a1821]' : 'bg-[#d6c6be]'
+                  }`}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -203,10 +214,10 @@ export function Products() {
               </h3>
               <Button
                 backgroundVariant='honeyPattern'
-                classNames='mx-auto flex mt-5 px-16 !rounded-[30px]'
+                classNames='mx-auto flex mt-5 px-12 !rounded-[30px]'
                 onClick={() => navigate(`/products/${product.slug}`)}
               >
-                <span className='text-dark-red font-abhaya  font-bold text-[18px]'>
+                <span className='text-dark-red font-abhaya  !font-extrabold text-[20px]'>
                   {t('products.button')}
                 </span>
               </Button>

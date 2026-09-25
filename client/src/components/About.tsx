@@ -14,7 +14,7 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className={`text-center ${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'}  text-[36px] md:text-[50px] font-bold  tracking-wide text-dark-red  uppercase`}
+          className={`text-center ${i18n.language === 'ar' ? 'font-amiri' : 'font-augent'}  text-[36px] md:text-[55px] font-bold  tracking-wide text-dark-red  capitalize`}
         >
           {t('about.title')}
         </motion.h2>
@@ -24,7 +24,7 @@ export function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className={`mx-auto max-w-[1100px] text-center ${i18n.language === 'en' ? 'font-[var(--font-abhaya)]' : 'font-taviraj'} text-xl md:text-3xl leading-[1.5] text-black my-20 tracking-wide `}
+          className={`mx-auto max-w-[1100px] text-center ${['en', 'fr'].includes(i18n.language) ? 'font-abhaya' : 'font-taviraj'} text-xl md:text-[35px] leading-[1.5] text-black my-20 tracking-wide `}
         >
           {t('about.text')
             .split('\n')
@@ -45,7 +45,7 @@ export function About() {
         >
           <button
             type='button'
-            className={`px-13 tracking-wide py-4 cursor-pointer rounded-[41px] border border-[#e4d8c8] ${i18n.language === 'en' ? 'font-[var(--font-abhaya)]' : 'font-taviraj'} text-2xl leading-[1.02] font-extrabold text-dark-red shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]`}
+            className={`px-13 tracking-wide  py-4 cursor-pointer rounded-[41px] border border-[#e4d8c8] ${['en', 'fr'].includes(i18n.language) ? 'font-abhaya' : 'font-taviraj'} text-3xl leading-[1.02] font-extrabold! text-dark-red shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]`}
             style={{
               backgroundImage: 'url(/honey_pattern.png)',
               backgroundSize: 'cover',

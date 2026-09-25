@@ -4,18 +4,30 @@ import { availableParallelism } from 'node:os';
 
 const logger = new Logger('Cluster');
 
+/** A worker dying sooner than this after being forked counts as a crash loop. */
+const HEALTHY_WORKER_UPTIME_MS = 10_000;
+
+/** How many crash-looping workers we tolerate before giving up on the process. */
+const MAX_RAPID_RESTARTS = 5;
+
 /**
  * How many HTTP workers to run.
  *
- * `WEB_CONCURRENCY` wins when set. Otherwise we use every core the container is
- * allowed to use — `availableParallelism()` respects the container's CPU
- * affinity, unlike `cpus().length`, which reports the whole host.
+ * `WEB_CONCURRENCY` wins when set. Outside production we stay single-process:
+ * clustering multiplies boot logs and fights the watcher, and the shared state
+ * this relies on (Redis) is usually absent locally. Otherwise we use every core
+ * the container is allowed to use — `availableParallelism()` respects the
+ * container's CPU affinity, unlike `cpus().length`, which reports the whole host.
  */
 export function resolveWorkerCount(): number {
   const configured = Number(process.env.WEB_CONCURRENCY);
 
   if (Number.isInteger(configured) && configured > 0) {
     return configured;
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    return 1;
   }
 
   return Math.max(1, availableParallelism());
@@ -48,21 +60,53 @@ export async function runClustered(
 
   logger.log(`Primary ${process.pid} starting ${workerCount} workers`);
 
-  for (let index = 0; index < workerCount; index += 1) {
-    cluster.fork();
-  }
-
+  const forkedAt = new Map<number, number>();
+  let rapidRestarts = 0;
   let isShuttingDown = false;
+
+  const fork = () => {
+    const worker = cluster.fork();
+    forkedAt.set(worker.id, Date.now());
+  };
+
+  for (let index = 0; index < workerCount; index += 1) {
+    fork();
+  }
 
   cluster.on('exit', (worker, code, signal) => {
     if (isShuttingDown) {
       return;
     }
 
-    logger.error(
-      `Worker ${worker.process.pid} exited (${signal || `code ${code}`}) — restarting`,
-    );
-    cluster.fork();
+    const startedAt = forkedAt.get(worker.id) ?? Date.now();
+    forkedAt.delete(worker.id);
+    const reason = signal || `code ${code}`;
+
+    // A worker that dies during boot will die again for the same reason — a
+    // taken port, a bad config, an unreachable database. Restarting it forever
+    // buries the real error under a flood of startup logs, so we stop instead.
+    if (Date.now() - startedAt < HEALTHY_WORKER_UPTIME_MS) {
+      rapidRestarts += 1;
+
+      if (rapidRestarts >= MAX_RAPID_RESTARTS) {
+        isShuttingDown = true;
+        logger.error(
+          `Worker ${worker.process.pid} exited (${reason}) during startup. ` +
+            `Giving up after ${rapidRestarts} failed starts — see the error above.`,
+        );
+
+        for (const other of Object.values(cluster.workers ?? {})) {
+          other?.kill('SIGTERM');
+        }
+
+        process.exit(1);
+      }
+    } else {
+      rapidRestarts = 0;
+    }
+
+    logger.error(`Worker ${worker.process.pid} exited (${reason}) — restarting`);
+    fork();
   });
 
   // Forward termination signals so workers close their connections and run
