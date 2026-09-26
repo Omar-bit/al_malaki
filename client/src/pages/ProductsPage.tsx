@@ -4,6 +4,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Header, Footer, ProductCard } from '../components';
 import { FilterBar } from '../components/ui/FilterBar';
 import { usePublicProducts } from '../hooks/usePublicProducts';
+import { ContentMediaSlider } from '../components/ContentMediaSlider';
+import { useSiteContent } from '../hooks/useSiteContent';
 import featured1 from '../assets/products/featured1.jpg';
 import featured2 from '../assets/products/featured2.jpg';
 
@@ -16,6 +18,12 @@ export function ProductsPage() {
 
   const { products: allProducts, categories, isLoading } = usePublicProducts();
   const products = allProducts.filter((p) => p.status === 'active');
+
+  // Admin-managed media; each slot falls back to its built-in asset when empty.
+  const { content } = useSiteContent();
+  const heroMedia = content.products_hero;
+  const featuredLeftMedia = content.products_featured_left;
+  const featuredRightMedia = content.products_featured_right;
 
   const [activeCategory, setActiveCategory] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState(
@@ -64,7 +72,19 @@ export function ProductsPage() {
       <Header />
 
       {/* ── Hero Section ─────────────────────────────────────────── */}
-      <section className='products-hero min-h-screen px-10 md:px-16 py-14 md:py-20 relative'>
+      <section
+        className={`min-h-screen px-10 md:px-16 py-14 md:py-20 relative ${
+          heroMedia.length > 0 ? 'bg-[#f7eee1]' : 'products-hero'
+        }`}
+      >
+        {heroMedia.length > 0 && (
+          <ContentMediaSlider
+            media={heroMedia}
+            className='absolute inset-0 h-full w-full'
+            showDots={false}
+          />
+        )}
+
         <div className='max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10'>
           {/* Left: headline */}
           <div className='flex-1 max-w-xl absolute top-35 left-15'>
@@ -199,10 +219,16 @@ export function ProductsPage() {
             </h2>
           */}
 
-            <img
-              src={featured1}
-              alt=''
-              className=' h-[50vh]  md:h-[75vh] w-full md:max-w-[400px]  rounded-2xl ml-auto'
+            <ContentMediaSlider
+              media={featuredLeftMedia}
+              className='h-[50vh] md:h-[75vh] w-full md:max-w-[400px] rounded-2xl ml-auto'
+              fallback={
+                <img
+                  src={featured1}
+                  alt=''
+                  className=' h-[50vh]  md:h-[75vh] w-full md:max-w-[400px]  rounded-2xl ml-auto'
+                />
+              }
             />
           </div>
 
@@ -221,7 +247,12 @@ export function ProductsPage() {
                   </span>
                 ))}
             </p>
-            {bestSeller?.images[0] ? (
+            {featuredRightMedia.length > 0 ? (
+              <ContentMediaSlider
+                media={featuredRightMedia}
+                className='h-[45vh] w-[75%] rounded-2xl'
+              />
+            ) : bestSeller?.images[0] ? (
               <img
                 src={featured2}
                 alt='featured2'

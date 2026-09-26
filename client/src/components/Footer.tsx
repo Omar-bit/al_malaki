@@ -78,10 +78,12 @@ const PhoneIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export function Footer() {
+export function Footer({ showBorderTop = false }: { showBorderTop?: boolean }) {
   const { t } = useTranslation();
   return (
-    <footer className='w-full bg-dark-red pt-5  border-t-100 border-t-cream  '>
+    <footer
+      className={`w-full bg-dark-red pt-5 ${showBorderTop && 'border-t-100 border-t-cream'}   `}
+    >
       {/* 
         -----------------------------------------------------
         MOBILE VIEW 

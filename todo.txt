@@ -1,51 +1,55 @@
-- desktop header icons hover(gold)
-- Ar lang  tunisian flag
-- global search modal : close X icon
-- categories prodcuts navigation icons
-- client space form increase inputs size
-- border top in login image
-- client space : client image (put crown in client image)
-- login input inputs left 
-- featured2 image in products page
+Done
+- desktop header icons hover(gold) currently not all icons hovered are turnde to gold
+- Ar lang  should be tunisian flag (currently saudi arabic green i think)
+- client space form increase inputs size a and labels too (little bit not too much)
+- remove border top in login image (there is a little red line on top of that image i donno if it's border)
+- mobile : language switcher besides search in nav menu
 - products page  footer border color should  be the same as its above section
-- auto submit otp (remove submit button)
-- remove auto scrolling in admin page when navigating between pages (clicking a nav link)
 - reverse فضاء العميل
 مرحباً بكم في
-- admin can manage images/
-- mobile language switcher besides search in nav menu
+- auto submit otp (remove submit button & increase otp case size and it should be square)
 
 
 
+Review
+- add desktop  prodcuts navigation icons (next ">" , previous "<") in the landing page
+- remove auto scrolling in aside menu (admin nav links) in admin page when navigating between pages (clicking a nav link)
+- global search modal : close X icon
+- admin can manage app images (add content page in admin space so admin can change the images in the app like the provided screenshot example) the manged images should be the hero in landing page and products page and the featured images in bottom section of products page (he can repalce/add more images/videos , in case of more than one image/video show it as slider )
 
 
+TODO
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- login input inputs left 
 - month day reverse
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- client space : client image (put crown in client image)
 - backup
 
 
@@ -55,7 +59,7 @@ BLOCKED
 - customize pack 3d (3d design)
 - export pending orders to PDF with the specefic template (wait haboub to send the template)
 
-DONE
+
 
 
 

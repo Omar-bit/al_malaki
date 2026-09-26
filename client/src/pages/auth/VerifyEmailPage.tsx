@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -34,55 +33,65 @@ export function VerifyEmailPage() {
       ? locationState.otpExpiresInSeconds
       : null;
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const emailValidation = validateEmailValue(email, {
-      required: t('verify_email.email_required', {
-        defaultValue: 'Please enter your email first',
-      }),
-      invalid: t('verify_email.email_invalid', {
-        defaultValue: 'Please enter a valid email address',
-      }),
-    });
-
-    if (!emailValidation.isValid) {
-      toast.error(emailValidation.error);
-      return;
-    }
-
-    const otpValidation = validateOtpValue(otpCode, {
-      required: t('verify_email.otp_required'),
-      invalid: t('verify_email.otp_invalid', {
-        defaultValue: 'OTP must be a 6-digit code',
-      }),
-    });
-
-    if (!otpValidation.isValid) {
-      toast.error(otpValidation.error);
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      await authService.verifyRegisterOtp({
-        email: emailValidation.value,
-        otpCode: otpValidation.value,
+  const submitOtp = useCallback(
+    async (code: string) => {
+      const emailValidation = validateEmailValue(email, {
+        required: t('verify_email.email_required', {
+          defaultValue: 'Please enter your email first',
+        }),
+        invalid: t('verify_email.email_invalid', {
+          defaultValue: 'Please enter a valid email address',
+        }),
       });
 
-      toast.success(t('verify_email.success'));
-      navigate('/dashboard', { replace: true });
-    } catch (error) {
-      if (error instanceof Error && error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error(t('verify_email.generic_error'));
+      if (!emailValidation.isValid) {
+        toast.error(emailValidation.error);
+        return;
       }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+
+      const otpValidation = validateOtpValue(code, {
+        required: t('verify_email.otp_required'),
+        invalid: t('verify_email.otp_invalid', {
+          defaultValue: 'OTP must be a 6-digit code',
+        }),
+      });
+
+      if (!otpValidation.isValid) {
+        toast.error(otpValidation.error);
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      try {
+        await authService.verifyRegisterOtp({
+          email: emailValidation.value,
+          otpCode: otpValidation.value,
+        });
+
+        toast.success(t('verify_email.success'));
+        navigate('/dashboard', { replace: true });
+      } catch (error) {
+        if (error instanceof Error && error.message) {
+          toast.error(error.message);
+        } else {
+          toast.error(t('verify_email.generic_error'));
+        }
+        // Clear the code so the user can retype — and so the auto-submit
+        // effect below does not immediately resubmit the same failed code.
+        setOtpCode('');
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [email, navigate, t],
+  );
+
+  // Verify as soon as the sixth digit is entered — there is no submit button.
+  useEffect(() => {
+    if (otpCode.length !== 6 || isSubmitting || !email.trim()) return;
+    void submitOtp(otpCode);
+  }, [otpCode, isSubmitting, email, submitOtp]);
 
   return (
     <div className='relative min-h-screen overflow-hidden font-["Abhaya_Libre"]'>
@@ -126,7 +135,10 @@ export function VerifyEmailPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
             className='mx-auto mt-6 max-w-108'
-            onSubmit={handleSubmit}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void submitOtp(otpCode);
+            }}
           >
             {email ? (
               <input
@@ -164,12 +176,16 @@ export function VerifyEmailPage() {
               numInputs={6}
               shouldAutoFocus
               inputType='tel'
-              containerStyle='flex items-center justify-center gap-2 md:gap-2.5'
+              containerStyle='flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3'
               renderInput={(props) => (
                 <input
                   {...props}
+                  // react-otp-input injects an inline `width: 1em`, which would
+                  // beat the Tailwind width class and leave the cells oblong.
+                  style={{ ...props.style, width: undefined }}
+                  disabled={isSubmitting}
                   dir='ltr'
-                  className='h-12 w-20 p-2 rounded-xl border border-[#6d232f]/30 bg-transparent text-center text-xl font-bold text-dark-red outline-none transition focus:border-[#6d232f] focus:ring-2 focus:ring-[#6d232f]/20 md:h-13 md:w-11 md:text-2xl'
+                  className='h-12 w-12 shrink-0 rounded-xl border border-[#6d232f]/30 bg-transparent p-0 text-center text-xl font-bold text-dark-red outline-none transition focus:border-[#6d232f] focus:ring-2 focus:ring-[#6d232f]/20 disabled:opacity-70 sm:h-14 sm:w-14 md:h-16 md:w-16 md:text-2xl'
                 />
               )}
             />
@@ -185,16 +201,13 @@ export function VerifyEmailPage() {
                   })}
             </div>
 
-            <div className='mt-6 flex justify-center'>
-              <button
-                type='submit'
-                disabled={isSubmitting}
-                className='min-h-12 min-w-60 rounded-full bg-[#4f0010] px-6 text-base font-semibold text-[#f7e8cc] shadow-[0_10px_24px_rgba(45,4,12,0.28)] transition hover:-translate-y-px hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-65 md:min-w-76 md:text-2xl'
-              >
-                {isSubmitting
-                  ? t('verify_email.loading')
-                  : t('verify_email.submit')}
-              </button>
+            <div className='mt-6 flex min-h-6 items-center justify-center'>
+              {isSubmitting && (
+                <span className='flex items-center gap-2 text-base text-dark-red/85 md:text-xl'>
+                  <span className='h-4 w-4 animate-spin rounded-full border-2 border-dark-red/30 border-t-dark-red' />
+                  {t('verify_email.loading')}
+                </span>
+              )}
             </div>
           </motion.form>
         </motion.section>

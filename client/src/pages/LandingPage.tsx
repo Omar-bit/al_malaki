@@ -1,4 +1,12 @@
-import { Header, Hero, Products, About, Follow, Footer, GuestModal } from '../components';
+import {
+  Header,
+  Hero,
+  Products,
+  About,
+  Follow,
+  Footer,
+  GuestModal,
+} from '../components';
 
 export function LandingPage() {
   return (
@@ -11,7 +19,7 @@ export function LandingPage() {
         <About />
         <Follow />
       </main>
-      <Footer />
+      <Footer showBorderTop />
     </div>
   );
 }

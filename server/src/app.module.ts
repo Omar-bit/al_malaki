@@ -16,6 +16,7 @@ import { PromoModule } from './promo/promo.module';
 import { OrderModule } from './order/order.module';
 import { LoyaltyModule } from './loyalty/loyalty.module';
 import { ContactModule } from './contact/contact.module';
+import { ContentModule } from './content/content.module';
 import { NotificationModule } from './notification/notification.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { InfluencerTrackingModule } from './influencer-tracking/influencer-tracking.module';
@@ -68,6 +69,7 @@ const shouldServeUploadsFromApp =
     OrderModule,
     LoyaltyModule,
     ContactModule,
+    ContentModule,
     NotificationModule,
     ActivityLogModule,
     InfluencerTrackingModule,

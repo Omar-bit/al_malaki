@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import useWindowWidth from '../hooks/useWindowWidth';
 import { useTranslation } from 'react-i18next';
+import { ContentMediaSlider } from './ContentMediaSlider';
+import { useContentSlot } from '../hooks/useSiteContent';
 
 export function Hero({
   variant = 'landing',
@@ -9,18 +11,36 @@ export function Hero({
 }) {
   const width = useWindowWidth();
   const { t, i18n } = useTranslation();
+  const { media } = useContentSlot('landing_hero');
+
+  // Admin-managed hero media replaces the built-in background only on the
+  // landing hero, and only once something has been uploaded.
+  const managedMedia = variant === 'landing' ? media : [];
+  const hasManagedMedia = managedMedia.length > 0;
 
   return (
     <section
       id='home'
       className='relative h-[55vh] md:min-h-screen w-full overflow-hidden bg-cover bg-no-repeat'
-      style={{
-        backgroundImage:
-          width < 768 ? 'url(/hero-bg-mobile.jpg)' : 'url(/hero-bg.jpg)',
-        backgroundSize: width < 768 ? '170% 100%' : '100% auto',
-        backgroundPosition: width < 768 ? '100% 50%' : 'center center',
-      }}
+      style={
+        hasManagedMedia
+          ? undefined
+          : {
+              backgroundImage:
+                width < 768 ? 'url(/hero-bg-mobile.jpg)' : 'url(/hero-bg.jpg)',
+              backgroundSize: width < 768 ? '170% 100%' : '100% auto',
+              backgroundPosition: width < 768 ? '100% 50%' : 'center center',
+            }
+      }
     >
+      {hasManagedMedia && (
+        <ContentMediaSlider
+          media={managedMedia}
+          className='absolute inset-0 h-full w-full'
+          showDots={false}
+        />
+      )}
+
       <div className='relative mx-auto flex min-h-screen w-full items-start px-5 pb-12 pt-[162px] sm:px-8 sm:pt-[190px] md:px-10 md:pt-[280px] lg:mx-auto lg:pt-[250px] '>
         <div className='max-w-[240px] sm:max-w-[320px] md:max-w-none mx-auto -translate-x-[100%] md:-translate-x-[45%] flex flex-col  items-center justify-center '>
           {variant === 'landing' && (
@@ -54,7 +74,9 @@ export function Hero({
             </>
           )}
           {variant === 'client-dashboard' && (
-            <>
+            <div
+              className={`${i18n.language === 'ar' && 'flex flex-col-reverse'}`}
+            >
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -81,7 +103,7 @@ export function Hero({
                   {t('clientSpace.welcome')}
                 </p>
               </motion.div>
-            </>
+            </div>
           )}
         </div>
       </div>

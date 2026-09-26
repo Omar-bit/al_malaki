@@ -11,3 +11,4 @@ export * from './Table';
 export * from './Spinner';
 export * from './PasswordInput';
 export * from './ToggleSwitch';
+export * from './MaskIcon';

@@ -452,12 +452,12 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              <div className='space-y-3'>
+              <div className='space-y-4'>
                 {/* Full name */}
                 <div>
                   <label
                     htmlFor='dashboard-fullname'
-                    className='block font-bona text-[13px] text-[#3f060f] mb-1'
+                    className='block font-bona text-[14px] text-[#3f060f] mb-1.5'
                   >
                     {t('dashboard.full_name')}
                   </label>
@@ -472,7 +472,7 @@ export function DashboardPage() {
                           fullName: e.target.value,
                         }))
                       }
-                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3 py-2 font-bona text-[13px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
+                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3.5 py-2.5 font-bona text-[15px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
                     />
                     <span className='absolute right-3 top-1/2 -translate-y-1/2 text-[#b09080]'>
                       ˅
@@ -484,7 +484,7 @@ export function DashboardPage() {
                 <div>
                   <label
                     htmlFor='dashboard-email'
-                    className='block font-bona text-[13px] text-[#3f060f] mb-1'
+                    className='block font-bona text-[14px] text-[#3f060f] mb-1.5'
                   >
                     {t('dashboard.email')}
                   </label>
@@ -494,7 +494,7 @@ export function DashboardPage() {
                       type='email'
                       value={profileForm.email}
                       readOnly
-                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#f0e8dc] px-3 py-2 font-bona text-[13px] text-[#3f060f] outline-none cursor-not-allowed opacity-70'
+                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#f0e8dc] px-3.5 py-2.5 font-bona text-[15px] text-[#3f060f] outline-none cursor-not-allowed opacity-70'
                     />
                     <span className='absolute right-3 top-1/2 -translate-y-1/2 text-[#b09080]'>
                       ˅
@@ -506,7 +506,7 @@ export function DashboardPage() {
                 <div>
                   <label
                     htmlFor='dashboard-password'
-                    className='block font-bona text-[13px] text-[#3f060f] mb-1'
+                    className='block font-bona text-[14px] text-[#3f060f] mb-1.5'
                   >
                     {t('dashboard.change_password')}
                   </label>
@@ -515,7 +515,7 @@ export function DashboardPage() {
                       id='dashboard-password'
                       type='password'
                       placeholder='••••••••'
-                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3 py-2 font-bona text-[13px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
+                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3.5 py-2.5 font-bona text-[15px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
                     />
                     <span className='absolute right-3 top-1/2 -translate-y-1/2 text-[#b09080]'>
                       ˅
@@ -527,7 +527,7 @@ export function DashboardPage() {
                 <div>
                   <label
                     htmlFor='dashboard-birthdate'
-                    className='block font-(--font-abee) text-[13px] text-[#3f060f] mb-1'
+                    className='block font-(--font-abee) text-[14px] text-[#3f060f] mb-1.5'
                   >
                     {t('dashboard.birth_date')}
                   </label>
@@ -542,7 +542,7 @@ export function DashboardPage() {
                           birthDate: e.target.value,
                         }))
                       }
-                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3 py-2 font-(--font-abee) text-[13px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
+                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3.5 py-2.5 font-(--font-abee) text-[15px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
                     />
                     <span className='absolute right-3 top-1/2 -translate-y-1/2 text-[#b09080] pointer-events-none'>
                       ˅

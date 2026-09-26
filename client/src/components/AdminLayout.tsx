@@ -17,6 +17,7 @@ import {
   StepBack,
   Bell,
   History,
+  Image,
   ChevronLeft,
   Camera,
   Loader2,
@@ -100,6 +101,11 @@ const sidebarMenu = [
         icon: Plus,
         label: 'Add products',
         path: '/admin/products/new',
+      },
+      {
+        icon: Image,
+        label: 'Content & Media',
+        path: '/admin/content',
       },
     ],
   },
@@ -285,6 +291,8 @@ function AdminProfileModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+const SIDEBAR_SCROLL_STORAGE_KEY = 'adminSidebarScrollTop';
+
 // ── Layout ────────────────────────────────────────────────────────────────────
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -299,6 +307,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   });
   const [shouldShowAside, setShouldShowAside] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const sidebarNavRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     localStorage.setItem('adminSidebarCollapsed', JSON.stringify(isCollapsed));
@@ -309,6 +318,32 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     setIsSidebarOpen(false);
     setShouldShowAside(location.pathname !== '/admin/management');
   }, [location.pathname]);
+
+  // Every admin page renders its own AdminLayout, so navigating remounts the
+  // sidebar and its scroll position snaps back to the top. Restore the last
+  // position on mount and keep it in sync so the nav stays where the user
+  // left it while moving between pages.
+  useEffect(() => {
+    const nav = sidebarNavRef.current;
+    if (!nav) return;
+
+    const stored = Number(
+      sessionStorage.getItem(SIDEBAR_SCROLL_STORAGE_KEY) ?? '0',
+    );
+    if (Number.isFinite(stored) && stored > 0) {
+      nav.scrollTop = stored;
+    }
+
+    const handleScroll = () => {
+      sessionStorage.setItem(
+        SIDEBAR_SCROLL_STORAGE_KEY,
+        String(nav.scrollTop),
+      );
+    };
+
+    nav.addEventListener('scroll', handleScroll, { passive: true });
+    return () => nav.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -412,7 +447,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
           </button>
 
-          <nav className='flex-1 overflow-y-auto px-4 custom-scrollbar space-y-3'>
+          <nav
+            ref={sidebarNavRef}
+            className='flex-1 overflow-y-auto px-4 custom-scrollbar space-y-3'
+          >
             {sidebarMenu
               .filter((section) => section.items.length > 0)
               .map((section, idx) => (

@@ -66,6 +66,11 @@ const AdminMessagesPage = lazy(() =>
     default: m.AdminMessagesPage,
   })),
 );
+const AdminContentPage = lazy(() =>
+  import('./pages/admin/AdminContentPage').then((m) => ({
+    default: m.AdminContentPage,
+  })),
+);
 const AdminHistoryPage = lazy(() =>
   import('./pages/admin/AdminHistoryPage').then((m) => ({
     default: m.AdminHistoryPage,
@@ -145,6 +150,7 @@ export default function App() {
           <Route path='/admin/orders' element={<AdminOrdersPage />} />
           <Route path='/admin/messages' element={<AdminMessagesPage />} />
           <Route path='/admin/history' element={<AdminHistoryPage />} />
+          <Route path='/admin/content' element={<AdminContentPage />} />
         </Route>
       </Routes>
       </Suspense>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import React from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -7,17 +8,24 @@ import { getLandingProducts } from '../services/productService';
 import type { ProductAnalyticsProduct } from '../types/product';
 import Button from './ui/Button';
 
+/** Products shown per page in the desktop grid. */
+const DESKTOP_PAGE_SIZE = 3;
+
+/** Products shown in the mobile carousel. */
+const MOBILE_PRODUCT_COUNT = 3;
+
 export function Products() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [products, setProducts] = useState<ProductAnalyticsProduct[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     async function loadProducts() {
       try {
         const fetchedProducts = await getLandingProducts();
-        setProducts(fetchedProducts.slice(0, 3));
+        setProducts(fetchedProducts);
       } catch (error) {
         console.error('Failed to fetch products', error);
       }
@@ -25,6 +33,32 @@ export function Products() {
 
     loadProducts();
   }, []);
+
+  const mobileProducts = useMemo(
+    () => products.slice(0, MOBILE_PRODUCT_COUNT),
+    [products],
+  );
+
+  const pageCount = Math.max(1, Math.ceil(products.length / DESKTOP_PAGE_SIZE));
+  const hasPagination = products.length > DESKTOP_PAGE_SIZE;
+
+  // Clamp during render so a shrinking product list cannot strand the page
+  // index past the end.
+  const safePage = page < pageCount ? page : 0;
+
+  const pagedProducts = useMemo(
+    () =>
+      products.slice(
+        safePage * DESKTOP_PAGE_SIZE,
+        safePage * DESKTOP_PAGE_SIZE + DESKTOP_PAGE_SIZE,
+      ),
+    [products, safePage],
+  );
+
+  const goToPreviousPage = () =>
+    setPage((current) => (current - 1 + pageCount) % pageCount);
+
+  const goToNextPage = () => setPage((current) => (current + 1) % pageCount);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -46,10 +80,10 @@ export function Products() {
   };
 
   useEffect(() => {
-    if (activeIndex > products.length - 1) {
+    if (activeIndex > mobileProducts.length - 1) {
       setActiveIndex(0);
     }
-  }, [activeIndex, products.length]);
+  }, [activeIndex, mobileProducts.length]);
 
   return (
     <section id='products' className='bg-cream px-0 py-8 md:p-5'>
@@ -66,7 +100,7 @@ export function Products() {
 
         <div className='w-full md:hidden flex flex-col items-center overflow-hidden pb-4'>
           <div className='relative grid w-full place-items-center py-4'>
-            {products.map((product, index) => {
+            {mobileProducts.map((product, index) => {
               const offset = index - activeIndex;
               const isActive = offset === 0;
 
@@ -159,9 +193,9 @@ export function Products() {
             })}
           </div>
 
-          {products.length > 1 && (
+          {mobileProducts.length > 1 && (
             <div className='mt-8 flex items-center justify-center gap-2'>
-              {products.map((product, index) => (
+              {mobileProducts.map((product, index) => (
                 <button
                   key={product.id}
                   type='button'
@@ -172,7 +206,7 @@ export function Products() {
                   }`}
                 />
               ))}
-              {products.map((product, index) => (
+              {mobileProducts.map((product, index) => (
                 <button
                   key={product.id}
                   type='button'
@@ -187,43 +221,67 @@ export function Products() {
           )}
         </div>
 
-        <motion.div
-          variants={containerVariants}
-          initial='hidden'
-          whileInView='visible'
-          viewport={{ once: true, margin: '-50px' }}
-          className='hidden w-[85%] items-center justify-center justify-items-center gap-10 md:grid md:grid-cols-3'
-        >
-          {products.map((product) => (
-            <motion.article
-              variants={itemVariants}
-              key={product.id}
-              className='w-full'
+        <div className='relative hidden w-[85%] md:block'>
+          {hasPagination && (
+            <button
+              type='button'
+              onClick={goToPreviousPage}
+              aria-label={t('products.previous', 'Previous products')}
+              className='absolute top-1/2 -left-14 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-dark-red/30 bg-cream/80 text-dark-red transition-colors hover:border-gold hover:text-gold'
             >
-              <div className='w-full aspect-square w-full bg-[#d9d9d9] flex items-center justify-center overflow-hidden'>
-                {product.images?.[0] && (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className='w-full h-full object-cover'
-                  />
-                )}
-              </div>
-              <h3 className='mt-[20px] text-center qq text-4xl md:text-2xl font-italic leading-[1.05] text-black '>
-                {product.name}
-              </h3>
-              <Button
-                backgroundVariant='honeyPattern'
-                classNames='mx-auto flex mt-5 px-12 !rounded-[30px]'
-                onClick={() => navigate(`/products/${product.slug}`)}
+              <ChevronLeft className='h-6 w-6' />
+            </button>
+          )}
+
+          <motion.div
+            variants={containerVariants}
+            initial='hidden'
+            whileInView='visible'
+            viewport={{ once: true, margin: '-50px' }}
+            className='grid w-full grid-cols-3 items-center justify-center justify-items-center gap-10'
+          >
+            {pagedProducts.map((product) => (
+              <motion.article
+                variants={itemVariants}
+                key={product.id}
+                className='w-full'
               >
-                <span className='text-dark-red font-abhaya  !font-extrabold text-[20px]'>
-                  {t('products.button')}
-                </span>
-              </Button>
-            </motion.article>
-          ))}
-        </motion.div>
+                <div className='w-full aspect-square w-full bg-[#d9d9d9] flex items-center justify-center overflow-hidden'>
+                  {product.images?.[0] && (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className='w-full h-full object-cover'
+                    />
+                  )}
+                </div>
+                <h3 className='mt-[20px] text-center qq text-4xl md:text-2xl font-italic leading-[1.05] text-black '>
+                  {product.name}
+                </h3>
+                <Button
+                  backgroundVariant='honeyPattern'
+                  classNames='mx-auto flex mt-5 px-12 !rounded-[30px]'
+                  onClick={() => navigate(`/products/${product.slug}`)}
+                >
+                  <span className='text-dark-red font-abhaya  !font-extrabold text-[20px]'>
+                    {t('products.button')}
+                  </span>
+                </Button>
+              </motion.article>
+            ))}
+          </motion.div>
+
+          {hasPagination && (
+            <button
+              type='button'
+              onClick={goToNextPage}
+              aria-label={t('products.next', 'Next products')}
+              className='absolute top-1/2 -right-14 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-dark-red/30 bg-cream/80 text-dark-red transition-colors hover:border-gold hover:text-gold'
+            >
+              <ChevronRight className='h-6 w-6' />
+            </button>
+          )}
+        </div>
 
         {/* <motion.div
           initial={{ opacity: 0, y: 20 }}

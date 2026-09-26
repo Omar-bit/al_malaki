@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Logo } from './Logo';
 import { SearchOverlay } from './SearchOverlay';
+import { MaskIcon } from './ui/MaskIcon';
 import { useCart } from '../contexts/CartContext';
 import { useAuth, useNotifications } from '../contexts';
 import cartIcon from '../assets/cart.svg';
@@ -39,17 +40,14 @@ const flagIcons: Record<string, ReactElement> = {
   ),
   ar: (
     <svg viewBox='0 0 24 16' className='h-3 w-4 shrink-0' aria-hidden='true'>
-      <rect width='24' height='16' fill='#006C35' />
-      <g stroke='#fff' strokeWidth='0.8' strokeLinecap='round' fill='none'>
-        <path d='M4 7.4c1.1-1.5 2.2 1.5 3.3 0s2.2-1.5 3.3 0 2.2 1.5 3.3 0 2.2-1.2 3.1-.2' />
-        <path d='M6.2 4.6v2.6M10.6 4.2v3M15 4.6v2.6' strokeWidth='0.7' />
-      </g>
-      <g fill='#fff'>
-        <polygon points='3.4,11.5 17.2,10.8 17.2,12.2' />
-        <rect x='17.1' y='9.7' width='0.9' height='3.6' rx='0.3' />
-        <rect x='18' y='11' width='1.9' height='1' rx='0.4' />
-        <circle cx='20.4' cy='11.5' r='0.8' />
-      </g>
+      <rect width='24' height='16' fill='#E70013' />
+      <circle cx='12' cy='8' r='5' fill='#fff' />
+      <circle cx='11.6' cy='8' r='3.4' fill='#E70013' />
+      <circle cx='12.6' cy='8' r='2.8' fill='#fff' />
+      <polygon
+        fill='#E70013'
+        points='13.10,6.30 13.50,7.45 14.72,7.47 13.75,8.21 14.10,9.38 13.10,8.68 12.10,9.38 12.45,8.21 11.48,7.47 12.70,7.45'
+      />
     </svg>
   ),
 };
@@ -120,7 +118,9 @@ export function Header({
   }, [isOpen]);
 
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isMobileLangOpen, setIsMobileLangOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
+  const mobileLangMenuRef = useRef<HTMLDivElement>(null);
 
   const languages: { code: string; label: string }[] = [
     { code: 'en', label: 'En' },
@@ -131,6 +131,7 @@ export function Header({
   const selectLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
     setIsLangOpen(false);
+    setIsMobileLangOpen(false);
   };
 
   useEffect(() => {
@@ -140,6 +141,13 @@ export function Header({
         !langMenuRef.current.contains(event.target as Node)
       ) {
         setIsLangOpen(false);
+      }
+
+      if (
+        mobileLangMenuRef.current &&
+        !mobileLangMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileLangOpen(false);
       }
     };
 
@@ -152,6 +160,7 @@ export function Header({
 
   const openSearch = () => {
     setIsOpen(false);
+    setIsMobileLangOpen(false);
     setIsSearchOpen(true);
   };
 
@@ -241,10 +250,13 @@ export function Header({
           <Link
             data-tour='mobile-account'
             to={accountPath}
-            className='text-dark-red transition-colors hover:text-gold'
+            className='group text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
           >
-            <img className='h-8 w-auto' src={profile} alt='Account' />
+            <MaskIcon
+              src={profile}
+              className='h-8 w-auto aspect-[28/37] text-[#461218] transition-colors group-hover:text-gold'
+            />
           </Link>
         </div>
 
@@ -284,19 +296,25 @@ export function Header({
           <button
             data-tour='mobile-search'
             type='button'
-            className='text-dark-red transition-colors hover:text-gold'
+            className='group text-dark-red transition-colors hover:text-gold'
             aria-label='Search'
             onClick={openSearch}
           >
-            <img className='h-7 w-auto' src={scoopIcon} alt='Search' />
+            <MaskIcon
+              src={scoopIcon}
+              className='h-7 w-auto aspect-[35/36] text-[#461218] transition-colors group-hover:text-gold'
+            />
           </button>
           <button
             data-tour='mobile-cart'
-            className='relative text-dark-red transition-colors hover:text-gold'
+            className='group relative text-dark-red transition-colors hover:text-gold'
             aria-label='Cart'
             onClick={openCart}
           >
-            <img className='h-7 w-auto' src={cartIcon} alt='Cart' />
+            <MaskIcon
+              src={cartIcon}
+              className='h-7 w-auto aspect-[41/38] text-[#461218] transition-colors group-hover:text-gold'
+            />
             {totalItems > 0 && (
               <span className='absolute -right-2 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#3f060f] px-1 text-[11px] font-abee font-bold text-[#fdf8f0]'>
                 {totalItems}
@@ -330,11 +348,14 @@ export function Header({
         <div className='hidden md:flex items-center gap-7 '>
           <button
             data-tour='search'
-            className='text-dark-red transition-colors hover:text-gold relative'
+            className='group text-dark-red transition-colors hover:text-gold relative'
             aria-label='Search'
             onClick={openSearch}
           >
-            <img className='size-6' src={scoopIcon} alt='Search' />
+            <MaskIcon
+              src={scoopIcon}
+              className='size-6 text-[#461218] transition-colors group-hover:text-gold'
+            />
           </button>
           {user && (
             <Link
@@ -352,11 +373,14 @@ export function Header({
           )}
           <button
             data-tour='cart'
-            className='text-dark-red transition-colors hover:text-gold relative'
+            className='group text-dark-red transition-colors hover:text-gold relative'
             aria-label='Cart'
             onClick={openCart}
           >
-            <img className='size-6' src={cartIcon} alt='Cart' />
+            <MaskIcon
+              src={cartIcon}
+              className='size-6 text-[#461218] transition-colors group-hover:text-gold'
+            />
             {totalItems > 0 && (
               <span className='absolute -top-1.5 -right-2 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-[#3f060f] text-[#fdf8f0] text-[11px] font-abee font-bold px-1'>
                 {totalItems}
@@ -366,10 +390,13 @@ export function Header({
           <Link
             data-tour='account'
             to={accountPath}
-            className='text-dark-red transition-colors hover:text-gold'
+            className='group text-dark-red transition-colors hover:text-gold'
             aria-label='Account'
           >
-            <img className='size-6' src={profile} alt='Account' />
+            <MaskIcon
+              src={profile}
+              className='size-6 text-[#461218] transition-colors group-hover:text-gold'
+            />
           </Link>
 
           <div data-tour='lang-toggle' className='relative' ref={langMenuRef}>
@@ -447,6 +474,47 @@ export function Header({
               <span>Search products...</span>
               <img className='h-5 w-5' src={scoopIcon} alt='Search' />
             </button>
+
+            <div className='relative shrink-0' ref={mobileLangMenuRef}>
+              <button
+                type='button'
+                onClick={() => setIsMobileLangOpen((prev) => !prev)}
+                className='flex h-[34px] items-center gap-1.5 border border-[#ccbcb0] bg-transparent px-3 font-abee text-[14px] text-dark-red transition-colors hover:text-gold'
+                aria-haspopup='listbox'
+                aria-expanded={isMobileLangOpen}
+                aria-label='Change language'
+              >
+                {flagIcons[i18n.language] ?? flagIcons.en}
+                {languages.find((lang) => lang.code === i18n.language)?.label ??
+                  'En'}
+              </button>
+
+              {isMobileLangOpen && (
+                <ul
+                  role='listbox'
+                  className='absolute right-0 top-full z-50 mt-1 min-w-[84px] border border-[#ccbcb0] bg-white py-1 shadow-md'
+                >
+                  {languages.map((lang) => (
+                    <li key={lang.code}>
+                      <button
+                        type='button'
+                        role='option'
+                        aria-selected={i18n.language === lang.code}
+                        onClick={() => selectLanguage(lang.code)}
+                        className={`flex w-full items-center gap-1.5 px-3 py-1.5 text-left font-abee text-[14px] transition-colors hover:bg-[#f3eadc] hover:text-gold ${
+                          i18n.language === lang.code
+                            ? 'text-gold'
+                            : 'text-dark-red'
+                        }`}
+                      >
+                        {flagIcons[lang.code]}
+                        {lang.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
 
           <ul className='flex flex-col'>

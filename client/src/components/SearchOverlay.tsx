@@ -177,10 +177,10 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           <button
             type='button'
             onClick={onClose}
-            className='hidden shrink-0 rounded-lg border border-[#e2cdae] px-2 py-1 text-[11px] font-semibold text-[#8a745e] transition hover:bg-[#f0e4d2] md:block'
+            className='flex shrink-0 items-center justify-center rounded-lg border border-[#e2cdae] p-1.5 text-[#8a745e] transition hover:bg-[#f0e4d2] hover:text-dark-red'
             aria-label='Close search'
           >
-            ESC
+            <X className='h-4 w-4' />
           </button>
         </div>
 
