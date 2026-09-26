@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getLandingProducts } from '../services/productService';
@@ -55,6 +55,16 @@ export function Products() {
     [products, safePage],
   );
 
+  // The grid animates in on scroll, but its children only exist once the fetch
+  // resolves — and paging remounts them. Owning the in-view flag keeps `animate`
+  // an explicit prop, so children that mount later still inherit `visible`
+  // instead of being stranded in the `hidden` variant.
+  const desktopGridRef = useRef<HTMLDivElement>(null);
+  const isDesktopGridInView = useInView(desktopGridRef, {
+    once: true,
+    margin: '-50px',
+  });
+
   const goToPreviousPage = () =>
     setPage((current) => (current - 1 + pageCount) % pageCount);
 
@@ -62,22 +72,15 @@ export function Products() {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
+    visible: { opacity: 1 },
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' as const },
-    },
-  };
+  /** Matches the previous `staggerChildren: 0.2` cascade. */
+  const cardTransition = (index: number) => ({
+    duration: 0.6,
+    ease: 'easeOut' as const,
+    delay: index * 0.2,
+  });
 
   useEffect(() => {
     if (activeIndex > mobileProducts.length - 1) {
@@ -206,17 +209,6 @@ export function Products() {
                   }`}
                 />
               ))}
-              {mobileProducts.map((product, index) => (
-                <button
-                  key={product.id}
-                  type='button'
-                  onClick={() => setActiveIndex(index)}
-                  aria-label={`Show product ${index + 1}`}
-                  className={`h-2 w-2 rounded-full transition-colors ${
-                    index === activeIndex ? 'bg-[#6a1821]' : 'bg-[#d6c6be]'
-                  }`}
-                />
-              ))}
             </div>
           )}
         </div>
@@ -234,16 +226,22 @@ export function Products() {
           )}
 
           <motion.div
+            ref={desktopGridRef}
             variants={containerVariants}
             initial='hidden'
-            whileInView='visible'
-            viewport={{ once: true, margin: '-50px' }}
+            animate={isDesktopGridInView ? 'visible' : 'hidden'}
             className='grid w-full grid-cols-3 items-center justify-center justify-items-center gap-10'
           >
-            {pagedProducts.map((product) => (
+            {pagedProducts.map((product, index) => (
               <motion.article
-                variants={itemVariants}
                 key={product.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={
+                  isDesktopGridInView
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: 30 }
+                }
+                transition={cardTransition(index)}
                 className='w-full'
               >
                 <div className='w-full aspect-square w-full bg-[#d9d9d9] flex items-center justify-center overflow-hidden'>

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import crown from '../assets/crown.png';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -320,10 +320,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   }, [location.pathname]);
 
   // Every admin page renders its own AdminLayout, so navigating remounts the
-  // sidebar and its scroll position snaps back to the top. Restore the last
-  // position on mount and keep it in sync so the nav stays where the user
-  // left it while moving between pages.
-  useEffect(() => {
+  // sidebar and its scroll position snaps back to the top. Restoring it in a
+  // layout effect applies the scroll in the same frame as the mount, before the
+  // browser paints — with a plain effect the nav paints at the top first and the
+  // correction reads as a visible jump.
+  useLayoutEffect(() => {
     const nav = sidebarNavRef.current;
     if (!nav) return;
 
@@ -331,7 +332,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       sessionStorage.getItem(SIDEBAR_SCROLL_STORAGE_KEY) ?? '0',
     );
     if (Number.isFinite(stored) && stored > 0) {
+      // Guard against any inherited smooth-scrolling so the restore is an
+      // instant placement rather than an animation the user can watch.
+      const previousBehavior = nav.style.scrollBehavior;
+      nav.style.scrollBehavior = 'auto';
       nav.scrollTop = stored;
+      nav.style.scrollBehavior = previousBehavior;
     }
 
     const handleScroll = () => {
