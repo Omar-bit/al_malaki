@@ -32,6 +32,7 @@ import {
   TableCell,
   TableHeaderCell,
   ToggleSwitch,
+  DateInput,
 } from '../../components/ui';
 
 /* ───────────────────────────── helpers ───────────────────────────── */
@@ -522,12 +523,11 @@ export function AdminPromoCodesPage() {
                     >
                       Start date
                     </label>
-                    <input
+                    <DateInput
                       id='promo-start-date'
-                      type='date'
                       value={form.startDate.slice(0, 10)}
-                      onChange={(e) => updateField('startDate', e.target.value)}
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
+                      onChange={(date) => updateField('startDate', date)}
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 pr-11 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition disabled:opacity-50 disabled:cursor-not-allowed'
                     />
                   </div>
 
@@ -538,15 +538,14 @@ export function AdminPromoCodesPage() {
                     >
                       Expiration
                     </label>
-                    <input
+                    <DateInput
                       id='promo-expiration'
-                      type='date'
                       disabled={form.isLifetime}
                       value={form.expiration?.slice(0, 10) ?? ''}
-                      onChange={(e) =>
-                        updateField('expiration', e.target.value || undefined)
+                      onChange={(date) =>
+                        updateField('expiration', date || undefined)
                       }
-                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition disabled:opacity-50 disabled:cursor-not-allowed'
+                      className='w-full rounded-xl border border-[#3F060F]/30 bg-[#D9D9D9]/34 px-4 py-2.5 pr-11 text-sm text-[#000000]/68 placeholder:text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition disabled:opacity-50 disabled:cursor-not-allowed'
                     />
                   </div>
                 </div>

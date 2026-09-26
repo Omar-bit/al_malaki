@@ -36,7 +36,7 @@ export function Hero({
       {hasManagedMedia && (
         <ContentMediaSlider
           media={managedMedia}
-          className='absolute inset-0 h-full w-full'
+          className='absolute inset-0'
           showDots={false}
         />
       )}

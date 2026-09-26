@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { twMerge } from 'tailwind-merge';
 import type { ContentMedia } from '../types/content';
 import { contentMediaStyle } from '../utils/contentMedia';
 
@@ -6,7 +7,11 @@ const AUTO_ADVANCE_MS = 6000;
 
 interface ContentMediaSliderProps {
   media: ContentMedia[];
-  /** Sizing/positioning for the frame — the media fills it with `object-cover`. */
+  /**
+   * Sizing/positioning for the frame — the media fills it with `object-cover`.
+   * Conflicting utilities override the defaults (e.g. pass `absolute` to place
+   * the frame behind a hero rather than in flow).
+   */
   className?: string;
   /** Rendered when the admin has not uploaded anything for this slot. */
   fallback?: ReactNode;
@@ -45,7 +50,7 @@ export function ContentMediaSlider({
   const hasSlider = media.length > 1;
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={twMerge('relative overflow-hidden', className)}>
       {media.map((item, index) => (
         <div
           key={item.id}

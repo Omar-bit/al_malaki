@@ -14,7 +14,7 @@ import {
   validatePasswordValue,
   validatePhoneValue,
 } from '../../utils/formValidation';
-import { PasswordInput } from '../../components/ui';
+import { DateInput, PasswordInput } from '../../components/ui';
 import authModel from '../../assets/auth-model.jpg';
 
 export function RegisterPage() {
@@ -397,14 +397,13 @@ export function RegisterPage() {
                 <label className='mb-2 block text-[1.55rem] font-bold text-dark-red font-abhaya md:text-xl'>
                   {t('register.birth_date')}
                 </label>
-                <input
-                  type='date'
-                  placeholder={t('register.birth_date_placeholder')}
+                <DateInput
                   value={birthDate}
-                  onChange={(event) => setBirthDate(event.target.value)}
+                  onChange={setBirthDate}
                   max={new Date().toISOString().split('T')[0]}
                   required
-                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-2'
+                  ariaLabel={t('register.birth_date')}
+                  className='w-full rounded-full border border-dark-red bg-transparent px-4 py-[0.92rem] pr-11 font-abhaya text-dark-red transition-all placeholder:text-dark-red/55 focus:outline-none focus:ring-2 focus:ring-dark-red md:px-6 md:py-2'
                 />
               </div>
 

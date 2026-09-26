@@ -80,7 +80,7 @@ export function ProductsPage() {
         {heroMedia.length > 0 && (
           <ContentMediaSlider
             media={heroMedia}
-            className='absolute inset-0 h-full w-full'
+            className='absolute inset-0'
             showDots={false}
           />
         )}

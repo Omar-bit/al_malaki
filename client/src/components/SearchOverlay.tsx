@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Search, X, ArrowRight, CornerDownLeft, Sparkles } from 'lucide-react';
 import { usePublicProducts } from '../hooks/usePublicProducts';
 import type { ProductAnalyticsProduct } from '../types/product';
@@ -12,6 +13,15 @@ interface SearchOverlayProps {
 
 const MAX_RESULTS = 6;
 
+/** Small caps label used above each group of rows. */
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className='flex items-center gap-1.5 px-3 pb-1.5 pt-2 font-aboreto text-[10px] uppercase tracking-[0.2em] text-[#a58a6f]'>
+      {children}
+    </p>
+  );
+}
+
 /** Highlight the matched substring inside a product name. */
 function HighlightedText({ text, query }: { text: string; query: string }) {
   const trimmed = query.trim();
@@ -21,11 +31,30 @@ function HighlightedText({ text, query }: { text: string; query: string }) {
   return (
     <>
       {text.slice(0, index)}
-      <mark className='bg-gold/30 text-dark-red rounded px-0.5'>
+      <mark className='rounded-[3px] bg-gold/25 px-0.5 text-dark-red'>
         {text.slice(index, index + trimmed.length)}
       </mark>
       {text.slice(index + trimmed.length)}
     </>
+  );
+}
+
+/** Product thumbnail with the warm border used across the overlay. */
+function Thumbnail({ product }: { product: ProductAnalyticsProduct }) {
+  return (
+    <div className='h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[#e8d5b8] bg-white shadow-[0_2px_6px_rgba(63,6,15,0.06)]'>
+      {product.images[0] ? (
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
+        />
+      ) : (
+        <div className='flex h-full w-full items-center justify-center text-[#d8c3a6]'>
+          <Search className='h-4 w-4' />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -131,269 +160,282 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     activeEl?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex]);
 
-  if (!open) return null;
-
   const hasQuery = query.trim().length > 0;
 
   return (
-    <div
-      className='fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[12vh] md:pt-[15vh]'
-      onKeyDown={handleKeyDown}
-    >
-      {/* Backdrop */}
-      <div
-        className='absolute inset-0 bg-dark-red/30 backdrop-blur-md animate-in fade-in duration-200'
-        onClick={onClose}
-        aria-hidden='true'
-      />
-
-      {/* Command card */}
-      <div className='relative w-full max-w-2xl overflow-hidden rounded-3xl border border-[#e2cdae] bg-[#fdf8f0] shadow-2xl shadow-dark-red/20 animate-in fade-in slide-in-from-top-4 duration-300'>
-        {/* Search input row */}
-        <div className='flex items-center gap-3 border-b border-[#ecdcc4] px-5 py-4'>
-          <Search className='h-5 w-5 shrink-0 text-dark-red' />
-          <input
-            ref={inputRef}
-            type='text'
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder='Search for honey, packs, flavors…'
-            className='flex-1 bg-transparent text-[17px] font-bona text-[#3f060f] outline-none placeholder:text-[#b09080]'
-            aria-label='Search products'
-          />
-          {hasQuery && (
-            <button
-              type='button'
-              onClick={() => {
-                setQuery('');
-                inputRef.current?.focus();
-              }}
-              className='rounded-full p-1 text-[#b09080] transition hover:bg-[#f0e4d2] hover:text-dark-red'
-              aria-label='Clear search'
-            >
-              <X className='h-4 w-4' />
-            </button>
-          )}
-          <button
-            type='button'
-            onClick={onClose}
-            className='flex shrink-0 items-center justify-center rounded-lg border border-[#e2cdae] p-1.5 text-[#8a745e] transition hover:bg-[#f0e4d2] hover:text-dark-red'
-            aria-label='Close search'
-          >
-            <X className='h-4 w-4' />
-          </button>
-        </div>
-
-        {/* Body */}
+    <AnimatePresence>
+      {open && (
         <div
-          ref={listRef}
-          className='max-h-[52vh] overflow-y-auto overflow-x-hidden custom-scrollbar p-2'
+          className='fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[12vh] md:pt-[15vh]'
+          onKeyDown={handleKeyDown}
         >
-          {/* Results */}
-          {hasQuery ? (
-            results.length > 0 ? (
-              <>
-                <p className='px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-[#a58a6f]'>
-                  Products
-                </p>
-                {results.map((product, index) => (
-                  <button
-                    key={product.id}
-                    data-index={index}
-                    type='button'
-                    onMouseEnter={() => setActiveIndex(index)}
-                    onClick={() => goToProduct(product)}
-                    className={`flex w-full items-center gap-4 rounded-2xl px-3 py-2.5 text-left transition ${
-                      activeIndex === index
-                        ? 'bg-[#f3e3cd]'
-                        : 'hover:bg-[#f7ecd9]'
-                    }`}
-                  >
-                    <div className='h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#e2cdae] bg-white'>
-                      {product.images[0] ? (
-                        <img
-                          src={product.images[0]}
-                          alt={product.name}
-                          className='h-full w-full object-cover'
-                        />
-                      ) : (
-                        <div className='flex h-full w-full items-center justify-center text-[#d8c3a6]'>
-                          <Search className='h-4 w-4' />
-                        </div>
-                      )}
-                    </div>
-                    <div className='min-w-0 flex-1'>
-                      <p className='truncate font-bona text-[15px] font-semibold text-[#3f060f]'>
-                        <HighlightedText text={product.name} query={query} />
-                      </p>
-                      <p className='truncate text-xs text-[#a58a6f]'>
-                        {product.category}
-                      </p>
-                    </div>
-                    <div className='shrink-0 font-aboreto text-sm text-dark-red'>
-                      {formatCurrency(
-                        product.discountPrice ?? product.price,
-                        'TND',
-                      )}
-                    </div>
-                    <ArrowRight
-                      className={`h-4 w-4 shrink-0 transition ${
-                        activeIndex === index
-                          ? 'translate-x-0 text-dark-red opacity-100'
-                          : '-translate-x-1 text-transparent opacity-0'
-                      }`}
-                    />
-                  </button>
-                ))}
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className='absolute inset-0 bg-dark-red/35 backdrop-blur-md'
+            onClick={onClose}
+            aria-hidden='true'
+          />
 
-                {/* See all results */}
+          {/* Command card */}
+          <motion.div
+            initial={{ opacity: 0, y: -14, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.985 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className='relative w-full max-w-2xl overflow-hidden rounded-[28px] border border-[#e8d5b8] bg-[#fdf8f0] shadow-[0_32px_80px_-16px_rgba(63,6,15,0.38)]'
+          >
+            {/* Gold hairline */}
+            <div className='h-px w-full bg-gradient-to-r from-transparent via-gold to-transparent' />
+
+            {/* Search input row */}
+            <div className='flex items-center gap-3 border-b border-[#efe0c9] bg-gradient-to-b from-[#fdf6ea] to-[#fdf8f0] px-5 py-4 md:px-6'>
+              <span className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cd] text-dark-red'>
+                <Search className='h-[18px] w-[18px]' />
+              </span>
+
+              <input
+                ref={inputRef}
+                type='text'
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder='Search for honey, packs, flavors…'
+                className='flex-1 bg-transparent font-bona text-[17px] text-dark-red outline-none placeholder:text-[#bfa392] md:text-[18px]'
+                aria-label='Search products'
+              />
+
+              {hasQuery && (
                 <button
                   type='button'
-                  data-index={results.length}
-                  onMouseEnter={() => setActiveIndex(results.length)}
-                  onClick={goToAllResults}
-                  className={`mt-1 flex w-full items-center justify-between gap-2 rounded-2xl px-3 py-3 text-left transition ${
-                    activeIndex === results.length
-                      ? 'bg-[#f3e3cd]'
-                      : 'hover:bg-[#f7ecd9]'
-                  }`}
+                  onClick={() => {
+                    setQuery('');
+                    inputRef.current?.focus();
+                  }}
+                  className='rounded-full p-1.5 text-[#b09080] transition-colors hover:bg-[#f0e4d2] hover:text-dark-red'
+                  aria-label='Clear search'
                 >
-                  <span className='flex items-center gap-2 font-bona text-sm font-semibold text-dark-red'>
-                    <Search className='h-4 w-4' />
-                    See all results for “{query.trim()}”
-                  </span>
-                  <ArrowRight className='h-4 w-4 text-dark-red' />
+                  <X className='h-4 w-4' />
                 </button>
-              </>
-            ) : (
-              <div className='flex flex-col items-center justify-center gap-2 px-6 py-12 text-center'>
-                <div className='flex h-14 w-14 items-center justify-center rounded-full bg-[#f3e3cd]'>
-                  <Search className='h-6 w-6 text-[#c9a77f]' />
-                </div>
-                <p className='font-bona text-[15px] font-semibold text-[#3f060f]'>
-                  {isLoading ? 'Searching…' : `No results for “${query.trim()}”`}
-                </p>
-                {!isLoading && (
-                  <p className='max-w-xs text-sm text-[#a58a6f]'>
-                    Try a different keyword, or browse the full collection.
-                  </p>
-                )}
-                {!isLoading && (
-                  <button
-                    type='button'
-                    onClick={goToAllResults}
-                    className='mt-2 inline-flex items-center gap-2 rounded-full bg-dark-red px-5 py-2 text-sm font-semibold text-white transition hover:bg-dark-red/90'
-                  >
-                    Browse all products
-                    <ArrowRight className='h-4 w-4' />
-                  </button>
-                )}
-              </div>
-            )
-          ) : (
-            /* Empty state — suggestions */
-            <div className='py-1'>
-              {categories.length > 0 && (
-                <div className='px-3 pb-3 pt-2'>
-                  <p className='mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#a58a6f]'>
-                    Browse by category
-                  </p>
-                  <div className='flex flex-wrap gap-2'>
-                    {categories.slice(0, 6).map((category) => (
+              )}
+
+              <button
+                type='button'
+                onClick={onClose}
+                className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#e8d5b8] bg-white/70 text-[#8a745e] transition-colors hover:border-gold hover:bg-[#f7ecd9] hover:text-dark-red'
+                aria-label='Close search'
+              >
+                <X className='h-4 w-4' />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div
+              ref={listRef}
+              className='custom-scrollbar max-h-[52vh] overflow-x-hidden overflow-y-auto p-2'
+            >
+              {hasQuery ? (
+                results.length > 0 ? (
+                  <>
+                    <SectionLabel>Products</SectionLabel>
+
+                    {results.map((product, index) => (
                       <button
-                        key={category.id}
+                        key={product.id}
+                        data-index={index}
                         type='button'
-                        onClick={() => {
-                          onClose();
-                          navigate(
-                            `/products?q=${encodeURIComponent(category.name)}`,
-                          );
-                        }}
-                        className='rounded-full border border-[#e2cdae] bg-white px-4 py-1.5 text-sm font-bona text-[#5a3d2b] transition hover:border-dark-red hover:bg-[#f7ecd9] hover:text-dark-red'
+                        onMouseEnter={() => setActiveIndex(index)}
+                        onClick={() => goToProduct(product)}
+                        className={`group flex w-full items-center gap-4 rounded-2xl px-3 py-2.5 text-left transition-colors ${
+                          activeIndex === index
+                            ? 'bg-[#f6e8d2] ring-1 ring-gold/40'
+                            : 'hover:bg-[#faf1e2]'
+                        }`}
                       >
-                        {category.name}
+                        <Thumbnail product={product} />
+
+                        <div className='min-w-0 flex-1'>
+                          <p className='truncate font-bona text-[15px] font-semibold text-dark-red'>
+                            <HighlightedText
+                              text={product.name}
+                              query={query}
+                            />
+                          </p>
+                          <p className='truncate font-abhaya text-[13px] text-[#a58a6f]'>
+                            {product.category}
+                          </p>
+                        </div>
+
+                        <div className='shrink-0 font-aboreto text-[15px] text-dark-red'>
+                          {formatCurrency(
+                            product.discountPrice ?? product.price,
+                            'TND',
+                          )}
+                        </div>
+
+                        <ArrowRight
+                          className={`h-4 w-4 shrink-0 transition-all duration-200 ${
+                            activeIndex === index
+                              ? 'translate-x-0 text-gold opacity-100'
+                              : '-translate-x-1 text-transparent opacity-0'
+                          }`}
+                        />
                       </button>
                     ))}
-                  </div>
-                </div>
-              )}
 
-              {suggestions.length > 0 && (
-                <>
-                  <p className='flex items-center gap-1.5 px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-[#a58a6f]'>
-                    <Sparkles className='h-3.5 w-3.5 text-gold' />
-                    Popular right now
-                  </p>
-                  {suggestions.map((product) => (
+                    {/* See all results */}
                     <button
-                      key={product.id}
                       type='button'
-                      onClick={() => goToProduct(product)}
-                      className='flex w-full items-center gap-4 rounded-2xl px-3 py-2.5 text-left transition hover:bg-[#f7ecd9]'
+                      data-index={results.length}
+                      onMouseEnter={() => setActiveIndex(results.length)}
+                      onClick={goToAllResults}
+                      className={`mt-1 flex w-full items-center justify-between gap-2 rounded-2xl px-3 py-3 text-left transition-colors ${
+                        activeIndex === results.length
+                          ? 'bg-[#f6e8d2] ring-1 ring-gold/40'
+                          : 'hover:bg-[#faf1e2]'
+                      }`}
                     >
-                      <div className='h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-[#e2cdae] bg-white'>
-                        {product.images[0] ? (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className='h-full w-full object-cover'
-                          />
-                        ) : (
-                          <div className='flex h-full w-full items-center justify-center text-[#d8c3a6]'>
-                            <Search className='h-4 w-4' />
-                          </div>
-                        )}
-                      </div>
-                      <div className='min-w-0 flex-1'>
-                        <p className='truncate font-bona text-[15px] font-semibold text-[#3f060f]'>
-                          {product.name}
-                        </p>
-                        <p className='truncate text-xs text-[#a58a6f]'>
-                          {product.category}
-                        </p>
-                      </div>
-                      <div className='shrink-0 font-aboreto text-sm text-dark-red'>
-                        {formatCurrency(
-                          product.discountPrice ?? product.price,
-                          'TND',
-                        )}
-                      </div>
+                      <span className='flex items-center gap-2 font-bona text-sm font-semibold text-dark-red'>
+                        <Search className='h-4 w-4 text-gold' />
+                        See all results for “{query.trim()}”
+                      </span>
+                      <ArrowRight className='h-4 w-4 text-gold' />
                     </button>
-                  ))}
-                </>
-              )}
+                  </>
+                ) : (
+                  <div className='flex flex-col items-center justify-center gap-2 px-6 py-12 text-center'>
+                    <div className='flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-b from-[#f6e8d2] to-[#eeddc0] shadow-inner'>
+                      <Search className='h-6 w-6 text-[#c9a77f]' />
+                    </div>
+                    <p className='mt-1 font-italic text-[20px] text-dark-red'>
+                      {isLoading
+                        ? 'Searching…'
+                        : `No results for “${query.trim()}”`}
+                    </p>
+                    {!isLoading && (
+                      <p className='max-w-xs font-bona text-sm text-[#a58a6f]'>
+                        Try a different keyword, or browse the full collection.
+                      </p>
+                    )}
+                    {!isLoading && (
+                      <button
+                        type='button'
+                        onClick={goToAllResults}
+                        className='mt-3 inline-flex items-center gap-2 rounded-full bg-dark-red px-6 py-2.5 font-bona text-sm font-semibold text-cream shadow-[0_8px_20px_-6px_rgba(63,6,15,0.5)] transition-all hover:-translate-y-px hover:bg-dark-red/90'
+                      >
+                        Browse all products
+                        <ArrowRight className='h-4 w-4' />
+                      </button>
+                    )}
+                  </div>
+                )
+              ) : (
+                /* Empty state — suggestions */
+                <div className='py-1'>
+                  {categories.length > 0 && (
+                    <div className='px-3 pb-3 pt-2'>
+                      <p className='mb-2.5 font-aboreto text-[10px] uppercase tracking-[0.2em] text-[#a58a6f]'>
+                        Browse by category
+                      </p>
+                      <div className='flex flex-wrap gap-2'>
+                        {categories.slice(0, 6).map((category) => (
+                          <button
+                            key={category.id}
+                            type='button'
+                            onClick={() => {
+                              onClose();
+                              navigate(
+                                `/products?q=${encodeURIComponent(category.name)}`,
+                              );
+                            }}
+                            className='rounded-full border border-[#e8d5b8] bg-white/70 px-4 py-1.5 font-bona text-sm text-[#5a3d2b] transition-colors hover:border-gold hover:bg-[#f9efdf] hover:text-dark-red'
+                          >
+                            {category.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              {suggestions.length === 0 && categories.length === 0 && (
-                <div className='px-6 py-10 text-center text-sm text-[#a58a6f]'>
-                  Start typing to search our products.
+                  {suggestions.length > 0 && (
+                    <>
+                      <SectionLabel>
+                        <Sparkles className='h-3 w-3 text-gold' />
+                        Popular right now
+                      </SectionLabel>
+
+                      {suggestions.map((product) => (
+                        <button
+                          key={product.id}
+                          type='button'
+                          onClick={() => goToProduct(product)}
+                          className='group flex w-full items-center gap-4 rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-[#faf1e2]'
+                        >
+                          <Thumbnail product={product} />
+
+                          <div className='min-w-0 flex-1'>
+                            <p className='truncate font-bona text-[15px] font-semibold text-dark-red'>
+                              {product.name}
+                            </p>
+                            <p className='truncate font-abhaya text-[13px] text-[#a58a6f]'>
+                              {product.category}
+                            </p>
+                          </div>
+
+                          <div className='shrink-0 font-aboreto text-[15px] text-dark-red'>
+                            {formatCurrency(
+                              product.discountPrice ?? product.price,
+                              'TND',
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </>
+                  )}
+
+                  {suggestions.length === 0 && categories.length === 0 && (
+                    <div className='px-6 py-10 text-center font-bona text-sm text-[#a58a6f]'>
+                      Start typing to search our products.
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Footer hint bar */}
-        <div className='hidden items-center justify-between gap-4 border-t border-[#ecdcc4] bg-[#f9f0e2] px-5 py-2.5 text-[11px] text-[#8a745e] md:flex'>
-          <div className='flex items-center gap-4'>
-            <span className='flex items-center gap-1.5'>
-              <kbd className='rounded border border-[#e2cdae] bg-white px-1.5 py-0.5 font-sans'>
-                ↑
-              </kbd>
-              <kbd className='rounded border border-[#e2cdae] bg-white px-1.5 py-0.5 font-sans'>
-                ↓
-              </kbd>
-              to navigate
-            </span>
-            <span className='flex items-center gap-1.5'>
-              <kbd className='flex items-center rounded border border-[#e2cdae] bg-white px-1.5 py-0.5 font-sans'>
-                <CornerDownLeft className='h-3 w-3' />
-              </kbd>
-              to select
-            </span>
-          </div>
-          <span className='font-bona'>Al Malaki</span>
+            {/* Footer hint bar */}
+            <div className='hidden items-center justify-between gap-4 border-t border-[#efe0c9] bg-[#f9f0e2] px-6 py-2.5 text-[11px] text-[#8a745e] md:flex'>
+              <div className='flex items-center gap-4'>
+                <span className='flex items-center gap-1.5'>
+                  <kbd className='rounded-md border border-[#e8d5b8] bg-white px-1.5 py-0.5 font-sans shadow-[0_1px_0_rgba(63,6,15,0.08)]'>
+                    ↑
+                  </kbd>
+                  <kbd className='rounded-md border border-[#e8d5b8] bg-white px-1.5 py-0.5 font-sans shadow-[0_1px_0_rgba(63,6,15,0.08)]'>
+                    ↓
+                  </kbd>
+                  to navigate
+                </span>
+                <span className='flex items-center gap-1.5'>
+                  <kbd className='flex items-center rounded-md border border-[#e8d5b8] bg-white px-1.5 py-0.5 font-sans shadow-[0_1px_0_rgba(63,6,15,0.08)]'>
+                    <CornerDownLeft className='h-3 w-3' />
+                  </kbd>
+                  to select
+                </span>
+                <span className='flex items-center gap-1.5'>
+                  <kbd className='rounded-md border border-[#e8d5b8] bg-white px-1.5 py-0.5 font-sans text-[10px] shadow-[0_1px_0_rgba(63,6,15,0.08)]'>
+                    ESC
+                  </kbd>
+                  to close
+                </span>
+              </div>
+              <span className='font-italic tracking-[0.12em] text-dark-red/70'>
+                Al Malaki
+              </span>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

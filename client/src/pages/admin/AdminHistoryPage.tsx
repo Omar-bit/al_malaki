@@ -32,6 +32,7 @@ import {
   TableRow,
   TableCell,
   TableHeaderCell,
+  DateInput,
 } from '../../components/ui';
 
 const ROLES = [
@@ -98,7 +99,11 @@ function formatRelativeTime(dateStr: string): string {
   if (diffMin < 60) return `${diffMin}m ago`;
   if (diffHour < 24) return `${diffHour}h ago`;
   if (diffDay < 7) return `${diffDay}d ago`;
-  return new Date(dateStr).toLocaleDateString();
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 }
 
 function RoleBadge({ role }: { role: string | null }) {
@@ -322,23 +327,23 @@ export function AdminHistoryPage() {
                     </option>
                   ))}
                 </select>
-                <input
-                  type='date'
+                <DateInput
+                  ariaLabel='Start date'
                   value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value);
+                  onChange={(date) => {
+                    setStartDate(date);
                     handleFilterChange();
                   }}
-                  className='rounded-xl border border-[#3F060F]/30 bg-[##D9D9D9]/24 px-4 py-2.5 text-sm text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
+                  className='rounded-xl border border-[#3F060F]/30 bg-[##D9D9D9]/24 px-4 py-2.5 pr-11 text-sm text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
                 />
-                <input
-                  type='date'
+                <DateInput
+                  ariaLabel='End date'
                   value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value);
+                  onChange={(date) => {
+                    setEndDate(date);
                     handleFilterChange();
                   }}
-                  className='rounded-xl border border-[#3F060F]/30 bg-[##D9D9D9]/24 px-4 py-2.5 text-sm text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
+                  className='rounded-xl border border-[#3F060F]/30 bg-[##D9D9D9]/24 px-4 py-2.5 pr-11 text-sm text-[#000000]/68 focus:outline-none focus:ring-2 focus:ring-dark-red/40 transition'
                 />
               </div>
             </div>

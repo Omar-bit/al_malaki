@@ -18,6 +18,7 @@ import { authService, contactService, orderService } from '../services';
 
 import { Hero } from '../components';
 import Button from '../components/ui/Button';
+import { DateInput } from '../components/ui';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -531,23 +532,14 @@ export function DashboardPage() {
                   >
                     {t('dashboard.birth_date')}
                   </label>
-                  <div className='relative'>
-                    <input
-                      id='dashboard-birthdate'
-                      type='date'
-                      value={profileForm.birthDate}
-                      onChange={(e) =>
-                        setProfileForm((f) => ({
-                          ...f,
-                          birthDate: e.target.value,
-                        }))
-                      }
-                      className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3.5 py-2.5 font-(--font-abee) text-[15px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
-                    />
-                    <span className='absolute right-3 top-1/2 -translate-y-1/2 text-[#b09080] pointer-events-none'>
-                      ˅
-                    </span>
-                  </div>
+                  <DateInput
+                    id='dashboard-birthdate'
+                    value={profileForm.birthDate}
+                    onChange={(birthDate) =>
+                      setProfileForm((f) => ({ ...f, birthDate }))
+                    }
+                    className='w-full rounded-lg border border-[#d4bfa8] bg-[#fdf8f0] px-3.5 py-2.5 pr-11 font-(--font-abee) text-[15px] text-[#3f060f] outline-none focus:border-[#3f060f] focus:ring-1 focus:ring-[#3f060f]/20 transition'
+                  />
                 </div>
               </div>
 

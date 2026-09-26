@@ -9,6 +9,7 @@ export * from './FormField';
 export * from './SelectField';
 export * from './Table';
 export * from './Spinner';
+export * from './DateInput';
 export * from './PasswordInput';
 export * from './ToggleSwitch';
 export * from './MaskIcon';

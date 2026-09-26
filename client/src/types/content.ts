@@ -31,7 +31,14 @@ export const EMPTY_SITE_CONTENT: SiteContent = {
   products_featured_right: [],
 };
 
-/** Labels and guidance shown on the admin content page. */
+/**
+ * Labels and guidance shown on the admin content page.
+ *
+ * `previewAspect` mirrors the shape of the real frame on the site so the crop
+ * preview matches what visitors see. The live frames are sized in `vh`, so
+ * their exact ratio shifts a little with the visitor's window height — these
+ * are the measured ratios at a typical desktop size.
+ */
 export const CONTENT_SLOT_META: Record<
   ContentSlot,
   { title: string; description: string; previewAspect: string }
@@ -40,24 +47,24 @@ export const CONTENT_SLOT_META: Record<
     title: 'Landing hero',
     description:
       'Background of the hero section on the home page. Images or videos — add more than one to show them as a slider.',
-    previewAspect: '16 / 9',
+    previewAspect: '16 / 10',
   },
   products_hero: {
     title: 'Products hero',
     description:
       'Background of the hero section at the top of the products page.',
-    previewAspect: '16 / 9',
+    previewAspect: '16 / 10',
   },
   products_featured_left: {
     title: 'Featured — tall frame',
     description:
       'The tall image on the left of the featured section at the bottom of the products page.',
-    previewAspect: '2 / 3',
+    previewAspect: '1 / 2',
   },
   products_featured_right: {
     title: 'Featured — wide frame',
     description:
       'The image under the text on the right of the featured section at the bottom of the products page.',
-    previewAspect: '4 / 3',
+    previewAspect: '6 / 5',
   },
 };

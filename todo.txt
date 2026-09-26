@@ -10,18 +10,14 @@ Done
 - auto submit otp (remove submit button & increase otp case size and it should be square)
 - add desktop  prodcuts navigation icons (next ">" , previous "<") in the landing page
 - remove auto scrolling in aside menu (admin nav links) in admin page when navigating between pages (clicking a nav link)
-
-
-Review
-
 - global search modal : close X icon
+- month day reverse
 - admin can manage app images (add content page in admin space so admin can change the images in the app like the provided screenshot example) the manged images should be the hero in landing page and products page and the featured images in bottom section of products page (he can repalce/add more images/videos , in case of more than one image/video show it as slider )
 
 
-TODO
 
-- login input inputs left 
-- month day reverse
+
+TODO
 
 
 

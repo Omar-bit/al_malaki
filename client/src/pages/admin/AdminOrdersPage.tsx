@@ -555,7 +555,13 @@ export function AdminOrdersPage() {
                     </div>
                     <div className='flex items-center gap-2'>
                       <Clock className='w-4 h-4 text-gray-500' />{' '}
-                      {new Date(selectedOrder.createdAt).toLocaleString()}
+                      {new Date(selectedOrder.createdAt).toLocaleString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </div>
                   </div>
                 </div>

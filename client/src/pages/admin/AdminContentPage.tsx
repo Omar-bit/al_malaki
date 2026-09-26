@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, Trash2, Upload, Crop, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Loader2,
+  Trash2,
+  Upload,
+  Crop,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/AdminLayout';
 import { Modal } from '../../components/ui';
@@ -39,6 +46,7 @@ function FramingEditor({
   const [zoom, setZoom] = useState(media.zoom);
   const [isSaving, setIsSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
 
   const applyPointer = useCallback((clientX: number, clientY: number) => {
@@ -91,6 +99,22 @@ function FramingEditor({
 
   const previewStyle = contentMediaStyle({ focalX, focalY, zoom });
 
+  // `object-fit: cover` only leaves slack on the axis where the media is
+  // proportionally larger than the frame; the other axis has nothing hidden to
+  // pan to until the admin zooms in. Say so rather than letting them drag
+  // against an axis that cannot move.
+  const frameAspect = (() => {
+    const [w, h] = CONTENT_SLOT_META[slot].previewAspect.split('/');
+    return Number(w) / Number(h);
+  })();
+
+  const pinnedAxis =
+    naturalAspect === null || zoom > 1.001
+      ? null
+      : naturalAspect > frameAspect
+        ? 'vertically'
+        : 'horizontally';
+
   return (
     <Modal open onClose={onClose} title='Adjust framing'>
       <div className='space-y-4'>
@@ -111,6 +135,12 @@ function FramingEditor({
           {media.type === 'video' ? (
             <video
               src={media.url}
+              onLoadedMetadata={(event) => {
+                const el = event.currentTarget;
+                if (el.videoHeight > 0) {
+                  setNaturalAspect(el.videoWidth / el.videoHeight);
+                }
+              }}
               className='pointer-events-none h-full w-full object-cover'
               style={previewStyle}
               autoPlay
@@ -123,6 +153,12 @@ function FramingEditor({
               src={media.url}
               alt=''
               draggable={false}
+              onLoad={(event) => {
+                const el = event.currentTarget;
+                if (el.naturalHeight > 0) {
+                  setNaturalAspect(el.naturalWidth / el.naturalHeight);
+                }
+              }}
               className='pointer-events-none h-full w-full object-cover'
               style={previewStyle}
             />
@@ -133,6 +169,13 @@ function FramingEditor({
             style={{ left: `${focalX}%`, top: `${focalY}%` }}
           />
         </div>
+
+        {pinnedAxis && (
+          <p className='rounded-lg bg-[#f6e8d2] px-3 py-2 font-bona text-xs text-[#6D5A46]'>
+            This media already fits the frame {pinnedAxis}, so there is nothing
+            to reveal on that axis. Zoom in to reposition it {pinnedAxis} too.
+          </p>
+        )}
 
         <div>
           <label
@@ -237,7 +280,10 @@ function SlotSection({
     if (target < 0 || target >= media.length) return;
 
     const reordered = [...media];
-    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    [reordered[index], reordered[target]] = [
+      reordered[target],
+      reordered[index],
+    ];
     onChanged(slot, reordered);
 
     try {
@@ -426,18 +472,15 @@ export function AdminContentPage() {
 
   return (
     <AdminLayout>
-      <div className='space-y-6'>
-        <header>
-          <p className='font-bona text-[12px] uppercase tracking-[0.2em] text-[#6D5A46]'>
-            Content
-          </p>
-          <h1 className='mt-1 font-augent text-3xl text-dark-red md:text-4xl'>
+      <div className='space-y-6 px-4 md:px-8 py-5 w-full font-bona!'>
+        <header className=' mb-6'>
+          <h1 className='text-2xl md:text-3xl font-bold text-black mb-1'>
             Content &amp; media
           </h1>
-          <p className='mt-2 max-w-xl font-bona text-sm text-[#6D5A46]'>
+          <p className='text-sm md:text-base text-[#000000]/68'>
             Upload the photos and videos shown across the site. Add more than
             one item to a section to show it as a slider. Changes appear on the
-            client site instantly.
+            client site instantly
           </p>
         </header>
 
